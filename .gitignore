@@ -1,0 +1,17 @@
+# Default ignored files
+.idea/shelf/
+.idea/workspace.xml
+# Editor-based HTTP Client requests
+.idea/httpRequests/
+# Datasource local storage ignored files
+.idea/dataSources/
+.idea/dataSources.local.xml
+
+/*/
+!/src
+!/.idea
+/submissions_by_students.html
+/index.html
+/*.csv
+!/CS154.csv
+!/CS166.csv
