@@ -23,6 +23,7 @@ public class Utils {
             Class<?> privateParams = Class.forName("constants.PrivateParams");
             AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
             CLASS = (String) privateParams.getDeclaredField("CLASS").get(null);
+            CLASS = CLASS.contains("CS")? CLASS : "CS" + CLASS;
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
             if (AUTH.isEmpty()) {
                 printPrompt("TOKEN");
