@@ -19,19 +19,33 @@ public class Utils {
      */
     public static void askForParameters(boolean askForClass) {
         Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter TOKEN: ");
-        AUTH = scanner.nextLine();
-        System.out.println("Enter assignment URL (start with https, do NOT end with /): ");
+        try {
+            Class<?> privateParams = Class.forName("constants.PrivateParams");
+            AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
+            CLASS = (String) privateParams.getDeclaredField("CLASS").get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            if (AUTH.isEmpty()) {
+                printPrompt("TOKEN");
+                AUTH = scanner.nextLine();
+            }
+            if (askForClass && CLASS.isEmpty()) {
+                printPrompt("Enter class name (154, etc.)");
+                CLASS = "CS" + scanner.nextLine();
+            }
+        }
+        printPrompt("Enter assignment URL (start with https, do NOT end with /)");
         API_URL = scanner.nextLine();
         API_URL = API_URL.replace("courses", "api/v1/courses");
-
-        if (askForClass) {
-            System.out.print("Enter class name (154, etc.): ");
-            CLASS = "CS" + scanner.nextLine();
-        }
     }
 
+    /**
+     * Prints a prompt ask user to enter the parameter needed.
+     *
+     * @param param what to enter
+     */
+    public static void printPrompt (String param){
+        System.out.printf("Enter %s: \n>> ", param);
+    }
     /**
      * Make a new folder.
      *
