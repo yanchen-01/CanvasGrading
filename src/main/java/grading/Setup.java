@@ -42,13 +42,18 @@ public class Setup {
 
             generateHTMLs();
 
-            System.out.print("All setup. Upload scoring for MC adjustment & unanswered (Y/N)? \n>> ");
+            System.out.print("""
+                    \u2713 HTMLs and JSONs generated.
+                    Upload scoring for MC adjustment & unanswered (Y/N)?
+                    >>\s""");
             Scanner scanner = new Scanner(System.in);
             String answer = scanner.nextLine();
-            if (answer.startsWith("Y"))
+            if (answer.startsWith("Y")) {
                 Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
+                System.out.println("\u2713 MC & unanswered adjustment done");
+            }
 
-            System.out.println("Setting up done. After grading, run Upload.java");
+            System.out.println("\u2713 Setting up done. After grading, run Upload.java");
         } catch (Exception e) {
             e.printStackTrace();
         }
