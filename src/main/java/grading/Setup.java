@@ -78,7 +78,7 @@ public class Setup {
 
             System.out.print("Submission report fetched. Name your download (without .csv): \n>> ");
             reportName = in.nextLine();
-            Utils_HTTP.getFile(fileURL, reportName);
+            Utils_HTTP.getFile(fileURL, reportName.concat(".csv"));
             System.out.println("\u2713 " + reportName + ".csv downloaded.");
         } catch (Exception e) {
             System.out.println("Fail to fetch the file." +
