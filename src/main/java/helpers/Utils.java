@@ -109,6 +109,7 @@ public class Utils {
      * Load an object from a file.
      *
      * @param filename name of the file
+     * @return the resulting object
      */
     public static Object getObjectFromFile(String filename) {
         try (FileInputStream fileIn = new FileInputStream(filename);
@@ -125,6 +126,7 @@ public class Utils {
      *
      * @param question A json object that contains scores and comments
      * @param filename the output filename (without extension)
+     * @param attempt the number of attempts
      */
     public static void writeScoreAndCommentJSON(JSONObject question, String filename, int attempt) {
         JSONObject submission = new JSONObject();

@@ -18,12 +18,13 @@ public class Utils_Setup {
     static List<String[]> CONTENTS;
 
     /**
-     * Set the submission id & number of attempts
+     * Set the submission id and number of attempts
      * to the student map and generate a html
      * that contains all students' submission links.
      *
      * @param className        the name of the class (CS154, etc.)
      * @param submissions_json json response from submissions
+     * @throws Exception when there's any student not found
      */
     public static void setStudents(String className, String submissions_json) throws Exception {
         @SuppressWarnings("unchecked")

@@ -64,6 +64,7 @@ public class Utils_HTTP {
      *               <br>For GET, when data is nonempty, it's the output filename (WITH extension!)
      *               <br>For PUT, it's the data or the json filename (without extension!)
      *               <br>For others, empty string if no data
+     * @return resulting data get from the request as a String
      */
     public static String httpRequest(String method, String url, String data) {
         String error = "Something wrong with " + url + " for data: \n" + data;

@@ -92,6 +92,8 @@ public class Question {
 
     /**
      * Add a student answer to the answer stack
+     *
+     * @param answer an Answer object
      */
     public void addStudentAnswer(Answer answer) {
         answers.push(answer);
