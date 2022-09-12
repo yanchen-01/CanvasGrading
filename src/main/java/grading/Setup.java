@@ -55,6 +55,7 @@ public class Setup {
 
             System.out.println("\u2713 Setting up done. After grading, run Upload.java");
         } catch (Exception e) {
+            System.out.println("Terminated: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -76,14 +77,14 @@ public class Setup {
             String fileURL = file.getString("url");
 
             System.out.print("Submission report fetched. Name your download (without .csv): \n>> ");
-            reportName = in.nextLine().concat(".csv");
+            reportName = in.nextLine();
             Utils_HTTP.getFile(fileURL, reportName);
-            System.out.println("\u2713 " + reportName + " downloaded.");
+            System.out.println("\u2713 " + reportName + ".csv downloaded.");
         } catch (Exception e) {
             System.out.println("Fail to fetch the file." +
                     "\nPlease manually download the report on Canvas (Quiz Statistics -> Student Analysis)");
             System.out.print("Then enter filename of downloaded submission report (without .csv): \n>> ");
-            reportName = in.nextLine().concat(".csv");
+            reportName = in.nextLine();
         }
     }
 }

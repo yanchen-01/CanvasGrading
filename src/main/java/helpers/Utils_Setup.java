@@ -24,7 +24,7 @@ public class Utils_Setup {
      * @param className        the name of the class (CS154, etc.)
      * @param submissions_json json response from submissions
      */
-    public static void setStudents(String className, String submissions_json) {
+    public static void setStudents(String className, String submissions_json) throws Exception {
         @SuppressWarnings("unchecked")
         HashMap<Integer, Student> s = (HashMap<Integer, Student>) Utils.getObjectFromFile(className);
         STUDENTS = s;
@@ -38,6 +38,9 @@ public class Utils_Setup {
             int student_id = current.getInt("user_id");
             int sub_id = current.getInt("id");
             Student student = STUDENTS.get(student_id);
+            if (student == null)
+                throw new Exception(sub_id + " not found. " +
+                        "Please make sure student hash map is up to date. ");
             student.setSubID(sub_id);
 
             // Append url
