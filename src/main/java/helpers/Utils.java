@@ -62,12 +62,12 @@ public class Utils {
     /**
      * Read a CSV file.
      *
-     * @param filename the name of the file (WITH extension)
+     * @param filename the name of the file (without extension)
      * @param parser   a function to organize the content
      * @throws Exception if anything wrong
      */
     public static void readCSV(String filename, ParseCSV parser) throws Exception {
-        try (FileReader input = new FileReader(filename);
+        try (FileReader input = new FileReader(filename + ".csv");
              CSVReader reader = new CSVReader(input)) {
             List<String[]> contents = reader.readAll();
             parser.parse(contents);

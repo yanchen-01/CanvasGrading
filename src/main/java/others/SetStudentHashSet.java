@@ -25,6 +25,7 @@ public class SetStudentHashSet {
 
         } catch (Exception e) {
             System.out.println("Terminated: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
