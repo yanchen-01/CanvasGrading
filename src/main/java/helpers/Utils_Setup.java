@@ -18,7 +18,8 @@ public class Utils_Setup {
     static List<String[]> CONTENTS;
 
     /**
-     * Set the submission id to the student map and generate a html
+     * Set the submission id & number of attempts
+     * to the student map and generate a html
      * that contains all students' submission links.
      *
      * @param className        the name of the class (CS154, etc.)
@@ -34,14 +35,17 @@ public class Utils_Setup {
 
         for (int i = 0; i < submissions.length(); i++) {
             JSONObject current = submissions.getJSONObject(i);
-            // Set submission id
+
             int student_id = current.getInt("user_id");
-            int sub_id = current.getInt("id");
             Student student = STUDENTS.get(student_id);
             if (student == null)
-                throw new Exception(sub_id + " not found. " +
+                throw new Exception(student_id + " not found. " +
                         "Please make sure student hash map is up to date. ");
-            student.setSubID(sub_id);
+
+            // Set submission id & number of attempts
+            int sub_id = current.getInt("id");
+            int attempt = current.getInt("attempt");
+            student.setInfo(sub_id, attempt);
 
             // Append url
             String url = current.getString("html_url");
@@ -97,27 +101,36 @@ public class Utils_Setup {
             JSONObject questionJSON = new JSONObject();
             for (int i = 2; i < headers.length - 1; i++) {
                 String currentQ = headers[i];
+                // If not the latest attempt, break inner loop and go to next row
+                if (currentQ.equals("attempt")
+                        && !row[i].equals(student.getAttempt() + ""))
+                    break;
+                // If not a question column, continue to the next column
                 if (!currentQ.contains(":")) continue;
+                // if this is a question column, get the answer
                 String qID_string = currentQ.substring(0, currentQ.indexOf(":"));
                 int qID = Integer.parseInt(qID_string);
                 Question question = QUESTIONS.get(qID);
                 String type = question.getType();
                 String studentAnswer = row[i];
                 String pt = row[i + 1];
+                // pt is empty means current student didn't get this version of the question
+                // so continue to the next column
                 if (pt.isEmpty()) continue;
+
                 double score = Double.parseDouble(pt);
                 if (studentAnswer.isBlank() ||
-                        (type.equals("multiple_answers_question") && score != 1.0 && score != 0.0)) {
+                        (type.equals("multiple_answers_question") && score != 1.0 && score != 0.0))
                     questionJSON.put(qID_string, new Score(qID_string, 0).generateJSON());
-                } else if (type.equals("essay_question")) {
-                    Answer answer = new Answer(student, studentAnswer);
-                    question.addStudentAnswer(answer);
-                }
+                else if (type.equals("essay_question"))
+                    question.addStudentAnswer(new Answer(student, studentAnswer));
+
                 i++;
             }
+
             if (!questionJSON.isEmpty())
                 Utils.writeScoreAndCommentJSON
-                        (questionJSON, JSON_FOLDER + "/" + student.getSubID());
+                        (questionJSON, JSON_FOLDER + "/" + student.getSubID(), student.getAttempt());
         }
 
     }
@@ -171,7 +184,7 @@ public class Utils_Setup {
         }
         // Save button
         content.append("""
-                        <button onclick="submit()">Save Grading</button>
+                        <button onclick="saveGrading()">Save Grading</button>
                         <button onclick="saveRubrics()">Save Rubrics</button>
                     </body>
                 """);
@@ -181,12 +194,13 @@ public class Utils_Setup {
     private static String getAnswerDiv(int qID, Answer answer) {
         int sID = answer.getStudent().getSubID();
         String name = answer.getStudent().toString();
+        int attempt = answer.getStudent().getAttempt();
         String content = answer.getAnswer();
         String result = Utils_HTML.parseToHtmlParagraph(content);
-        String elementID = qID + "_" + sID;
+        String elementID = attempt + "-" + sID + "_" + qID;
         return String.format("""
                 <div>
-                    <p id="%3$s_"><b>%s</b></p>
+                    <p><b>%s</b></p>
                     %s
                     <hr>
                     <div style="display: flex; flex-flow: column wrap; color: blueviolet">

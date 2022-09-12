@@ -90,7 +90,7 @@ function loadRubric() {
     }
 }
 
-function submit() {
+function saveGrading() {
     const qID = document.getElementById("qNum").innerText;
     let data = "";
     let score = document.getElementById("score").innerText;
@@ -155,6 +155,6 @@ function download(filename, data) {
     const a = document.createElement("a");
     const file = new Blob([data], {type: 'text/plain'});
     a.href = URL.createObjectURL(file);
-    a.download = filename;
+    a.download = filename.replace(".", "_");
     a.click();
 }

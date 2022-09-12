@@ -126,9 +126,9 @@ public class Utils {
      * @param question A json object that contains scores and comments
      * @param filename the output filename (without extension)
      */
-    public static void writeScoreAndCommentJSON(JSONObject question, String filename) {
+    public static void writeScoreAndCommentJSON(JSONObject question, String filename, int attempt) {
         JSONObject submission = new JSONObject();
-        submission.put("attempt", 1);
+        submission.put("attempt", attempt);
         submission.put("questions", question);
 
         JSONArray array = new JSONArray();
@@ -181,7 +181,7 @@ public class Utils {
         String id = file.getName().replace(".json", "");
         String url = API_URL + "/submissions/" + id;
         Utils_HTTP.putData(url, file.getAbsolutePath());
-        assert file.delete();
+        //assert file.delete();
     }
 
 }

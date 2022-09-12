@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class Student implements Serializable {
     private final String name;
     private int submissionID;
+    private int attempt;
 
     /**
      * Construct student with name.
@@ -19,6 +20,33 @@ public class Student implements Serializable {
     public Student(String name) {
         this.name = name;
         submissionID = 0;
+        attempt = 1;
+    }
+
+    /**
+     * Set both submission ID and number of attempts
+     * @param sID submission ID
+     * @param attempt number of attempts
+     */
+    public void setInfo(int sID, int attempt){
+        setAttempt(attempt);
+        setSubID(sID);
+    }
+
+    /**
+     * Set the number of attempts if >= 2
+     * @param attempt number of attempts
+     */
+    public void setAttempt(int attempt) {
+        this.attempt = attempt;
+    }
+
+    /**
+     * Getter for the number of attempts
+     * @return number of attempts
+     */
+    public int getAttempt() {
+        return attempt;
     }
 
     /**

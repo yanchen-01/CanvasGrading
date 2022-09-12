@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Stack;
@@ -36,12 +37,15 @@ public class Upload {
     }
 
     static void saveJSONs(String sID, Stack<Score> scores) {
+        String[] attempt_sID = sID.split("-");
+        int attempt = Integer.parseInt(attempt_sID[0]);
+        sID = attempt_sID[1];
         JSONObject questionJSON = new JSONObject();
         while (!scores.isEmpty()) {
             Score score = scores.pop();
             questionJSON.put(score.getQID(), score.generateJSON());
         }
-        Utils.writeScoreAndCommentJSON(questionJSON, JSON_FOLDER + "/" + sID);
+        Utils.writeScoreAndCommentJSON(questionJSON, JSON_FOLDER + "/" + sID, attempt);
     }
 
     static void readFile(File file) {
@@ -50,11 +54,12 @@ public class Upload {
             Score grade = null;
             while (scanner.hasNextLine()) {
                 String current = scanner.nextLine();
-                if (current.matches("[0-9]+_[0-9]+")) {
-                    String[] qID_sID = current.split("_");
-                    allGrades.computeIfAbsent(qID_sID[1], k -> new Stack<>());
-                    Stack<Score> g = allGrades.get(qID_sID[1]);
-                    grade = new Score(qID_sID[0], full);
+                if (current.matches("[0-9]+-[0-9]+_[0-9]+")) {
+                    String[] sID_qID = current.split("_");
+                    System.out.println(Arrays.toString(sID_qID));
+                    allGrades.computeIfAbsent(sID_qID[0], k -> new Stack<>());
+                    Stack<Score> g = allGrades.get(sID_qID[0]);
+                    grade = new Score(sID_qID[1], full);
                     g.push(grade);
                 } else if (grade != null && !current.isBlank()) {
                     grade.addComment(current);
