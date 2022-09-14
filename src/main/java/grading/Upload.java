@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Stack;
@@ -56,7 +55,6 @@ public class Upload {
                 String current = scanner.nextLine();
                 if (current.matches("[0-9]+-[0-9]+_[0-9]+")) {
                     String[] sID_qID = current.split("_");
-                    System.out.println(Arrays.toString(sID_qID));
                     allGrades.computeIfAbsent(sID_qID[0], k -> new Stack<>());
                     Stack<Score> g = allGrades.get(sID_qID[0]);
                     grade = new Score(sID_qID[1], full);
