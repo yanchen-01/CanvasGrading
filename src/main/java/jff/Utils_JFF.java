@@ -144,7 +144,7 @@ public class Utils_JFF {
     }
 
     private static boolean missingState(Document doc, String type) {
-        return doc.getElementsByTagName(type) == null;
+        return doc.getElementsByTagName(type).getLength() == 0;
     }
 
 }
