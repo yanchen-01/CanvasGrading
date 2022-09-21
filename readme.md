@@ -18,6 +18,7 @@ For more details, check the code and readme under [grading folder (to be updated
   - /constants/: folder names, parameters
   - /grading/: runnable files
   - /helpers/: utility classes
+  - /jff/: classes and objects related to .jff
   - /obj/: customized object-classes
   - /others/: for other setup, functionalities
   - For more details, check [JavaDoc](https://yanchen-01.github.io/CanvasGradingJavaDoc/)

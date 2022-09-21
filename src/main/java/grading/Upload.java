@@ -17,22 +17,23 @@ public class Upload {
     static HashMap<String, Stack<Score>> allGrades = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter folder name for grading results, or enter skip if ready to upload: ");
-        String folder = scanner.nextLine();
-        if (!folder.equals("skip")) {
-            Utils.goThroughFiles(Upload::readFile, folder);
-            allGrades.forEach(Upload::saveJSONs);
-            System.out.print("Finished reading results. Ready to upload (Y/N)?: ");
-            if (!scanner.nextLine().equals("Y")){
-                System.out.println("OK. Run this again when you are ready. ");
-                return;
+        try (Scanner scanner = new Scanner(System.in)){
+            System.out.println("Enter folder name for grading results, or enter skip if ready to upload: ");
+            String folder = scanner.nextLine();
+            if (!folder.equals("skip")) {
+                Utils.goThroughFiles(Upload::readFile, folder);
+                allGrades.forEach(Upload::saveJSONs);
+                System.out.print("Finished reading results. Ready to upload (Y/N)?: ");
+                if (!scanner.nextLine().equals("Y")){
+                    System.out.println("OK. Run this again when you are ready. ");
+                    return;
+                }
             }
-        }
 
-        Utils.askForParameters(false);
-        Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
-        System.out.println("Uploading done. Double check Canvas to see if success.");
+            Utils.askForParameters(scanner, false);
+            Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
+            System.out.println("Uploading done. Double check Canvas to see if success.");
+        }
     }
 
     static void saveJSONs(String sID, Stack<Score> scores) {
@@ -53,7 +54,7 @@ public class Upload {
             Score grade = null;
             while (scanner.hasNextLine()) {
                 String current = scanner.nextLine();
-                if (current.matches("[0-9]+-[0-9]+_[0-9]+")) {
+                if (current.matches("\\d+-\\d+_\\d+")) {
                     String[] sID_qID = current.split("_");
                     allGrades.computeIfAbsent(sID_qID[0], k -> new Stack<>());
                     Stack<Score> g = allGrades.get(sID_qID[0]);

@@ -13,12 +13,27 @@ import static constants.Parameters.*;
 public class Utils {
 
     /**
+     * Write content to the file (append if exist).
+     *
+     * @param filename name of the file (without extension)
+     * @param content content to write (WITH line breaker at the end)
+     */
+    public static void writeToFile(String filename, String content) {
+        filename = filename.concat(".txt");
+        try (FileWriter myWriter = new FileWriter(filename, true)) {
+            myWriter.write(content);
+        } catch (IOException e) {
+            System.out.printf("!Warning: fail to write %s to %s", content, filename);
+        }
+    }
+
+    /**
      * Ask for global parameters (Auth token, URL, etc.) needed.
      *
+     * @param scanner scanner to take user input
      * @param askForClass true if need to know the class number
      */
-    public static void askForParameters(boolean askForClass) {
-        Scanner scanner = new Scanner(System.in);
+    public static void askForParameters(Scanner scanner, boolean askForClass) {
         try {
             Class<?> privateParams = Class.forName("constants.PrivateParams");
             AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
@@ -34,9 +49,14 @@ public class Utils {
                 CLASS = "CS" + scanner.nextLine();
             }
         }
-        printPrompt("Enter assignment URL (start with https, do NOT end with /)");
+        printPrompt("assignment URL (start with https, do NOT end with /)");
         API_URL = scanner.nextLine();
         API_URL = API_URL.replace("courses", "api/v1/courses");
+
+        if (CLASS.contains("154")) {
+            printPrompt("folder name if contains JFF upload questions or N if not");
+            JFF_SUBMISSION_FOLDER = scanner.nextLine();
+        }
     }
 
     /**
@@ -183,7 +203,7 @@ public class Utils {
         String id = file.getName().replace(".json", "");
         String url = API_URL + "/submissions/" + id;
         Utils_HTTP.putData(url, file.getAbsolutePath());
-        //assert file.delete();
+        assert file.delete();
     }
 
 }

@@ -4,11 +4,11 @@ import obj.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
-import static constants.FolderNames.GRADING_FOLDER;
-import static constants.FolderNames.JSON_FOLDER;
+import static constants.FolderNames.*;
 
 public class Utils_Setup {
 
@@ -70,15 +70,23 @@ public class Utils_Setup {
             int id = current.getInt("id");
             String type = current.getString("question_type");
             Question question = new Question(id, type);
-            // total score, name and content only matter for short answers
-            if (type.equals("essay_question")) {
+            // Other info only matters to essay or file upload questions
+            if (type.equals("essay_question")
+                    || type.equals("file_upload_question")) {
                 double score = current.getDouble("points_possible");
                 String name = current.getString("question_name");
                 String content = current.getString("question_text");
+                content = name.startsWith("Design") ?
+                        name + "\n" + content : content;
                 question.setContent(content);
                 QuestionSet set = new QuestionSet(name, score);
                 set.add(question);
                 SHORT_ANSWERS.put(name, set);
+
+                if (type.equals("file_upload_question")) {
+                    Utils.makeFolder(JFF_FOLDER + "/" + id);
+                    Utils.writeToFile(JFF_PRE_RESULTS + "/" + id, score + "\n");
+                }
             }
             QUESTIONS.put(id, question);
         }
@@ -125,6 +133,15 @@ public class Utils_Setup {
                     questionJSON.put(qID_string, new Score(qID_string, 0).generateJSON());
                 else if (type.equals("essay_question"))
                     question.addStudentAnswer(new Answer(student, studentAnswer));
+                else if (type.equals("file_upload_question")) {
+                    String picName = String.format("%s/%d-%d_%d.png", JFF_FOLDER,
+                            student.getAttempt(), student.getSubID(), qID);
+                    if (new File(picName).exists())
+                        studentAnswer = String.format("<img src=\"../%s\" width=\"350\">", picName);
+                    else
+                        studentAnswer = "Failed pre-checks. Load pre-check results or manually check. ";
+                    question.addStudentAnswer(new Answer(student, studentAnswer));
+                }
 
                 i++;
             }
@@ -194,7 +211,6 @@ public class Utils_Setup {
 
     private static String getAnswerDiv(int qID, Answer answer) {
         int sID = answer.getStudent().getSubID();
-        String name = answer.getStudent().toString();
         int attempt = answer.getStudent().getAttempt();
         String content = answer.getAnswer();
         String result = Utils_HTML.parseToHtmlParagraph(content);
@@ -226,7 +242,7 @@ public class Utils_Setup {
                         </label>
                     </div>
                 </div>
-                """, name, result, elementID, sID);
+                """, answer.getStudent(), result, elementID, sID);
     }
 
 }

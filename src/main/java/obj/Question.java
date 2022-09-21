@@ -11,22 +11,21 @@ public class Question {
     private final String type;
     private final Stack<Answer> answers;
     private String content;
+    private String jffType;
 
     /**
      * Construct a question (all fields defined, current not in use).
      *
      * @param id      question ID
-     * @param content question detail. (Need to update for jff)
-     *                <br>If it's for jff, the format is type_acceptScore_outputScore
-     *                <br> for example, turing_0.1_0.4
+     * @param content question detail
      * @param type    the type of the question
      */
     public Question(int id, String content, String type) {
-        super();
         this.id = id;
         this.content = content;
         this.type = type;
         answers = new Stack<>();
+        jffType = "";
     }
 
     /**
@@ -56,6 +55,9 @@ public class Question {
      * @param content content in raw data
      */
     public void setContent(String content) {
+        // Design questions naming convention: Design-type-details
+        if (content.startsWith("Design-"))
+            jffType = content.split("-")[1];
         content = content.replace("\\u003c", "<");
         content = content.replace("\\u003e", ">");
         content = content.replace("\\\"", "\"");
@@ -124,34 +126,12 @@ public class Question {
         return Objects.hash(super.hashCode(), id);
     }
 
-    // TODO: update the following two methods if needed
-
-    /**
-     * (For jff question ONLY) Information of the jff question.
-     *
-     * @return format: questionID_type
-     */
-    public String getInfo() {
-        try {
-            String[] info = content.split("_");
-            String type = info[2].equals("0.0") ? info[0] : "transducer";
-            return String.format("%s_%s", id, type);
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
     /**
      * (For jff question ONLY) Type of the jff.
      *
      * @return type of the machine
      */
-    public String getJFFType() {
-        try {
-            String[] info = content.split("_");
-            return info[0];
-        } catch (Exception e) {
-            return e.getMessage();
-        }
+    public String getJffType() {
+        return jffType;
     }
 }
