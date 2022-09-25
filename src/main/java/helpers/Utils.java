@@ -53,7 +53,7 @@ public class Utils {
         API_URL = scanner.nextLine();
         API_URL = API_URL.replace("courses", "api/v1/courses");
 
-        if (CLASS.contains("154")) {
+        if (askForClass && CLASS.contains("154")) {
             printPrompt("folder name if contains JFF upload questions or N if not");
             JFF_SUBMISSION_FOLDER = scanner.nextLine();
         }
@@ -180,13 +180,13 @@ public class Utils {
      *
      * @param op       the operation on each file
      * @param pathname the pathname of the folder
-     * @throws Exception if the folder doesn't exist
+     * @throws FileNotFoundException if the folder doesn't exist
      */
-    public static void goThroughFiles(FileOp op, String pathname) throws Exception {
+    public static void goThroughFiles(FileOp op, String pathname) throws FileNotFoundException {
         File folder = new File(pathname);
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles == null)
-            throw new Exception("'" + pathname + "' folder doesn't exist!");
+            throw new FileNotFoundException("'" + pathname + "' folder doesn't exist!");
         for (File file : listOfFiles) {
             if (file.isFile()) {
                 op.operate(file);
@@ -203,7 +203,19 @@ public class Utils {
         String id = file.getName().replace(".json", "");
         String url = API_URL + "/submissions/" + id;
         Utils_HTTP.putData(url, file.getAbsolutePath());
-        assert file.delete();
+        deleteFile(file);
+    }
+
+    /**
+     * Delete a file (print a message of fail to delete).
+     *
+     * @param file file to be deleted
+     */
+    public static void deleteFile(File file){
+        if (!file.delete()){
+            System.out.println("!Warning: fail to delete " + file.getAbsolutePath() +
+                    ". Manually delete it if needed");
+        }
     }
 
 }

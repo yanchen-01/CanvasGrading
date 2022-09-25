@@ -3,9 +3,11 @@ package grading;
 import helpers.Utils;
 import helpers.Utils_HTTP;
 import helpers.Utils_Setup;
+import jff.Constants_JFF;
 import jff.Utils_JFF;
 import org.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.Scanner;
 
 import static constants.FolderNames.*;
@@ -23,10 +25,12 @@ public class Setup {
             Utils.makeFolder(GRADING_FOLDER);
             Utils.makeFolder(JSON_FOLDER);
 
+            boolean hasJFF = false;
             Utils.askForParameters(scanner, true);
             if (!JFF_SUBMISSION_FOLDER.equals("N")) {
                 Utils.makeFolder(JFF_FOLDER);
-                Utils.makeFolder(JFF_PRE_RESULTS);
+                Utils.makeFolder(JFF_RESULTS);
+                hasJFF = true;
             }
 
             System.out.println("...Fetching questions and submissions...");
@@ -34,13 +38,15 @@ public class Setup {
             String subR = Utils_HTTP.getData(sub);
             Utils_Setup.setStudents(CLASS, subR);
 
-
             String q = API_URL + "/questions?page=1&per_page=100";
             String qR = Utils_HTTP.getData(q);
             setQuestions(qR);
 
-            if (!JFF_SUBMISSION_FOLDER.equals("N"))
+            if (hasJFF) {
+                Utils_JFF.notDFA = new HashSet<>();
                 Utils.goThroughFiles(Utils_JFF::organize, JFF_SUBMISSION_FOLDER);
+                Utils.saveObject(Constants_JFF.SET_NOT_DFA, Utils_JFF.notDFA);
+            }
 
             System.out.println("\u2713 Questions and Submissions fetched.");
             System.out.println("...Fetching submission report...");

@@ -11,9 +11,10 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.util.HashSet;
 
 import static constants.FolderNames.JFF_FOLDER;
-import static constants.FolderNames.JFF_PRE_RESULTS;
+import static constants.FolderNames.JFF_RESULTS;
 import static helpers.Utils_Setup.QUESTIONS;
 import static jff.Constants_JFF.*;
 
@@ -24,6 +25,7 @@ public class Utils_JFF {
 
     protected static boolean checkDFA;
     protected static boolean isDFA;
+    public static HashSet<String> notDFA;
 
     /**
      * Organize .jff submissions and draw to png.
@@ -51,10 +53,11 @@ public class Utils_JFF {
             int subID = student.getSubID();
             int attempt = student.getAttempt();
             String studentInfo = String.format("%d-%d_%s", attempt, subID, qID);
+            String resultFile = JFF_RESULTS + "/" + qID + "p";
 
             if (!oldName.endsWith(".jff")) {
                 String error = studentInfo + "\n" + WRONG_EXT;
-                Utils.writeToFile(JFF_PRE_RESULTS + "/" + qID, error);
+                Utils.writeToFile(resultFile, error);
                 return;
             }
 
@@ -71,14 +74,16 @@ public class Utils_JFF {
             String preCheckResult = preCheckMachine(file, machineType);
             if (!preCheckResult.isEmpty()) {
                 preCheckResult = studentInfo + "\n" + preCheckResult;
-                Utils.writeToFile(JFF_PRE_RESULTS + "/" + qID, preCheckResult);
+                Utils.writeToFile(resultFile, preCheckResult);
                 return;
             }
 
             // if no fatal error, draw and move to corresponding folder
             Utils_Draw.drawJff(file, JFF_FOLDER + "/" + studentInfo);
-            if (!isDFA)
-                Utils.writeToFile(JFF_PRE_RESULTS + "/" + qID,studentInfo + "\n" + NOT_DFA);
+            if (!isDFA) {
+                Utils.writeToFile(resultFile,studentInfo + "\n" + NOT_DFA);
+                notDFA.add(studentInfo);
+            }
 
             String newName = String.format("%s/%s/%s.jff", JFF_FOLDER, qID, studentInfo);
 
@@ -93,15 +98,17 @@ public class Utils_JFF {
 
     /**
      * Get the content of the child element given the tag.
-     * <p>Does NOT check if the tag exists!
      *
      * @param parent parent element
      * @param tag tag name of the child
-     * @return the content in string
+     * @return the content in string or null if the tag doesn't exist
      */
     public static String getContent(Element parent, String tag) {
-        return parent.getElementsByTagName(tag)
-                .item(0).getTextContent();
+        NodeList list = parent.getElementsByTagName(tag);
+        if (list.getLength() == 0)
+            return null;
+        else
+            return list.item(0).getTextContent();
     }
 
     /**
@@ -137,10 +144,23 @@ public class Utils_JFF {
         return "";
     }
 
+    /**
+     * Check whether the document is the given type (not for checking DFA) or not.
+     *
+     * @param doc  the document to be checked.
+     *             <br>Call {@link #getDoc(File) getDoc} to get the document object.
+     * @param type the correct type of the machine in String.
+     *             <ul>
+     *             <li>For NFA/DFA, it should be "fa"; </li>
+     *             <li>For PDA, it should be "pda"; </li>
+     *             <li>For TM, it should be "turing". </li>
+     *             </ul>
+     * @return true if the document is NOT the given type.
+     */
     private static boolean wrongType(Document doc, String type) {
         NodeList tape = doc.getElementsByTagName("tapes");
         String actual = getContent(doc.getDocumentElement(), "type");
-        return !actual.equals(type) || tape.getLength() != 0;
+        return actual != null && (!actual.equals(type) || tape.getLength() != 0);
     }
 
     private static boolean missingState(Document doc, String type) {

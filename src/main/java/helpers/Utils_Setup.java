@@ -1,11 +1,13 @@
 package helpers;
 
+import jff.Constants_JFF;
 import obj.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import static constants.FolderNames.*;
@@ -64,6 +66,7 @@ public class Utils_Setup {
      * @param questions_json json response from questions
      */
     public static void setQuestions(String questions_json) {
+        HashSet<Question> JFFs = new HashSet<>();
         JSONArray qs = new JSONArray(questions_json);
         for (int i = 0; i < qs.length(); i++) {
             JSONObject current = qs.getJSONObject(i);
@@ -85,10 +88,12 @@ public class Utils_Setup {
 
                 if (type.equals("file_upload_question")) {
                     Utils.makeFolder(JFF_FOLDER + "/" + id);
-                    Utils.writeToFile(JFF_PRE_RESULTS + "/" + id, score + "\n");
+                    Utils.writeToFile(JFF_RESULTS + "/" + id + "p", score + "\n");
+                    JFFs.add(question);
                 }
             }
             QUESTIONS.put(id, question);
+            Utils.saveObject(Constants_JFF.JFF_QUESTIONS, JFFs);
         }
     }
 
@@ -125,7 +130,7 @@ public class Utils_Setup {
                 String pt = row[i + 1];
                 // pt is empty means current student didn't get this version of the question
                 // so continue to the next column
-                if (pt.isEmpty()) continue;
+                if (type.equals("text_only_question") || pt.isEmpty()) continue;
 
                 double score = Double.parseDouble(pt);
                 if (studentAnswer.isBlank() ||
@@ -139,7 +144,7 @@ public class Utils_Setup {
                     if (new File(picName).exists())
                         studentAnswer = String.format("<img src=\"../%s\" width=\"350\">", picName);
                     else
-                        studentAnswer = "Failed pre-checks. Load pre-check results or manually check. ";
+                        studentAnswer = "<span style=\"color:red\">Failed pre-checks. Load pre-check results or manually check. </span>";
                     question.addStudentAnswer(new Answer(student, studentAnswer));
                 }
 
@@ -196,7 +201,7 @@ public class Utils_Setup {
 
             content.append(String.format("""
                         <h3>%d<br>%s</h3>
-                    """, id, questionContent.replaceAll("</*p>", "")));
+                    """, id, questionContent));
             while (!q.getAnswers().empty())
                 content.append(getAnswerDiv(id, q.getAnswers().pop()));
         }

@@ -1,15 +1,16 @@
 package obj;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Stack;
 
 /**
  * A question with a stack of answers
  */
-public class Question {
+public class Question implements Serializable {
     private final int id;
     private final String type;
-    private final Stack<Answer> answers;
+    private transient final Stack<Answer> answers;
     private String content;
     private String jffType;
 

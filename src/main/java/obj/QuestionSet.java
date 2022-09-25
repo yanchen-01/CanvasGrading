@@ -1,8 +1,9 @@
 package obj;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
-public class QuestionSet extends HashSet<Question> {
+public class QuestionSet extends HashSet<Question> implements Serializable {
     private final String name;
     private final double score;
 
