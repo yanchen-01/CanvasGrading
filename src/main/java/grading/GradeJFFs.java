@@ -57,6 +57,7 @@ public class GradeJFFs {
     static void rewriteResult(String id) {
         String filename = FolderNames.JFF_RESULTS + "/" + id;
         File file = new File(filename + "p.txt");
+        if (!file.exists()) return;
         try (Scanner scanner = new Scanner(file)) {
             String score = scanner.nextLine();
             StringBuilder content = new StringBuilder(score + "\n");
