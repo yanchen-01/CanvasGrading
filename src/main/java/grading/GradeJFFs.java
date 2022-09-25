@@ -74,7 +74,7 @@ public class GradeJFFs {
         } catch (FileNotFoundException e) {
             System.out.println("!Warning: " + filename + " not found");
         }
-       // Utils.deleteFile(file);
+        Utils.deleteFile(file);
     }
 
     static void grade(File file) {
