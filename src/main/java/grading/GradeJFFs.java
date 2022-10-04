@@ -87,8 +87,7 @@ public class GradeJFFs {
         String qID = studentInfo.split("_")[1];
         JffQuestion question = JFF_Qs.get(qID);
         if (question.type.equals("dfa") && notDFA.contains(studentInfo))
-            comment.append("-1 ").append(
-                    NOT_DFA).append("\n");
+            comment.append("-1 ").append(NOT_DFA); // NOT_DFA has line breaker already
 
         String gradingResult = gradeFile(file, question);
         gradingResult = gradingResult.isEmpty()? "\n": gradingResult;
