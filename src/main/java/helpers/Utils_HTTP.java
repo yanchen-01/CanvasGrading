@@ -11,6 +11,9 @@ import java.time.Duration;
 
 import static constants.Parameters.AUTH;
 
+/**
+ * Util methods related to HTTP requests
+ */
 public class Utils_HTTP {
 
     /**

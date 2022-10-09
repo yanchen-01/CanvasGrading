@@ -11,7 +11,11 @@ import java.util.HashSet;
 import java.util.List;
 
 import static constants.FolderNames.*;
+import static constants.JsonKeywords.*;
 
+/**
+ * Util methods related to set up
+ */
 public class Utils_Setup {
 
     public static HashMap<Integer, Student> STUDENTS;
@@ -61,7 +65,6 @@ public class Utils_Setup {
 
     /**
      * Set a map of questions (key is id) and a map of short answers (key is name of question).
-     * TODO: update for same question with different versions
      *
      * @param questions_json json response from questions
      */
@@ -70,30 +73,31 @@ public class Utils_Setup {
         JSONArray qs = new JSONArray(questions_json);
         for (int i = 0; i < qs.length(); i++) {
             JSONObject current = qs.getJSONObject(i);
-            int id = current.getInt("id");
-            String type = current.getString("question_type");
+            int id = current.getInt(ID);
+            String type = current.getString(TYPE);
             Question question = new Question(id, type);
             // Other info only matters to essay or file upload questions
-            if (type.equals("essay_question")
-                    || type.equals("file_upload_question")) {
-                double score = current.getDouble("points_possible");
-                String name = current.getString("question_name");
-                String content = current.getString("question_text");
+            if (type.equals(ESSAY)
+                    || type.equals(UPLOAD)) {
+                double score = current.getDouble(POINTS);
+                String name = current.getString(NAME);
+                String content = current.getString(CONTENT);
                 content = name.startsWith("Design") ?
                         name + "\n" + content : content;
                 question.setContent(content);
-                QuestionSet set = new QuestionSet(name, score);
+                SHORT_ANSWERS.computeIfAbsent(name, k -> new QuestionSet(name, score));
+                QuestionSet set = SHORT_ANSWERS.get(name);
                 set.add(question);
-                SHORT_ANSWERS.put(name, set);
 
-                if (type.equals("file_upload_question")) {
+                if (type.equals(UPLOAD)) {
                     Utils.makeFolder(JFF_FOLDER + "/" + id);
                     Utils.writeToFile(JFF_RESULTS + "/" + id + "p", score + "\n");
                     JFFs.add(question);
                 }
             }
             QUESTIONS.put(id, question);
-            Utils.saveObject(Constants_JFF.JFF_QUESTIONS, JFFs);
+            if (!JFFs.isEmpty())
+                Utils.saveObject(Constants_JFF.JFF_QUESTIONS, JFFs);
         }
     }
 
@@ -130,15 +134,15 @@ public class Utils_Setup {
                 String pt = row[i + 1];
                 // pt is empty means current student didn't get this version of the question
                 // so continue to the next column
-                if (type.equals("text_only_question") || pt.isEmpty()) continue;
+                if (type.equals(TEXT_ONLY) || pt.isEmpty()) continue;
 
                 double score = Double.parseDouble(pt);
                 if (studentAnswer.isBlank() ||
-                        (type.equals("multiple_answers_question") && score != 1.0 && score != 0.0))
+                        (type.equals(MC) && score != 1.0 && score != 0.0))
                     questionJSON.put(qID_string, new Score(qID_string, 0).generateJSON());
-                else if (type.equals("essay_question"))
+                else if (type.equals(ESSAY))
                     question.addStudentAnswer(new Answer(student, studentAnswer));
-                else if (type.equals("file_upload_question")) {
+                else if (type.equals(UPLOAD)) {
                     String picName = String.format("%s/%d-%d_%d.png", JFF_FOLDER,
                             student.getAttempt(), student.getSubID(), qID);
                     if (new File(picName).exists())

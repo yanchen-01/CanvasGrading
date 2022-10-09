@@ -10,6 +10,9 @@ import java.util.Scanner;
 
 import static constants.Parameters.*;
 
+/**
+ * General util methods
+ */
 public class Utils {
 
     /**

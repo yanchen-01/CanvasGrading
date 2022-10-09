@@ -3,6 +3,9 @@ package helpers;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+/**
+ * Util methods related to HTML
+ */
 public class Utils_HTML {
     /**
      * Parse a string content to a paragraph in HTML.

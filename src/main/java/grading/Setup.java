@@ -3,6 +3,7 @@ package grading;
 import helpers.Utils;
 import helpers.Utils_HTTP;
 import helpers.Utils_Setup;
+import helpers.Utils_SetupSets;
 import jff.Constants_JFF;
 import jff.Utils_JFF;
 import org.json.JSONObject;
@@ -21,13 +22,13 @@ public class Setup {
 
     public static void main(String[] args) {
 
-        try (Scanner scanner = new Scanner(System.in)){
+        try (Scanner scanner = new Scanner(System.in)) {
             Utils.makeFolder(GRADING_FOLDER);
             Utils.makeFolder(JSON_FOLDER);
 
             boolean hasJFF = false;
             Utils.askForParameters(scanner, true);
-            if (!JFF_SUBMISSION_FOLDER.equals("N")) {
+            if (!JFF_SUBMISSION_FOLDER.isEmpty() && !JFF_SUBMISSION_FOLDER.equals("N")) {
                 Utils.makeFolder(JFF_FOLDER);
                 Utils.makeFolder(JFF_RESULTS);
                 hasJFF = true;
@@ -40,6 +41,8 @@ public class Setup {
 
             String q = API_URL + "/questions?page=1&per_page=100";
             String qR = Utils_HTTP.getData(q);
+            if (qR.equals("[]"))
+                qR = Utils_SetupSets.getQuestionSets();
             setQuestions(qR);
 
             if (hasJFF) {
