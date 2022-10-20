@@ -52,8 +52,14 @@ public class Setup {
             }
 
             System.out.println("\u2713 Questions and Submissions fetched.");
-            System.out.println("...Fetching submission report...");
-            downloadReport(scanner);
+            System.out.print("The Student Analysis report already downloaded? (Y/N): ");
+            if (scanner.nextLine().equals("Y")) {
+                Utils.printPrompt("filename of the downloaded report (without .csv)");
+                reportName = scanner.nextLine();
+            } else {
+                System.out.println("...Fetching submission report...");
+                downloadReport(scanner);
+            }
             Utils.readCSV(reportName, Utils_Setup::readSubmissions);
 
             generateHTMLs();
