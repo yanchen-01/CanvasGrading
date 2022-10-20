@@ -25,6 +25,7 @@ public class Utils_JFF {
 
     protected static boolean checkDFA;
     protected static boolean isDFA;
+    protected static String machineType;
     public static HashSet<String> notDFA;
 
     /**
@@ -63,7 +64,7 @@ public class Utils_JFF {
 
             // if extension is correct, pre-check the machine
             Question question = QUESTIONS.get(Integer.parseInt(qID));
-            String machineType = question.getJffType();
+            machineType = question.getJffType();
             // For DFAs, check if it's DFA when drawing
             // since not DFA is not a fatal error
             if (machineType.equals("dfa")) {
@@ -71,7 +72,7 @@ public class Utils_JFF {
                 machineType = "fa";
             }
 
-            String preCheckResult = preCheckMachine(file, machineType);
+            String preCheckResult = preCheckMachine(file);
             if (!preCheckResult.isEmpty()) {
                 preCheckResult = studentInfo + "\n" + preCheckResult;
                 Utils.writeToFile(resultFile, preCheckResult);
@@ -131,14 +132,14 @@ public class Utils_JFF {
         }
     }
 
-    private static String preCheckMachine(File file, String type) {
+    private static String preCheckMachine(File file) {
         Document document = getDoc(file);
         assert document != null;
         if (missingState(document, "initial"))
             return NO_INITIAL;
         else if (missingState(document, "final"))
             return NO_FINAL;
-        else if (wrongType(document, type))
+        else if (wrongType(document, machineType))
             return WRONG_TYPE;
 
         return "";

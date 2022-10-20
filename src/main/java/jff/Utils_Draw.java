@@ -27,7 +27,7 @@ public class Utils_Draw {
     /**
      * Draw jff to png.
      *
-     * @param inFile the input file in .jff
+     * @param inFile      the input file in .jff
      * @param outFilename the name of the output file (without extension)
      */
     public static void drawJff(File inFile, String outFilename) {
@@ -89,15 +89,15 @@ public class Utils_Draw {
         State fromState = states.get(from);
         State toState = states.get(to);
 
-        String label = getContent(element, "read");
-        label = label.isEmpty() ? "\u039B" : label;
+        String label = getLabel(element);
         String id = from + "-" + to;
+        assert from != null;
         final Transition transition = from.equals(to) ?
                 new Transition(fromState) : new Transition(fromState, toState);
         transitions.putIfAbsent(id, transition);
         transitions.get(id).addLabel(label);
 
-        if (checkDFA) {
+        if (checkDFA && isDFA) {
             String out = from.concat(label);
             if (outGoingTransitions.get(out) == null
                     || outGoingTransitions.get(out) != 0)
@@ -135,5 +135,25 @@ public class Utils_Draw {
             }
         }
         checkDFA = false;
+    }
+
+    private static String getLabel(Element element) {
+        String read = getLabelPart(element, "read");
+        if (machineType.equals("pda")) {
+            String pop = getLabelPart(element, "pop");
+            String push = getLabelPart(element, "push");
+            return String.format("%s, %s; %s", read, pop, push);
+        } else if (machineType.equals("turing")) {
+            String write = getLabelPart(element, "write");
+            String move = getLabelPart(element, "move");
+            return String.format("%s; %s, %s", read, write, move);
+        }
+        return read;
+    }
+
+    private static String getLabelPart(Element element, String tag) {
+        String result = getContent(element, tag);
+        if (result == null) return "";
+        else return result.isEmpty() ? "\u03BB" : result;
     }
 }
