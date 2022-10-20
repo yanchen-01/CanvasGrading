@@ -19,7 +19,7 @@ public class Utils {
      * Write content to the file (append if exist).
      *
      * @param filename name of the file (without extension)
-     * @param content content to write (WITH line breaker at the end)
+     * @param content  content to write (WITH line breaker at the end)
      */
     public static void writeToFile(String filename, String content) {
         filename = filename.concat(".txt");
@@ -33,24 +33,14 @@ public class Utils {
     /**
      * Ask for global parameters (Auth token, URL, etc.) needed.
      *
-     * @param scanner scanner to take user input
+     * @param scanner     scanner to take user input
      * @param askForClass true if need to know the class number
      */
     public static void askForParameters(Scanner scanner, boolean askForClass) {
-        try {
-            Class<?> privateParams = Class.forName("constants.PrivateParams");
-            AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
-            CLASS = (String) privateParams.getDeclaredField("CLASS").get(null);
-            CLASS = CLASS.contains("CS")? CLASS : "CS" + CLASS;
-        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-            if (AUTH.isEmpty()) {
-                printPrompt("TOKEN");
-                AUTH = scanner.nextLine();
-            }
-            if (askForClass && CLASS.isEmpty()) {
-                printPrompt("Enter class name (154, etc.)");
-                CLASS = "CS" + scanner.nextLine();
-            }
+        askForAuth(scanner);
+        if (askForClass) {
+            CLASS = getParam("CLASS", "class name (154, etc.)", scanner);
+            CLASS = CLASS.contains("CS") ? CLASS : "CS" + CLASS;
         }
         printPrompt("assignment URL (start with https, do NOT end with /)");
         API_URL = scanner.nextLine();
@@ -63,13 +53,23 @@ public class Utils {
     }
 
     /**
+     * Ask for the Auth token.
+     *
+     * @param scanner scanner to take user input
+     */
+    public static void askForAuth(Scanner scanner) {
+        AUTH = getParam("AUTH", "TOKEN", scanner);
+    }
+
+    /**
      * Prints a prompt ask user to enter the parameter needed.
      *
      * @param param what to enter
      */
-    public static void printPrompt (String param){
+    public static void printPrompt(String param) {
         System.out.printf("Enter %s: \n>> ", param);
     }
+
     /**
      * Make a new folder.
      *
@@ -149,7 +149,7 @@ public class Utils {
      *
      * @param question A json object that contains scores and comments
      * @param filename the output filename (without extension)
-     * @param attempt the number of attempts
+     * @param attempt  the number of attempts
      */
     public static void writeScoreAndCommentJSON(JSONObject question, String filename, int attempt) {
         JSONObject submission = new JSONObject();
@@ -214,11 +214,22 @@ public class Utils {
      *
      * @param file file to be deleted
      */
-    public static void deleteFile(File file){
-        if (!file.delete()){
+    public static void deleteFile(File file) {
+        if (!file.delete()) {
             System.out.println("!Warning: fail to delete " + file.getAbsolutePath() +
                     ". Manually delete it if needed");
         }
     }
 
+    private static String getParam(String param, String prompt, Scanner scanner) {
+        String result;
+        try {
+            Class<?> privateParams = Class.forName("constants.PrivateParams");
+            result = (String) privateParams.getDeclaredField(param).get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            printPrompt(prompt);
+            result = scanner.nextLine();
+        }
+        return result;
+    }
 }
