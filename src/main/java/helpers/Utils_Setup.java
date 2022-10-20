@@ -129,6 +129,7 @@ public class Utils_Setup {
                 String qID_string = currentQ.substring(0, currentQ.indexOf(":"));
                 int qID = Integer.parseInt(qID_string);
                 Question question = QUESTIONS.get(qID);
+                if (question == null) continue;
                 String type = question.getType();
                 String studentAnswer = row[i];
                 String pt = row[i + 1];
@@ -174,11 +175,12 @@ public class Utils_Setup {
         StringBuilder indexContent = new StringBuilder("<body>");
         SHORT_ANSWERS.forEach((summary, qs) -> {
             writeQuestionHTML(summary, qs);
-            indexContent.append(String.format("<p><a href=\"%s/%2$s.html\">%2$s</a></p>\n",
+            indexContent.append(String.format(
+                    "<p><a href=\"%s/%2$s.html\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a></p>\n",
                     GRADING_FOLDER, summary));
         });
         indexContent.append(String.format("""
-                <p><a href="%1$s">%1$s</a></p>
+                <p><a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a></p>
                 </body>""", "submissions_by_students.html"));
         Utils_HTML.writeToHTMLFile("index", indexContent.toString());
     }

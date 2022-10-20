@@ -72,7 +72,6 @@ public class Utils_HTTP {
     public static String httpRequest(String method, String url, String data) {
         String error = "Something wrong with " + url + " for data: \n" + data;
         try {
-            Path path = Path.of(data);
             HttpClient client = HttpClient.newBuilder()
                     .followRedirects(HttpClient.Redirect.NORMAL)
                     .connectTimeout(Duration.ofMinutes(2))
@@ -83,7 +82,7 @@ public class Utils_HTTP {
             if (!method.equals("PUT"))
                 builder.method(method, BodyPublishers.noBody());
             else if (data.endsWith(".json"))
-                builder.method(method, BodyPublishers.ofFile(path));
+                builder.method(method, BodyPublishers.ofFile(Path.of(data)));
             else
                 builder.method(method, BodyPublishers.ofString(data));
 
@@ -91,7 +90,7 @@ public class Utils_HTTP {
 
             HttpResponse<?> response;
             if (method.equals("GET") && !data.isEmpty())
-                response = client.send(request, BodyHandlers.ofFile(path));
+                response = client.send(request, BodyHandlers.ofFile(Path.of(data)));
             else
                 response = client.send(request, BodyHandlers.ofString());
             if (response.statusCode() != 200)

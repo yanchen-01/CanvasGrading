@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 
 import static constants.JsonKeywords.*;
+import static constants.Parameters.API;
 import static constants.Parameters.API_URL;
 
 /**
@@ -29,9 +30,10 @@ public class Utils_SetupSets {
         HashSet<Integer> setQs = new HashSet<>();
         outer:
         for (Student student : Utils_Setup.STUDENTS.values()) {
-            String url = String.format
-                    ("https://sjsu.instructure.com/api/v1/quiz_submissions/%s/questions",
-                            student.getSubID());
+            int subID = student.getSubID();
+            if (subID == 0) continue ;
+            String url = String.format("%s/quiz_submissions/%s/questions",
+                    API, subID);
             JSONObject json = new JSONObject(Utils_HTTP.getData(url));
             JSONArray questions = json.getJSONArray("quiz_submission_questions");
             for (int i = 0; i < questions.length(); i++) {

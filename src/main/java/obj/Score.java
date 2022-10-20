@@ -45,7 +45,7 @@ public class Score {
      * @param comment the comment to be added
      */
     public void addComment(String comment) {
-        comment = comment.replace("\"", "\\\"");
+        comment = comment.replace("\"", "\\u0022");
         if (comment.equalsIgnoreCase("w"))
             pts = 0.5;
         else if (comment.equalsIgnoreCase("u"))
