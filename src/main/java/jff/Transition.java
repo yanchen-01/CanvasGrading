@@ -53,8 +53,8 @@ public class Transition {
     public void draw(Graphics2D g2) {
         AffineTransform original = g2.getTransform();
         drawConnection(g2);
-        drawArrowHead(g2);
         drawLabels(g2);
+        drawArrowHead(g2);
         g2.setTransform(original);
     }
 
@@ -69,6 +69,22 @@ public class Transition {
         }
     }
 
+    private void drawLabels(Graphics2D g2) {
+        final int FONT_SIZE = 25;
+        Font font = new Font("TimesRoman", Font.PLAIN, FONT_SIZE);
+        g2.setFont(font);
+        int y = distance == 0 ? origin.y - 105 : origin.y - 10;
+        while (!labels.isEmpty()) {
+            String label = labels.pop();
+            FontMetrics metrics = g2.getFontMetrics();
+            int labelW = metrics.stringWidth(label);
+            int x = distance == 0 ? -labelW / 2 :
+                    (distance - labelW + State.RADIUS) / 2;
+            g2.drawString(label, origin.x + x, y);
+            y -= FONT_SIZE;
+        }
+    }
+
     private void drawArrowHead(Graphics2D g2) {
         int[] xPoints = {origin.x + distance - 20, origin.x + distance, origin.x + distance - 20};
         int[] yPoints = {origin.y - 10, origin.y, origin.y + 10};
@@ -77,23 +93,5 @@ public class Transition {
             g2.translate(-40, -30); // after rotate 90, swap x and y.
         }
         g2.drawPolyline(xPoints, yPoints, 3);
-    }
-
-    private void drawLabels(Graphics2D g2) {
-        Font font = new Font("TimesRoman", Font.PLAIN, 25);
-        g2.setFont(font);
-        if (distance == 0) {
-            g2.rotate(-Math.PI / 2, origin.x + 30, origin.y + 40);
-        }
-        int y = origin.y - 10;
-        while (!labels.isEmpty()) {
-            String label = labels.pop();
-            FontMetrics metrics = g2.getFontMetrics();
-            int labelW = metrics.stringWidth(label);
-            int x = distance == 0 ? -labelW :
-                    (distance - labelW + State.RADIUS) / 2;
-            g2.drawString(label, origin.x + x, y);
-            y -= 25;
-        }
     }
 }
