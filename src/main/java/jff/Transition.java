@@ -9,15 +9,15 @@ import java.util.Stack;
  */
 public class Transition {
     private final double theta;
-    private final int distance;
+    private final int distance; // from's center - to's edge
     private final Stack<String> labels;
-    private final Point origin;
+    private final Point origin; // from's center
 
     /**
      * Construct a transition that connecting 2 states.
      *
      * @param from the state that the transition is from
-     * @param to the state that the transition is to
+     * @param to   the state that the transition is to
      */
     public Transition(State from, State to) {
         origin = from.getCenter();
@@ -89,8 +89,10 @@ public class Transition {
         while (!labels.isEmpty()) {
             String label = labels.pop();
             FontMetrics metrics = g2.getFontMetrics();
-            int x = origin.x + (distance != 0 ? metrics.stringWidth(label) : 0);
-            g2.drawString(label, x + distance / 2, y);
+            int labelW = metrics.stringWidth(label);
+            int x = distance == 0 ? -labelW :
+                    (distance - labelW + State.RADIUS) / 2;
+            g2.drawString(label, origin.x + x, y);
             y -= 25;
         }
     }
