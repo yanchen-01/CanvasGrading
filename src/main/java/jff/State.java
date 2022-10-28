@@ -11,11 +11,23 @@ public class State {
      */
     public static final int RADIUS = 50;
 
-    private static final int DIAMETER = RADIUS * 2;
+    public static final int DIAMETER = RADIUS * 2;
+    /**
+     * The gap between the 2 circles for final states
+     */
     private final int GAP = RADIUS / 5;
+    /**
+     * Center of the state
+     */
     private final Point center;
     private final String name;
+    /**
+     * X-axis for origin of the state (top-left corner)
+     */
     private final int originX;
+    /**
+     * Y-axis for origin of the state (top-left corner)
+     */
     private final int originY;
     private boolean isFinal = false;
     private boolean isInitial = false;
@@ -28,11 +40,9 @@ public class State {
      * @param name name of the state
      */
     public State(String x, String y, String name) {
-        int centerX = (int) Double.parseDouble(x) * 2;
-        int centerY = (int) Double.parseDouble(y) * 2;
-        center = new Point(centerX, centerY);
-        this.originX = centerX - RADIUS;
-        this.originY = centerY - RADIUS;
+        this.originX = (int) Double.parseDouble(x) * 2 - RADIUS;
+        this.originY = (int) Double.parseDouble(y) * 2;
+        center = new Point(originX + RADIUS, originY + RADIUS);
         this.name = name;
     }
 

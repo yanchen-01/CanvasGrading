@@ -109,8 +109,8 @@ public class Utils_Draw {
 
     private static void saveImage(String outFilename) {
         try {
-            width += 100;
-            height += 100;
+            width += State.DIAMETER;
+            height += State.DIAMETER;
             BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = bufferedImage.createGraphics();
             g2.setColor(Color.white);
@@ -154,6 +154,8 @@ public class Utils_Draw {
     private static String getLabelPart(Element element, String tag) {
         String result = getContent(element, tag);
         if (result == null) return "";
-        else return result.isEmpty() ? "\u03BB" : result;
+        else if (result.isEmpty())
+            return machineType.equals("turing") ? "\u25A1" : "\u03BB";
+        else return result;
     }
 }
