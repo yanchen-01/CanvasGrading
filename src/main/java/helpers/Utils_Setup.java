@@ -243,6 +243,7 @@ public class Utils_Setup {
                                 <option value="No rubrics">No rubrics, either add one or load saved file (each line is a rubric)
                                 </option>
                             </select>
+                            <button onclick="updateRubric('s_%3$s')">Update selected rubric</button>
                             <button onclick="deleteRubric('s_%3$s')">Delete selected rubric</button>
                             <button onclick="clearRubric()">Clear all rubrics</button>
                         </label>

@@ -1,14 +1,54 @@
+function updateRubric(sID) {
+    const rubric = document.getElementById(sID);
+    const i = rubric.selectedIndex;
+    if (i === -1 || rubric.value !== "No rubrics") {
+        alert("Select a rubric first!")
+        return;
+    }
+    const original = rubric[i].innerText;
+    const updated = prompt("Edit rubric: ", original);
+    let select = document.getElementsByTagName('select');
+    for (let s of select) {
+        s.options[i] = new Option(updated, updated);
+        if (s.options.length === 0) {
+            s.options[0] = new Option("No rubrics, either add one or load saved file (each line is a rubric)", "No rubrics");
+        }
+    }
+    if (!confirm("Click OK to update applied rubrics in all comment boxes, or Cancel if want to update manually. ")) {
+        return;
+    }
+    const ele = document.getElementsByTagName('textarea');
+    for (let i = 0; i <= ele.length - 1; i++) {
+        let comment = ele[i].value;
+        comment = comment.replace(original, updated);
+        ele[i].value = comment;
+    }
+}
+
 function deleteRubric(sID) {
     const rubric = document.getElementById(sID);
     const i = rubric.selectedIndex;
-    if (i !== -1 && rubric.value !== "No rubrics") {
-        let select = document.getElementsByTagName('select');
-        for (let s of select) {
-            s.remove(i);
-            if (s.options.length === 0) {
-                s.options[0] = new Option("No rubrics, either add one or load saved file (each line is a rubric)", "No rubrics");
-            }
+    if (i === -1 || rubric.value !== "No rubrics") {
+        alert("Select a rubric first!")
+        return;
+    }
+    const original = rubric[i].innerText;
+    let select = document.getElementsByTagName('select');
+    for (let s of select) {
+        s.remove(i);
+        if (s.options.length === 0) {
+            s.options[0] = new Option("No rubrics, either add one or load saved file (each line is a rubric)", "No rubrics");
         }
+    }
+    if (!confirm("Click OK to delete applied rubrics in all comment boxes, or Cancel if want to delete manually. ")) {
+        return;
+    }
+    const ele = document.getElementsByTagName('textarea');
+    for (let i = 0; i <= ele.length - 1; i++) {
+        let comment = ele[i].value;
+        let regex = new RegExp(original + "\n*");
+        comment = comment.replace(regex, "");
+        ele[i].value = comment;
     }
 }
 
@@ -30,9 +70,9 @@ function clearComment(aID) {
 
 function applyRubric(aID, sID) {
     const rubric = document.getElementById(sID).value;
-    if (rubric !== "" && rubric !== "No rubrics") {
-        const a = document.getElementById(aID).value === "" ?
-            rubric : "\n" + rubric
+    const original = document.getElementById(aID).value;
+    if (rubric !== "" && rubric !== "No rubrics" && !original.includes(rubric)) {
+        const a = original === "" ? rubric : "\n" + rubric
         document.getElementById(aID).value += a;
     }
 
@@ -72,7 +112,7 @@ function loadRubric() {
     let position = 0;
     if (select[0].options[0].value !== "No rubrics") {
         if (confirm("Has rubrics already\nClick OK to override, Cancel to append"))
-            for(let i of select)
+            for (let i of select)
                 i.options.length = 0;
         else position = select[0].options.length;
     }
@@ -143,7 +183,7 @@ function loadSaved() {
                         content = element.value + "\n" + content;
                     }
                 }
-                if(content.trim() !== "")
+                if (content.trim() !== "")
                     element.value = content.trim();
             }
             i++;
