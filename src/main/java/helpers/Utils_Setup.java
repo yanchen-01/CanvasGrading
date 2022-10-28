@@ -182,7 +182,7 @@ public class Utils_Setup {
         indexContent.append(String.format("""
                 <p><a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a></p>
                 </body>""", "submissions_by_students.html"));
-        Utils_HTML.writeToHTMLFile("index", indexContent.toString());
+        Utils_HTML.writeToHTMLFile(INDEX, indexContent.toString());
     }
 
     private static void writeQuestionHTML(String summary, QuestionSet qs) {

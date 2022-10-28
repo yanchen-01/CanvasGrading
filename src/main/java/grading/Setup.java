@@ -8,6 +8,8 @@ import jff.Constants_JFF;
 import jff.Utils_JFF;
 import org.json.JSONObject;
 
+import java.awt.*;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -73,6 +75,7 @@ public class Setup {
                 Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
                 System.out.println("\u2713 MC & unanswered adjustment done");
             }
+            Desktop.getDesktop().open(new File(INDEX + ".html"));
 
             System.out.println("\u2713 Setting up done. After grading, run Upload.java");
         } catch (Exception e) {
