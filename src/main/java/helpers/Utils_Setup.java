@@ -12,6 +12,7 @@ import java.util.List;
 
 import static constants.FolderNames.*;
 import static constants.JsonKeywords.*;
+import static constants.Parameters.ASSIGNMENT_URL;
 
 /**
  * Util methods related to set up
@@ -24,47 +25,36 @@ public class Utils_Setup {
     static List<String[]> CONTENTS;
 
     /**
-     * Set the submission id and number of attempts
-     * to the student map and generate a html
-     * that contains all students' submission links.
+     * Set the hashmap of the students.
+     * <p>Key is the student ID and value is a student object.
+     * <br> The student object contains the submission ID and attempt number.
+     * <br> Student name will be updated when {@link #readSubmissions(List)}.
      *
-     * @param className        the name of the class (CS154, etc.)
      * @param submissions_json json response from submissions
-     * @throws Exception when there's any student not found
      */
-    public static void setStudents(String className, String submissions_json) throws Exception {
-        @SuppressWarnings("unchecked")
-        HashMap<Integer, Student> s = (HashMap<Integer, Student>) Utils.getObjectFromFile(className);
-        STUDENTS = s;
+    public static void setStudents(String submissions_json) {
+        STUDENTS = new HashMap<>();
         JSONObject json = new JSONObject(submissions_json);
         JSONArray submissions = json.getJSONArray("quiz_submissions");
-        StringBuilder content = new StringBuilder();
 
         for (int i = 0; i < submissions.length(); i++) {
             JSONObject current = submissions.getJSONObject(i);
 
             int student_id = current.getInt("user_id");
-            Student student = STUDENTS.get(student_id);
-            if (student == null)
-                throw new Exception(student_id + " not found. " +
-                        "Please make sure student hash map is up to date. ");
-
             // Set submission id & number of attempts
             int sub_id = current.getInt("id");
             int attempt = current.getInt("attempt");
-            student.setInfo(sub_id, attempt);
-
-            // Append url
-            String url = current.getString("html_url");
-            content.append(String.format(
-                    "<p><a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a></p>",
-                    url, student));
+            STUDENTS.put(student_id, new Student(sub_id, attempt));
         }
-        Utils_HTML.writeToHTMLFile("submissions_by_students", content.toString());
     }
 
     /**
-     * Set a map of questions (key is id) and a map of short answers (key is name of question).
+     * Set a map of questions and a map of short answers.
+     * <ul>
+     *     <li>QUESTION map: key is id, value is a question object with qID and type; </li>
+     *     <li>SHORT_ANSWERS map: key is qName, value is a question set object with
+     *     different versions of the question. </li>
+     * </ul>
      *
      * @param questions_json json response from questions
      */
@@ -102,11 +92,11 @@ public class Utils_Setup {
     }
 
     /**
-     * Read the submission cvs file, then
+     * Read the submission cvs file, then...
      * <ol>
-     *     <li>Generate json files for scores of MC and unanswered. </li>
-     *     <li>Generate a hashmap for short answers (key = summary of the question ,
-     *     value = a question set contains different versions of the question)</li>
+     *     <li>generate json files for scores of MC and unanswered; </li>
+     *     <li>add student answers to the question objects in the maps; </li>
+     *     <li>generate a html that contains all students' submission links.</li>
      * </ol>
      *
      * @param contents content of the csv file
@@ -114,8 +104,19 @@ public class Utils_Setup {
     public static void readSubmissions(List<String[]> contents) {
         CONTENTS = contents;
         String[] headers = CONTENTS.remove(0);
+        StringBuilder htmlContent = new StringBuilder();
         for (String[] row : CONTENTS) {
+            // Get student - name: first column; id: second column.
             Student student = STUDENTS.get(Integer.parseInt(row[1]));
+            student.setName(row[0]);
+
+            // Append url to submissions_by_students.html
+            String url = ASSIGNMENT_URL + "/submissions/" + student.getSubID();
+            htmlContent.append(String.format(
+                    "<p><a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a></p>",
+                    url, student));
+
+            // Read student submission.
             JSONObject questionJSON = new JSONObject();
             for (int i = 2; i < headers.length - 1; i++) {
                 String currentQ = headers[i];
@@ -160,7 +161,8 @@ public class Utils_Setup {
                 Utils.writeScoreAndCommentJSON
                         (questionJSON, JSON_FOLDER + "/" + student.getSubID(), student.getAttempt());
         }
-
+        // Write submissions_by_students.html
+        Utils_HTML.writeToHTMLFile("submissions_by_students", htmlContent.toString());
     }
 
     /**

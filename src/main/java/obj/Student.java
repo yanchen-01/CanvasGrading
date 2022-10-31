@@ -4,41 +4,28 @@ import java.io.Serializable;
 
 /**
  * A student object.
- * <p>Serializable so that can store a hashmap of sid and student.
+ *     <ul>
+ *         <li>submissionID and attempt are from submissions API;</li>
+ *         <li>name is from report.csv.</li>
+ *     </ul>
+ *     <p>Serializable so that can be stored as file (no longer needed).
  */
 public class Student implements Serializable {
-    private final String name;
-    private int submissionID;
-    private int attempt;
+    private final int submissionID;
+    private final int attempt;
+    private String name;
 
     /**
-     * Construct student with name.
-     * <p>submissionID will be set later based on different assignment
+     * Construct student with submissionID.
      *
-     * @param name name of the student
+     * @param submissionID submissionID of the student
+     *                     (various depends on the assignment)
+     * @param attempt number of attempt
      */
-    public Student(String name) {
-        this.name = name;
-        submissionID = 0;
-        attempt = 1;
-    }
-
-    /**
-     * Set both submission ID and number of attempts
-     * @param sID submission ID
-     * @param attempt number of attempts
-     */
-    public void setInfo(int sID, int attempt){
-        setAttempt(attempt);
-        setSubID(sID);
-    }
-
-    /**
-     * Set the number of attempts if >= 2
-     * @param attempt number of attempts
-     */
-    public void setAttempt(int attempt) {
+    public Student(int submissionID, int attempt) {
+        this.submissionID = submissionID;
         this.attempt = attempt;
+        this.name = "";
     }
 
     /**
@@ -59,18 +46,18 @@ public class Student implements Serializable {
     }
 
     /**
-     * Setter for the submission id.
+     * Setter for the name.
      *
-     * @param submissionID submission id (get from submissions API)
+     * @param name name of the student
      */
-    public void setSubID(int submissionID) {
-        this.submissionID = submissionID;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
      * A string representation of a student object.
      *
-     * @return name_submissionID (name format: lastname, firstname)
+     * @return name_submissionID (name format: firstname lastname)
      */
     @Override
     public String toString() {

@@ -43,8 +43,8 @@ public class Utils {
             CLASS = CLASS.contains("CS") ? CLASS : "CS" + CLASS;
         }
         printPrompt("assignment URL (start with https, do NOT end with /)");
-        API_URL = scanner.nextLine();
-        API_URL = API_URL.replace("courses", "api/v1/courses");
+        ASSIGNMENT_URL = scanner.nextLine();
+        API_URL = ASSIGNMENT_URL.replace("courses", "api/v1/courses");
 
         if (askForClass && CLASS.contains("154")) {
             printPrompt("folder name if contains JFF upload questions or N if not");

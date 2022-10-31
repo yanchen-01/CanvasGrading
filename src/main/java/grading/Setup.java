@@ -39,7 +39,7 @@ public class Setup {
             System.out.println("...Fetching questions and submissions...");
             String sub = API_URL + "/submissions?page=1&per_page=100";
             String subR = Utils_HTTP.getData(sub);
-            Utils_Setup.setStudents(CLASS, subR);
+            Utils_Setup.setStudents(subR);
 
             String q = API_URL + "/questions?page=1&per_page=100";
             String qR = Utils_HTTP.getData(q);
