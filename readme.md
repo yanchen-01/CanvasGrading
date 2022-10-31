@@ -20,10 +20,8 @@ For more details, check the code and readme under [grading folder (to be updated
   - /helpers/: utility classes
   - /jff/: classes and objects related to .jff
   - /obj/: customized object-classes
-  - /others/: for other setup, functionalities
+  - /others/: for other functionalities
   - For more details, check [JavaDoc](https://yanchen-01.github.io/CanvasGradingJavaDoc/)
 - /script.js - control the html files that are generated after setup
-- /CS*.csv - tables of students (canvas id and name)
-- /CS* - HashMap generated from CS*.csv
 - /.idea/ - libraries, etc.
 - others - for build project, gitignore, etc.
