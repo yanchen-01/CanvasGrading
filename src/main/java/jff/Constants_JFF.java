@@ -13,6 +13,7 @@ public class Constants_JFF {
     public static final String NOT_DFA = "Not a DFA. \n";
     public static final String ACCEPT = "Result: Accept";
     public static final String REJECT = "Result: Reject";
+    public static final String TURING_WITH_BLOCKS = "turingbb";
     public static final String SET_NOT_DFA = FolderNames.JFF_FOLDER + "/notDFA";
     public static final String JFF_QUESTIONS = FolderNames.JFF_FOLDER + "/jffQuestions";
 }

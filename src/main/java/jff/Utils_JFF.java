@@ -23,10 +23,10 @@ import static jff.Constants_JFF.*;
  */
 public class Utils_JFF {
 
+    public static HashSet<String> notDFA;
     protected static boolean checkDFA;
     protected static boolean isDFA;
     protected static String machineType;
-    public static HashSet<String> notDFA;
 
     /**
      * Organize .jff submissions and draw to png.
@@ -82,7 +82,7 @@ public class Utils_JFF {
             // if no fatal error, draw and move to corresponding folder
             Utils_Draw.drawJff(file, JFF_FOLDER + "/" + studentInfo);
             if (!isDFA) {
-                Utils.writeToFile(resultFile,studentInfo + "\n" + NOT_DFA);
+                Utils.writeToFile(resultFile, studentInfo + "\n" + NOT_DFA);
                 notDFA.add(studentInfo);
             }
 
@@ -101,7 +101,7 @@ public class Utils_JFF {
      * Get the content of the child element given the tag.
      *
      * @param parent parent element
-     * @param tag tag name of the child
+     * @param tag    tag name of the child
      * @return the content in string or null if the tag doesn't exist
      */
     public static String getContent(Element parent, String tag) {
@@ -161,7 +161,10 @@ public class Utils_JFF {
     private static boolean wrongType(Document doc, String type) {
         NodeList tape = doc.getElementsByTagName("tapes");
         String actual = getContent(doc.getDocumentElement(), "type");
-        return actual != null && (!actual.equals(type) || tape.getLength() != 0);
+        if (actual == null) return true;
+        if (actual.equals(TURING_WITH_BLOCKS) && machineType.equals("turing"))
+            machineType = TURING_WITH_BLOCKS;
+        return !actual.equals(type) || tape.getLength() != 0;
     }
 
     private static boolean missingState(Document doc, String type) {

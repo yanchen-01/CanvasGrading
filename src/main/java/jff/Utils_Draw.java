@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static jff.Constants_JFF.NOT_DFA;
+import static jff.Constants_JFF.TURING_WITH_BLOCKS;
 import static jff.Utils_JFF.*;
 
 /**
@@ -34,11 +36,13 @@ public class Utils_Draw {
         initialize();
         Document doc = Utils_JFF.getDoc(inFile);
         assert doc != null;
-        goOverElements(doc, "state", Utils_Draw::setState);
+        String state = machineType.equals(TURING_WITH_BLOCKS) ?
+                "block" : "state";
+        goOverElements(doc, state, Utils_Draw::setState);
         goOverElements(doc, "transition", Utils_Draw::setTransition);
-        saveImage(outFilename);
         if (checkDFA && isDFA)
             checkDFAFinalStep();
+        saveImage(outFilename);
     }
 
     private static void initialize() {
@@ -54,7 +58,9 @@ public class Utils_Draw {
         NodeList statesList = doc.getElementsByTagName(tag);
         for (int i = 0; i < statesList.getLength(); i++) {
             Node nNode = statesList.item(i);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+            String parent = nNode.getParentNode().getNodeName();
+            if (nNode.getNodeType() == Node.ELEMENT_NODE
+                    && parent.equals("automaton")) {
                 Element element = (Element) nNode;
                 parser.parse(element);
             }
@@ -118,6 +124,10 @@ public class Utils_Draw {
 
             transitions.forEach((id, transition) -> transition.draw(g2));
             states.forEach((id, state) -> state.draw(g2));
+            if (machineType.equals(TURING_WITH_BLOCKS))
+                g2.drawString("With building blocks, check manually", 30, 30);
+            else if (!isDFA)
+                g2.drawString(NOT_DFA, 30, 30);
 
             g2.dispose();
             File file = new File(outFilename + ".png");
@@ -143,7 +153,7 @@ public class Utils_Draw {
             String pop = getLabelPart(element, "pop");
             String push = getLabelPart(element, "push");
             return String.format("%s, %s; %s", read, pop, push);
-        } else if (machineType.equals("turing")) {
+        } else if (machineType.contains("turing")) {
             String write = getLabelPart(element, "write");
             String move = getLabelPart(element, "move");
             return String.format("%s; %s, %s", read, write, move);
@@ -155,7 +165,7 @@ public class Utils_Draw {
         String result = getContent(element, tag);
         if (result == null) return "";
         else if (result.isEmpty())
-            return machineType.equals("turing") ? "\u25A1" : "\u03BB";
+            return machineType.contains("turing") ? "\u25A1" : "\u03BB";
         else return result;
     }
 }
