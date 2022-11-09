@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -16,15 +17,15 @@ public class Upload {
 
     static HashMap<String, Stack<Score>> allGrades = new HashMap<>();
 
-    public static void main(String[] args) throws Exception {
-        try (Scanner scanner = new Scanner(System.in)){
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Enter folder name for grading results, or enter skip if ready to upload: ");
             String folder = scanner.nextLine();
             if (!folder.equals("skip")) {
                 Utils.goThroughFiles(Upload::readFile, folder);
                 allGrades.forEach(Upload::saveJSONs);
                 System.out.print("Finished reading results. Ready to upload (Y/N)?: ");
-                if (!scanner.nextLine().equals("Y")){
+                if (!scanner.nextLine().equals("Y")) {
                     System.out.println("OK. Run this again when you are ready. ");
                     return;
                 }
@@ -33,6 +34,8 @@ public class Upload {
             Utils.askForParameters(scanner, false);
             Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
             System.out.println("Uploading done. Double check Canvas to see if success.");
+        } catch (FileNotFoundException e) {
+            Utils.printFatalError(e);
         }
     }
 
@@ -64,8 +67,9 @@ public class Upload {
                     grade.addComment(current);
                 }
             }
-        } catch (FileNotFoundException exception) {
-            exception.printStackTrace();
+        } catch (FileNotFoundException | NoSuchElementException exception) {
+            Utils.printWarning("something wrong when reading " + file
+                    + ". Manually check if needed.");
         }
     }
 }

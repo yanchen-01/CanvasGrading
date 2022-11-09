@@ -1,5 +1,6 @@
 package jff;
 
+import helpers.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -133,7 +134,7 @@ public class Utils_Draw {
             File file = new File(outFilename + ".png");
             ImageIO.write(bufferedImage, "png", file);
         } catch (IOException e) {
-            System.out.println("!Warning: fail to draw jff to " + outFilename + ".png");
+            Utils.printWarning("fail to draw jff to %s.png", outFilename);
         }
     }
 

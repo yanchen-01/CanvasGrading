@@ -90,11 +90,10 @@ public class Utils_JFF {
             String newName = String.format("%s/%s/%s.jff", JFF_FOLDER, qID, studentInfo);
 
             if (!file.renameTo(new File(newName)))
-                System.out.printf("!Warning: fail to rename '%s' to '%s'\n", oldName, newName);
-
+                Utils.printWarning("fail to rename '%s' to '%s'\n", oldName, newName);
 
         } catch (Exception e) {
-            System.out.printf("!Warning: file '%s' is not a legit submission file\n", file.getName());
+            Utils.printWarning("file '%s' is not a legit submission file\n", file.getName());
         }
     }
 
@@ -128,7 +127,7 @@ public class Utils_JFF {
             doc.getDocumentElement().normalize();
             return doc;
         } catch (Exception e) {
-            System.out.println("!Warning: fail to parse" + inputFile.getName());
+            Utils.printWarning("fail to parse " + inputFile.getName());
             return null;
         }
     }

@@ -16,6 +16,29 @@ import static constants.Parameters.*;
 public class Utils {
 
     /**
+     * Print a warning message - anything wrong with individual file/folder,
+     * but not serious enough to terminate the whole program.
+     *
+     * @param message detailed message about error (maybe a format string)
+     * @param args    arguments for a format string if needed
+     */
+    public static void printWarning(String message, String... args) {
+        if (args != null && args.length > 0)
+            message = String.format(message, (Object) args);
+        System.out.println("!Warning: " + message);
+    }
+
+    /**
+     * Print the error that terminates the whole program.
+     *
+     * @param e the exception that crashed the program
+     */
+    public static void printFatalError(Exception e) {
+        System.out.println("Terminated: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    /**
      * Write content to the file (append if exist).
      *
      * @param filename name of the file (without extension)
@@ -26,7 +49,7 @@ public class Utils {
         try (FileWriter myWriter = new FileWriter(filename, true)) {
             myWriter.write(content);
         } catch (IOException e) {
-            System.out.printf("!Warning: fail to write %s to %s", content, filename);
+            printWarning("fail to write %s to %s", content, filename);
         }
     }
 
@@ -78,8 +101,7 @@ public class Utils {
     public static void makeFolder(String folderName) {
         File folder = new File(folderName);
         if (!folder.mkdir())
-            System.out.printf("!Warning: fail to create '%s' folder. " +
-                    "But don't freak out since it may already exists\n", folderName);
+            printWarning("fail to create '%s' folder.", folderName);
     }
 
     /**
@@ -216,8 +238,7 @@ public class Utils {
      */
     public static void deleteFile(File file) {
         if (!file.delete()) {
-            System.out.println("!Warning: fail to delete " + file.getAbsolutePath() +
-                    ". Manually delete it if needed");
+            printWarning("fail to delete %s.", file.getAbsolutePath());
         }
     }
 

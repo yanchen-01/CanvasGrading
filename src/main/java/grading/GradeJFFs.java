@@ -30,9 +30,9 @@ public class GradeJFFs {
             String folder = scanner.nextLine();
             Utils.goThroughFiles(GradeJFFs::grade, folder);
             System.out.printf("Grading results are written to %s folder, " +
-                    "put them together with other grading result files and run Upload.java", FolderNames.JFF_RESULTS);
+                    "put them together with other grading result files and run Upload.java\n", FolderNames.JFF_RESULTS);
         } catch (Exception e) {
-            System.out.println("Terminated: " + e.getMessage());
+            Utils.printFatalError(e);
         }
     }
 
@@ -73,7 +73,7 @@ public class GradeJFFs {
             }
             Utils.writeToFile(filename, content.toString());
         } catch (FileNotFoundException e) {
-            System.out.println("!Warning: " + filename + " not found");
+            Utils.printWarning(filename + " not found");
         }
         Utils.deleteFile(file);
     }

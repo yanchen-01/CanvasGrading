@@ -14,7 +14,8 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 import static constants.FolderNames.*;
-import static constants.Parameters.*;
+import static constants.Parameters.API_URL;
+import static constants.Parameters.JFF_SUBMISSION_FOLDER;
 import static helpers.Utils_Setup.generateHTMLs;
 import static helpers.Utils_Setup.setQuestions;
 
@@ -79,8 +80,7 @@ public class Setup {
 
             System.out.println("\u2713 Setting up done. After grading, run Upload.java");
         } catch (Exception e) {
-            System.out.println("Terminated: " + e.getMessage());
-            e.printStackTrace();
+            Utils.printFatalError(e);
         }
     }
 
