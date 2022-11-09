@@ -45,6 +45,7 @@ public class Utils_JFF {
     public static void organize(File file) {
         try {
             String oldName = file.getName();
+            if (!oldName.matches("\\D+\\d+_question_\\d+_\\d+_.*.")) return;
             // Get info - name format: nameSID_question_qID_otherInfo
             String[] info = oldName.split("_question_");
             String sID = info[0].replaceAll("\\D+", "");

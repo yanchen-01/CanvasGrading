@@ -46,7 +46,7 @@ public class GradeJFFs {
         double output = 0.0;
         if (type.equals("turing")) {
             System.out.print("If it's a transducer, ");
-            Utils.printPrompt("pt for each correct output");
+            Utils.printPrompt("pt for each correct output (0.0 if not a transducer)");
             output = scanner.nextDouble();
         }
         JffQuestion q = new JffQuestion(type, accept, output);
@@ -80,7 +80,9 @@ public class GradeJFFs {
 
     static void grade(File file) {
         //Filename format: resultsAttempt-subID_qID.jff.txt
-        String studentInfo = file.getName().replace("results", "");
+        String filename = file.getName();
+        if (!filename.matches("results\\d+-\\d+_\\d+.jff.txt")) return;
+        String studentInfo = filename.replace("results", "");
         studentInfo = studentInfo.replace(".jff.txt", "");
         StringBuilder comment = new StringBuilder(studentInfo + "\n");
 
@@ -90,7 +92,7 @@ public class GradeJFFs {
             comment.append("-1 ").append(NOT_DFA); // NOT_DFA has line breaker already
 
         String gradingResult = gradeFile(file, question);
-        gradingResult = gradingResult.isEmpty()? "\n": gradingResult;
+        gradingResult = gradingResult.isEmpty() ? "\n" : gradingResult;
         comment.append(gradingResult);
 
         Utils.writeToFile(FolderNames.JFF_RESULTS + "/" + qID, comment.toString());
@@ -106,19 +108,19 @@ public class GradeJFFs {
             while (scanner.hasNextLine()) {
                 String current = scanner.nextLine();
                 numOfTests++;
-                numOfActualA += current.contains(ACCEPT)? 1 : 0;
-                numOfActualR += current.contains(REJECT)? 1 : 0;
-                if (current.endsWith(") ")){
+                numOfActualA += current.contains(ACCEPT) ? 1 : 0;
+                numOfActualR += current.contains(REJECT) ? 1 : 0;
+                if (current.endsWith(") ")) {
                     numOfWrongResult++;
                 }
                 // not end with ) but has ( -> output wrong
-                else if (current.contains("(")){
+                else if (current.contains("(")) {
                     numOfWrongOutput++;
                 }
             }
 
             double total = (numOfActualA + numOfActualR) * question.each;
-            if (numOfActualA == numOfTests)
+            if (numOfActualA == numOfTests && question.eachOutput == 0.0)
                 return String.format("-%.0f your machine accepts everything!\n", total);
             else if (numOfActualR == numOfTests)
                 return String.format("-%.0f your machine rejects everything!\n", total);
@@ -138,15 +140,13 @@ public class GradeJFFs {
 
     static class JffQuestion {
         String type;
-        double eachAccept;
-        double eachOutput;
         double each;
+        double eachOutput;
 
-        public JffQuestion(String type, double eachAccept, double eachOutput) {
+        public JffQuestion(String type, double each, double eachOutput) {
             this.type = type;
-            this.eachAccept = eachAccept;
+            this.each = each;
             this.eachOutput = eachOutput;
-            each = eachAccept + eachOutput;
         }
     }
 
