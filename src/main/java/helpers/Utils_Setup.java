@@ -205,11 +205,10 @@ public class Utils_Setup {
                 """, summary, qs.getScore()));
         for (Question q : qs) {
             int id = q.getId();
-            String questionContent = Utils_HTML.parseToHtmlParagraph(q.getContent());
 
             content.append(String.format("""
                         <h3>%d<br>%s</h3>
-                    """, id, questionContent));
+                    """, id, q.getContent()));
             while (!q.getAnswers().empty())
                 content.append(getAnswerDiv(id, q.getAnswers().pop()));
         }

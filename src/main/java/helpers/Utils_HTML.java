@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class Utils_HTML {
     /**
      * Parse a string content to a paragraph in HTML.
+     * TODO: update it if see parsing errors
      *
      * @param content the content to be parsed
      * @return the content with paragraph tag
@@ -17,24 +18,26 @@ public class Utils_HTML {
         StringBuilder result = new StringBuilder();
         Scanner scan = new Scanner(content);
         while (scan.hasNextLine()) {
-            Scanner lineScan = new Scanner(scan.nextLine());
-            lineScan.useDelimiter("\\[");
+            String line = scan.nextLine();
+            line = line.replaceAll("\\[LaTeX:.*]", "");
+            Scanner lineScan = new Scanner(line);
             while (lineScan.hasNext()) {
                 String current = lineScan.next();
-                if (current.contains("]") && current.contains("https")) {
-                    current = current.replaceAll(".*] \\(", "");
+                if (current.contains("equation_images") || current.contains("https"))
                     current = parseToHtmlImg(current);
-                }
+
                 result.append(" ").append(current);
             }
             result.append("<br>");
-
+            lineScan.close();
         }
+        scan.close();
+
         return "<p>" + result + "</p>";
     }
 
     /**
-     * Parse a string content to an image in HTML.
+     * Parse content with image url to an image in HTML.
      *
      * @param content the content to be parsed
      * @return the content with img tag.
@@ -42,6 +45,9 @@ public class Utils_HTML {
      */
     public static String parseToHtmlImg(String content) {
         try {
+            content = content.replaceFirst("\\(", "");
+            if (!content.startsWith("https:"))
+                content = "https://sjsu.instructure.com" + content;
             if (content.matches(".*scale=1\\)\\S.*"))
                 content = content.replace("scale=1)", "scale=1) ");
             Scanner s = new Scanner(content);
@@ -53,6 +59,7 @@ public class Utils_HTML {
             while (s.hasNext()) {
                 tail.append(s.next()).append(" ");
             }
+            s.close();
             return "<img src=\"" + url + "\"/>" + tail;
         } catch (Exception e) {
             return content;
