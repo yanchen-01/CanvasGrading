@@ -22,9 +22,9 @@ public class Utils {
      * @param message detailed message about error (maybe a format string)
      * @param args    arguments for a format string if needed
      */
-    public static void printWarning(String message, String... args) {
+    public static void printWarning(String message, Object... args) {
         if (args != null && args.length > 0)
-            message = String.format(message, (Object) args);
+            message = String.format(message, args);
         System.out.println("!Warning: " + message);
     }
 
