@@ -19,7 +19,8 @@ public class Utils_HTML {
         Scanner scan = new Scanner(content);
         while (scan.hasNextLine()) {
             String line = scan.nextLine();
-            line = line.replaceAll("\\[LaTeX:.*]", "");
+            // Use reluctant quantifiers to remove each [LaTeX :...]
+            line = line.replaceAll("\\[LaTeX:.*?]", "");
             Scanner lineScan = new Scanner(line);
             while (lineScan.hasNext()) {
                 String current = lineScan.next();
