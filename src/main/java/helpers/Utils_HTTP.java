@@ -79,7 +79,7 @@ public class Utils_HTTP {
             HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + AUTH);
-            if (!method.equals("PUT"))
+            if (!method.startsWith("P"))
                 builder.method(method, BodyPublishers.noBody());
             else if (data.endsWith(".json"))
                 builder.method(method, BodyPublishers.ofFile(Path.of(data)));
