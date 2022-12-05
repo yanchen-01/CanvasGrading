@@ -1,7 +1,7 @@
 function updateRubric(sID) {
     const rubric = document.getElementById(sID);
     const i = rubric.selectedIndex;
-    if (i === -1 || rubric.value !== "No rubrics") {
+    if (i === -1 || rubric.value === "No rubrics") {
         alert("Select a rubric first!")
         return;
     }
@@ -28,7 +28,7 @@ function updateRubric(sID) {
 function deleteRubric(sID) {
     const rubric = document.getElementById(sID);
     const i = rubric.selectedIndex;
-    if (i === -1 || rubric.value !== "No rubrics") {
+    if (i === -1 || rubric.value === "No rubrics") {
         alert("Select a rubric first!")
         return;
     }

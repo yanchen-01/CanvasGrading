@@ -53,6 +53,7 @@ public class Upload {
 
     static void readFile(File file) {
         try (Scanner scanner = new Scanner(file)) {
+            if (!file.isFile()) return;
             double full = Double.parseDouble(scanner.nextLine());
             Score grade = null;
             while (scanner.hasNextLine()) {

@@ -94,7 +94,7 @@ public class Utils_HTTP {
             else
                 response = client.send(request, BodyHandlers.ofString());
             if (response.statusCode() != 200)
-                return error + response.statusCode();
+                return error + response.body();
             else return response.body().toString();
 
         } catch (Exception e) {

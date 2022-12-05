@@ -26,6 +26,7 @@ public class Utils_Draw {
     static HashMap<String, Transition> transitions;
     static HashMap<String, Integer> outGoingTransitions;
     static int width, height;
+    static String machineType;
 
     /**
      * Draw jff to png.
@@ -37,6 +38,8 @@ public class Utils_Draw {
         initialize();
         Document doc = Utils_JFF.getDoc(inFile);
         assert doc != null;
+        machineType = Utils_JFF.getContent(doc.getDocumentElement(), "type");
+        assert machineType != null;
         String state = machineType.equals(TURING_WITH_BLOCKS) ?
                 "block" : "state";
         goOverElements(doc, state, Utils_Draw::setState);

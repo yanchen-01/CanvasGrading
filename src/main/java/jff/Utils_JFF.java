@@ -26,7 +26,6 @@ public class Utils_JFF {
     public static HashSet<String> notDFA;
     protected static boolean checkDFA;
     protected static boolean isDFA;
-    protected static String machineType;
 
     /**
      * Organize .jff submissions and draw to png.
@@ -44,11 +43,12 @@ public class Utils_JFF {
      */
     public static void organize(File file) {
         try {
+            if (!file.isFile()) return;
             String oldName = file.getName();
             if (!oldName.matches("\\D+\\d+_question_\\d+_\\d+_.*.")) return;
             // Get info - name format: nameSID_question_qID_otherInfo
             String[] info = oldName.split("_question_");
-            String sID = info[0].replaceAll("\\D+", "");
+            String sID = Utils.removeNonDigits(info[0]);
             String qID = info[1].replaceAll("_.+", "");
             int studentID = Integer.parseInt(sID);
             Student student = Utils_Setup.STUDENTS.get(studentID);
@@ -65,15 +65,15 @@ public class Utils_JFF {
 
             // if extension is correct, pre-check the machine
             Question question = QUESTIONS.get(Integer.parseInt(qID));
-            machineType = question.getJffType();
+            String machineType = question.getJffType();
             // For DFAs, check if it's DFA when drawing
             // since not DFA is not a fatal error
             if (machineType.equals("dfa")) {
                 checkDFA = true;
                 machineType = "fa";
-            }
+            } else checkDFA = false;
 
-            String preCheckResult = preCheckMachine(file);
+            String preCheckResult = preCheckMachine(file, machineType);
             if (!preCheckResult.isEmpty()) {
                 preCheckResult = studentInfo + "\n" + preCheckResult;
                 Utils.writeToFile(resultFile, preCheckResult);
@@ -82,7 +82,7 @@ public class Utils_JFF {
 
             // if no fatal error, draw and move to corresponding folder
             Utils_Draw.drawJff(file, JFF_FOLDER + "/" + studentInfo);
-            if (!isDFA) {
+            if (checkDFA && !isDFA) {
                 Utils.writeToFile(resultFile, studentInfo + "\n" + NOT_DFA);
                 notDFA.add(studentInfo);
             }
@@ -132,7 +132,7 @@ public class Utils_JFF {
         }
     }
 
-    private static String preCheckMachine(File file) {
+    public static String preCheckMachine(File file, String machineType) {
         Document document = getDoc(file);
         assert document != null;
         if (missingState(document, "initial"))
@@ -162,8 +162,8 @@ public class Utils_JFF {
         NodeList tape = doc.getElementsByTagName("tapes");
         String actual = getContent(doc.getDocumentElement(), "type");
         if (actual == null) return true;
-        if (actual.equals(TURING_WITH_BLOCKS) && machineType.equals("turing"))
-            machineType = TURING_WITH_BLOCKS;
+        if (actual.equals(TURING_WITH_BLOCKS) && type.equals("turing"))
+            type = TURING_WITH_BLOCKS;
         return !actual.equals(type) || tape.getLength() != 0;
     }
 

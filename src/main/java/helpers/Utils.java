@@ -15,6 +15,10 @@ import static constants.Parameters.*;
  */
 public class Utils {
 
+    public static String removeNonDigits(String input) {
+        return input.replaceAll("\\D+", "");
+    }
+
     /**
      * Print a warning message - anything wrong with individual file/folder,
      * but not serious enough to terminate the whole program.
@@ -212,11 +216,8 @@ public class Utils {
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles == null)
             throw new FileNotFoundException("'" + pathname + "' folder doesn't exist!");
-        for (File file : listOfFiles) {
-            if (file.isFile()) {
-                op.operate(file);
-            }
-        }
+        for (File file : listOfFiles)
+            op.operate(file);
     }
 
     /**
@@ -225,6 +226,7 @@ public class Utils {
      * @param file the json file
      */
     public static void uploadJSON(File file) {
+        if (!file.isFile()) return;
         String id = file.getName().replace(".json", "");
         String url = API_URL + "/submissions/" + id;
         Utils_HTTP.putData(url, file.getAbsolutePath());

@@ -79,6 +79,7 @@ public class GradeJFFs {
     }
 
     static void grade(File file) {
+        if (!file.isFile()) return;
         //Filename format: resultsAttempt-subID_qID.jff.txt
         String filename = file.getName();
         if (!filename.matches("results\\d+-\\d+_\\d+.jff.txt")) return;
