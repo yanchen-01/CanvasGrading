@@ -24,14 +24,14 @@ public class Utils_SetupSets {
      *
      * @return the json string for question sets.
      */
-    public static String getQuestionSets() {
+    public static String getQuestionSets(String qs) {
         int num = getNumOfQuestions();
-        JSONArray result = new JSONArray();
+        JSONArray result = new JSONArray(qs);
         HashSet<Integer> setQs = new HashSet<>();
         outer:
         for (Student student : Utils_Setup.STUDENTS.values()) {
             int subID = student.getSubID();
-            if (subID == 0) continue ;
+            if (subID == 0) continue;
             String url = String.format("%s/quiz_submissions/%s/questions",
                     API, subID);
             JSONObject json = new JSONObject(Utils_HTTP.getData(url));
@@ -61,7 +61,9 @@ public class Utils_SetupSets {
     }
 
     private static void updateQuestion(JSONObject q) {
-        int groupID = q.getInt("quiz_group_id");
+        Object groupID = q.get("quiz_group_id");
+        if (!(groupID instanceof Integer))
+            return;
 
         String url = API_URL + "/groups/" + groupID;
         JSONObject group = new JSONObject(Utils_HTTP.getData(url));
