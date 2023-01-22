@@ -37,17 +37,18 @@ public class Setup {
                 hasJFF = true;
             }
 
-            Utils.printPrompt("Has question sets? (Y/N)");
-            String qSets = scanner.nextLine();
             System.out.println("...Fetching questions and submissions...");
             String sub = API_URL + "/submissions?page=1&per_page=100";
             String subR = Utils_HTTP.getData(sub);
             Utils_Setup.setStudents(subR);
 
             String q = API_URL + "/questions?page=1&per_page=100";
-            String qR = qSets.startsWith("Y")?
-                    Utils_SetupSets.getQuestionSets(q)
-                    : Utils_HTTP.getData(q);
+            String qR = Utils_HTTP.getData(q);
+            Utils.printPrompt("Has question sets? (Y/N)");
+            String qSets = scanner.nextLine();
+            qR = qSets.startsWith("Y") ?
+                    Utils_SetupSets.getQuestionSets(qR)
+                    : qR;
             setQuestions(qR);
 
             if (hasJFF) {
@@ -69,15 +70,8 @@ public class Setup {
 
             generateHTMLs();
 
-            System.out.print("""
-                    \u2713 HTMLs and JSONs generated.
-                    Upload scoring for MC adjustment & unanswered (Y/N)?
-                    >>\s""");
-            String answer = scanner.nextLine();
-            if (answer.startsWith("Y")) {
-                Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
-                System.out.println("\u2713 MC & unanswered adjustment done");
-            }
+            Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
+            System.out.println("\u2713 MC & unanswered adjustment done");
             Desktop.getDesktop().open(new File(INDEX + ".html"));
 
             System.out.println("\u2713 Setting up done. After grading, run Upload.java");

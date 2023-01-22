@@ -98,8 +98,8 @@ public class UploadRubrics {
                     }
                     """, rubrics);
 
-            System.out.println(url + "\n" + data + "\n***********");
-            //Utils_HTTP.putData(url, data);
+            //System.out.println(url + "\n" + data + "\n***********");
+            Utils_HTTP.putData(url, data);
         }
     }
 }

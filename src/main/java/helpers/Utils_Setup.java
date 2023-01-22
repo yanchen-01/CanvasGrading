@@ -69,13 +69,21 @@ public class Utils_Setup {
             // Other info only matters to essay or file upload questions
             if (type.equals(ESSAY)
                     || type.equals(UPLOAD)) {
-                double score = current.getDouble(POINTS);
                 String name = current.getString(NAME);
+                double score = 2.0;
+                try {
+                    score = current.getDouble(POINTS);
+                } catch (Exception e) {
+                    System.out.println(name);
+                }
+
+
                 String content = current.getString(CONTENT);
                 content = name.startsWith("Design") ?
                         name + "\n" + content : content;
                 question.setContent(content);
-                SHORT_ANSWERS.computeIfAbsent(name, k -> new QuestionSet(name, score));
+                double finalScore = score;
+                SHORT_ANSWERS.computeIfAbsent(name, k -> new QuestionSet(name, finalScore));
                 QuestionSet set = SHORT_ANSWERS.get(name);
                 set.add(question);
 

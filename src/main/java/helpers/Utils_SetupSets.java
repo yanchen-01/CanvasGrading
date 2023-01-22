@@ -25,10 +25,10 @@ public class Utils_SetupSets {
      * @return the json string for question sets.
      */
     public static String getQuestionSets(String qs) {
-        int num = getNumOfQuestions();
+      //  int num = getNumOfQuestions();
         JSONArray result = new JSONArray(qs);
         HashSet<Integer> setQs = new HashSet<>();
-        outer:
+       // outer:
         for (Student student : Utils_Setup.STUDENTS.values()) {
             int subID = student.getSubID();
             if (subID == 0) continue;
@@ -44,8 +44,8 @@ public class Utils_SetupSets {
                 if (type.equals(ESSAY) || type.equals(UPLOAD))
                     updateQuestion(q);
                 result.put(q);
-                if (result.length() == num)
-                    break outer;
+//                if (result.length() == num)
+//                    break outer;
             }
         }
         return result.toString();
