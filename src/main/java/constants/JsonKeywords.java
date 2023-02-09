@@ -13,4 +13,9 @@ public class JsonKeywords {
     public final static String UPLOAD = "file_upload_question";
     public final static String MC = "multiple_answers_question";
     public final static String TEXT_ONLY = "text_only_question";
+    public final static String SCORE = "score";
+    public final static String STATUS = "workflow_state";
+    public final static String GRADED = "graded";
+    public final static String HAS_SUBS = "has_submitted_submissions";
+    public final static String NEED_GRADE = "needs_grading_count";
 }
