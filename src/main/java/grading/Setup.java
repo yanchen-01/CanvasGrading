@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 import static constants.FolderNames.*;
 import static constants.Parameters.API_URL;
-import static constants.Parameters.JFF_SUBMISSION_FOLDER;
+import static constants.Parameters.SUBMISSION_FOLDER;
 import static helpers.Utils_Setup.generateHTMLs;
 import static helpers.Utils_Setup.setQuestions;
 
@@ -30,8 +30,8 @@ public class Setup {
             Utils.makeFolder(JSON_FOLDER);
 
             boolean hasJFF = false;
-            Utils.askForParameters(scanner, true);
-            if (!JFF_SUBMISSION_FOLDER.isEmpty() && !JFF_SUBMISSION_FOLDER.equals("N")) {
+            Utils.askForParameters(scanner);
+            if (!SUBMISSION_FOLDER.isEmpty() && !SUBMISSION_FOLDER.equals("N")) {
                 Utils.makeFolder(JFF_FOLDER);
                 Utils.makeFolder(JFF_RESULTS);
                 hasJFF = true;
@@ -53,7 +53,7 @@ public class Setup {
 
             if (hasJFF) {
                 Utils_JFF.notDFA = new HashSet<>();
-                Utils.goThroughFiles(Utils_JFF::organize, JFF_SUBMISSION_FOLDER);
+                Utils.goThroughFiles(Utils_JFF::organize, SUBMISSION_FOLDER);
                 Utils.saveObject(Constants_JFF.SET_NOT_DFA, Utils_JFF.notDFA);
             }
 

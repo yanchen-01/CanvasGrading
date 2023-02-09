@@ -87,7 +87,7 @@ public class Utils_Setup {
                 QuestionSet set = SHORT_ANSWERS.get(name);
                 set.add(question);
 
-                if (type.equals(UPLOAD)) {
+                if (type.equals(UPLOAD) && name.startsWith("Design")) {
                     Utils.makeFolder(JFF_FOLDER + "/" + id);
                     Utils.writeToFile(JFF_RESULTS + "/" + id + "p", score + "\n");
                     JFFs.add(question);

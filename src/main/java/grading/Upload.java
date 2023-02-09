@@ -31,7 +31,7 @@ public class Upload {
                 }
             }
 
-            Utils.askForParameters(scanner, false);
+            Utils.askForParameters(scanner);
             Utils.goThroughFiles(Utils::uploadJSON, JSON_FOLDER);
             System.out.println("Uploading done. Double check Canvas to see if success.");
         } catch (FileNotFoundException e) {

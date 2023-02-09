@@ -61,22 +61,16 @@ public class Utils {
      * Ask for global parameters (Auth token, URL, etc.) needed.
      *
      * @param scanner     scanner to take user input
-     * @param askForClass true if need to know the class number
      */
-    public static void askForParameters(Scanner scanner, boolean askForClass) {
+    public static void askForParameters(Scanner scanner) {
         askForAuth(scanner);
-        if (askForClass) {
-            CLASS = getParam("CLASS", "class name (154, etc.)", scanner);
-            CLASS = CLASS.contains("CS") ? CLASS : "CS" + CLASS;
-        }
         printPrompt("assignment URL (start with https, do NOT end with /)");
         ASSIGNMENT_URL = scanner.nextLine();
         API_URL = ASSIGNMENT_URL.replace("courses", "api/v1/courses");
 
-        if (askForClass && CLASS.contains("154")) {
-            printPrompt("folder name if contains JFF upload questions or N if not");
-            JFF_SUBMISSION_FOLDER = scanner.nextLine();
-        }
+        printPrompt("folder name if contains upload questions (for JFF question, " +
+                "please name the folder as 'jff') or N if not");
+        SUBMISSION_FOLDER = scanner.nextLine();
     }
 
     /**
@@ -85,7 +79,13 @@ public class Utils {
      * @param scanner scanner to take user input
      */
     public static void askForAuth(Scanner scanner) {
-        AUTH = getParam("AUTH", "TOKEN", scanner);
+        try {
+            Class<?> privateParams = Class.forName("constants.PrivateParams");
+            AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            printPrompt("TOKEN");
+            AUTH = scanner.nextLine();
+        }
     }
 
     /**
@@ -244,15 +244,4 @@ public class Utils {
         }
     }
 
-    private static String getParam(String param, String prompt, Scanner scanner) {
-        String result;
-        try {
-            Class<?> privateParams = Class.forName("constants.PrivateParams");
-            result = (String) privateParams.getDeclaredField(param).get(null);
-        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-            printPrompt(prompt);
-            result = scanner.nextLine();
-        }
-        return result;
-    }
 }
