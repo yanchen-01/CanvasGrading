@@ -1,6 +1,7 @@
 package helpers;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -60,17 +61,22 @@ public class Utils {
     /**
      * Ask for global parameters (Auth token, URL, etc.) needed.
      *
-     * @param scanner     scanner to take user input
+     * @param scanner scanner to take user input
      */
     public static void askForParameters(Scanner scanner) {
         askForAuth(scanner);
         printPrompt("assignment URL (start with https, do NOT end with /)");
         ASSIGNMENT_URL = scanner.nextLine();
+        if (ASSIGNMENT_URL.contains("speed")) {
+            ASSIGNMENT_URL = ASSIGNMENT_URL.replace
+                    ("gradebook/speed_grader?assignment_id=", "assignments/");
+            ASSIGNMENT_URL = ASSIGNMENT_URL.replaceAll("&student_id.*", "");
+        }
         API_URL = ASSIGNMENT_URL.replace("courses", "api/v1/courses");
 
-        printPrompt("folder name if contains upload questions (for JFF question, " +
-                "please name the folder as 'jff') or N if not");
-        SUBMISSION_FOLDER = scanner.nextLine();
+//        printPrompt("folder name if contains upload questions (for JFF question, " +
+//                "please name the folder as 'jff') or N if not");
+//        SUBMISSION_FOLDER = scanner.nextLine();
     }
 
     /**
@@ -122,6 +128,22 @@ public class Utils {
             parser.parse(contents);
         } catch (Exception e) {
             throw new Exception(Utils.exceptionMsg("reading " + filename, e));
+        }
+    }
+
+    /**
+     * Write a CSV file
+     *
+     * @param filename the name of the file (without extension)
+     * @param content the content to write
+     * @throws Exception if anything wrong
+     */
+    public static void writeCSV(String filename, List<String[]> content) throws Exception {
+        try (FileWriter out = new FileWriter(filename + ".csv");
+             CSVWriter writer = new CSVWriter(out)) {
+            writer.writeAll(content);
+        } catch (Exception e) {
+            throw new Exception(exceptionMsg("writing file " + filename, e));
         }
     }
 
