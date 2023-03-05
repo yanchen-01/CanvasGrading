@@ -1,7 +1,14 @@
 package helpers;
 
+import obj.Answer;
+import obj.Question;
+import obj.QuestionSet;
+import org.json.JSONObject;
+
 import java.io.PrintWriter;
 import java.util.Scanner;
+
+import static constants.FolderNames.GRADING_FOLDER;
 
 /**
  * Util methods related to HTML
@@ -20,11 +27,12 @@ public class Utils_HTML {
         while (scan.hasNextLine()) {
             String line = scan.nextLine();
             // Use reluctant quantifiers to remove each [LaTeX :...]
-            line = line.replaceAll("\\[LaTeX:.*?]", "");
+            line = line.replaceAll("\\[(LaTeX:)?.*?]", "");
             Scanner lineScan = new Scanner(line);
             while (lineScan.hasNext()) {
                 String current = lineScan.next();
-                if (current.contains("equation_images") || current.contains("https"))
+                if (current.contains("equation_images")
+                        || current.contains("preview?verifier"))
                     current = parseToHtmlImg(current);
 
                 result.append(" ").append(current);
@@ -61,10 +69,64 @@ public class Utils_HTML {
                 tail.append(s.next()).append(" ");
             }
             s.close();
-            return "<img src=\"" + url + "\"/>" + tail;
+            int width = content.contains("equation_images") ?
+                    0 : 350;
+            return getHTMLImg(url, width) + tail;
         } catch (Exception e) {
             return content;
         }
+    }
+
+    public static String getHTMLEmbed(String filePath, int width) {
+        return getHTMLEmbed(filePath, width, false);
+    }
+
+    public static String getHTMLEmbed(String filePath) {
+        return getHTMLEmbed(filePath, 0);
+    }
+
+    public static String getHTMLImg(String filePath, int width) {
+        return getHTMLEmbed(filePath, width, true);
+    }
+
+    public static String getHTMLImg(String filePath) {
+        return getHTMLEmbed(filePath, 0, true);
+    }
+
+    private static String getHTMLEmbed(String filePath, int width, boolean image) {
+        // make sure it's an image or not
+        String temp = filePath.toLowerCase();
+        if (!image) {
+            image = temp.matches(".+\\.(png|jpg)");
+        }
+        String tag = image ? "img" : "embed";
+        JSONObject attributes = new JSONObject();
+        attributes.put("src", filePath);
+        attributes.put("alt", filePath);
+        // enforce the size of pdf...
+        if (temp.endsWith("pdf")) {
+            width = 500;
+            attributes.put("height", 200);
+        }
+        if (width != 0)
+            attributes.put("width", width);
+
+        return getHTMLElement(tag, attributes, "");
+    }
+
+    public static String getHTMLHref(String url) {
+        String display = url.replace("temp-", "");
+        return getHTMLHref(url, display, true);
+    }
+
+    public static String getHTMLHref(String url, Object display, boolean newTab) {
+        JSONObject attributes = new JSONObject();
+        attributes.put("href", url);
+        if (newTab) {
+            attributes.put("target", "_blank");
+            attributes.put("rel", "noopener noreferrer");
+        }
+        return getHTMLElement("a", attributes, display.toString());
     }
 
     /**
