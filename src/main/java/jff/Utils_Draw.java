@@ -32,7 +32,7 @@ public class Utils_Draw {
      * Draw jff to png.
      *
      * @param inFile      the input file in .jff
-     * @param outFilename the name of the output file (without extension)
+     * @param outFilename the name of the output file (with or without extension both OK)
      */
     public static void drawJff(File inFile, String outFilename) {
         initialize();
@@ -134,10 +134,12 @@ public class Utils_Draw {
                 g2.drawString(NOT_DFA, 30, 30);
 
             g2.dispose();
-            File file = new File(outFilename + ".png");
+            if (!outFilename.endsWith(".png"))
+                outFilename = outFilename + ".png";
+            File file = new File(outFilename);
             ImageIO.write(bufferedImage, "png", file);
         } catch (IOException e) {
-            Utils.printWarning("fail to draw jff to %s.png", outFilename);
+            Utils.printWarning("fail to draw jff to %s", e, outFilename);
         }
     }
 

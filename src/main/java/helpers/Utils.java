@@ -2,10 +2,13 @@ package helpers;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import obj.Quiz;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,8 +16,50 @@ import static constants.Parameters.*;
 
 /**
  * General util methods
+ * TODO: re-arrange the other of methods - currently hard to find things...
  */
 public class Utils {
+
+    public static void printProgress(String step) {
+        System.out.println("... " + step + " ...");
+    }
+
+    public static void printDoneProcess(String step) {
+        System.out.println("\u2713 " + step + ".");
+    }
+
+    public static int getOption(Scanner in, String prompt) {
+        Utils.printPrompt(prompt);
+        int option = 0;
+        if (in.hasNextInt()) {
+            option = in.nextInt();
+        }
+        in.nextLine(); // make sure cursor move to next line.
+        return option;
+    }
+
+    public static void runFunctionality(Scanner in, Functionality functionality) {
+        try (in) {
+            functionality.run(in);
+        } catch (Exception e) {
+            printFatalError(e);
+        }
+    }
+
+    public static int lateStatus(String due, String actual, double adjustDays) {
+        Date original = parseISODate(due, 0.0);
+        Date newDead = parseISODate(due, adjustDays);
+        Date a = parseISODate(actual, 0);
+        if (a.after(newDead)) return 2;
+        else if (a.after(original)) return 1;
+        else return 0;
+    }
+
+    public static Date parseISODate(String date, double adjustDays) {
+        Instant instant = Instant.parse(date)
+                .plusSeconds((long) adjustDays * 60 * 60 * 24);
+        return Date.from(instant);
+    }
 
     public static String removeNonDigits(String input) {
         return input.replaceAll("\\D+", "");
@@ -25,12 +70,15 @@ public class Utils {
      * but not serious enough to terminate the whole program.
      *
      * @param message detailed message about error (maybe a format string)
+     * @param e       the exception received
      * @param args    arguments for a format string if needed
      */
-    public static void printWarning(String message, Object... args) {
+    public static void printWarning(String message, Exception e, Object... args) {
         if (args != null && args.length > 0)
             message = String.format(message, args);
         System.out.println("!Warning: " + message);
+        if (e != null)
+            System.out.println("  causation: " + e.getMessage());
     }
 
     /**
@@ -54,29 +102,27 @@ public class Utils {
         try (FileWriter myWriter = new FileWriter(filename, true)) {
             myWriter.write(content);
         } catch (IOException e) {
-            printWarning("fail to write %s to %s", content, filename);
+            printWarning("fail to write %s to %s", e, content, filename);
         }
     }
 
     /**
      * Ask for global parameters (Auth token, URL, etc.) needed.
+     * TODO: IDK seems no longer needed, for backward compatibility only
      *
      * @param scanner scanner to take user input
      */
     public static void askForParameters(Scanner scanner) {
         askForAuth(scanner);
         printPrompt("assignment URL (start with https, do NOT end with /)");
-        ASSIGNMENT_URL = scanner.nextLine();
-        if (ASSIGNMENT_URL.contains("speed")) {
-            ASSIGNMENT_URL = ASSIGNMENT_URL.replace
-                    ("gradebook/speed_grader?assignment_id=", "assignments/");
-            ASSIGNMENT_URL = ASSIGNMENT_URL.replaceAll("&student_id.*", "");
-        }
-        API_URL = ASSIGNMENT_URL.replace("courses", "api/v1/courses");
-
-//        printPrompt("folder name if contains upload questions (for JFF question, " +
-//                "please name the folder as 'jff') or N if not");
-//        SUBMISSION_FOLDER = scanner.nextLine();
+        String url = scanner.nextLine();
+        url = url.replace("courses", "api/v1/courses");
+        if (url.contains("speed")) {
+            url = url.replace("gradebook/speed_grader?assignment_id=",
+                    "assignments/");
+            ASSIGNMENT_URL = url.replaceAll("&student_id.*", "");
+        } else if (url.contains("quizzes"))
+            QUIZ_URL = url;
     }
 
     /**
@@ -110,8 +156,9 @@ public class Utils {
      */
     public static void makeFolder(String folderName) {
         File folder = new File(folderName);
+        if (folder.exists()) return;
         if (!folder.mkdir())
-            printWarning("fail to create '%s' folder.", folderName);
+            printWarning("fail to create '%s' folder.", null, folderName);
     }
 
     /**
@@ -135,7 +182,7 @@ public class Utils {
      * Write a CSV file
      *
      * @param filename the name of the file (without extension)
-     * @param content the content to write
+     * @param content  the content to write
      * @throws Exception if anything wrong
      */
     public static void writeCSV(String filename, List<String[]> content) throws Exception {
@@ -193,26 +240,6 @@ public class Utils {
     }
 
     /**
-     * Write a json file that stores score and comment for 1 submission.
-     *
-     * @param question A json object that contains scores and comments
-     * @param filename the output filename (without extension)
-     * @param attempt  the number of attempts
-     */
-    public static void writeScoreAndCommentJSON(JSONObject question, String filename, int attempt) {
-        JSONObject submission = new JSONObject();
-        submission.put("attempt", attempt);
-        submission.put("questions", question);
-
-        JSONArray array = new JSONArray();
-        array.put(submission);
-
-        JSONObject result = new JSONObject();
-        result.put("quiz_submissions", array);
-        writeJSON(result, filename);
-    }
-
-    /**
      * Write a json object to a file
      *
      * @param object   the json object
@@ -250,7 +277,23 @@ public class Utils {
     public static void uploadJSON(File file) {
         if (!file.isFile()) return;
         String id = file.getName().replace(".json", "");
-        String url = API_URL + "/submissions/" + id;
+        String url = QUIZ_URL + "/submissions/" + id;
+        Utils_HTTP.putData(url, file.getAbsolutePath());
+        deleteFile(file);
+    }
+
+    /**
+     * Upload a json file for score and comments.
+     *
+     * @param file the json file
+     */
+    public static void uploadJSON(File file, Quiz quiz) {
+        if (!file.isFile()) return;
+        String filename = file.getName();
+        String id = removeNonDigits(filename);
+        String url = filename.startsWith("a") ?
+                quiz.getAssignmentUrl() : quiz.getUrl();
+        url = url + "/submissions/" + id;
         Utils_HTTP.putData(url, file.getAbsolutePath());
         deleteFile(file);
     }
@@ -262,7 +305,7 @@ public class Utils {
      */
     public static void deleteFile(File file) {
         if (!file.delete()) {
-            printWarning("fail to delete %s.", file.getAbsolutePath());
+            printWarning("fail to delete %s.", null, file.getAbsolutePath());
         }
     }
 

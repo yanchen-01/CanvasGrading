@@ -12,28 +12,31 @@ import java.util.List;
 import java.util.Scanner;
 
 import static constants.JsonKeywords.ID;
-import static constants.Parameters.API_URL;
 
 public class GradeByRubrics {
 
+    static String ASSIGNMENT_URL;
     public static void main(String[] args) {
-        try (Scanner in = new Scanner(System.in)) {
-            Utils.printPrompt("""
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, GradeByRubrics::run);
+    }
+
+    static void run(Scanner in) throws Exception {
+        Utils.askForAuth(in);
+        Utils.printPrompt("assignment url (do not end with /)");
+        ASSIGNMENT_URL = in.nextLine().replace("courses", "api/v1/courses");
+        Utils.printPrompt("""
                     one option (1 or 2):
                     1. Download template
                     2. Upload result""");
 
-            int option = in.nextInt();
-            in.nextLine(); // make sure cursor move to next line.
-            Utils.askForParameters(in);
-            switch (option) {
-                case 1 -> downloadTemplate(in);
-                case 2 -> uploadResult(in);
-                default -> System.out.println("Wrong option, program terminated. ");
-            }
+        int option = in.nextInt();
+        in.nextLine(); // make sure cursor move to next line.
 
-        } catch (Exception e) {
-            Utils.printFatalError(e);
+        switch (option) {
+            case 1 -> downloadTemplate(in);
+            case 2 -> uploadResult(in);
+            default -> System.out.println("Wrong option, program terminated. ");
         }
     }
 
@@ -43,16 +46,16 @@ public class GradeByRubrics {
         String[] headers = getHeaders();
         JSONArray students = getStudentsJSON(sec);
         List<String[]> contents = getContent(headers, students);
-        System.out.println("\u2713 templated generated");
+        Utils.printDoneProcess("Templated generated");
         Utils.printPrompt("filename to save (without .csv)");
         String filename = in.nextLine();
         Utils.writeCSV(filename, contents);
         Desktop.getDesktop().open(new File(filename + ".csv"));
-        System.out.println("\u2713 templated opened. After grading, run this again to upload.");
+        Utils.printDoneProcess("Templated opened. After grading, run this again to upload.");
     }
 
     static String[] getHeaders() {
-        String data = Utils_HTTP.getData(API_URL);
+        String data = Utils_HTTP.getData(ASSIGNMENT_URL);
         JSONObject o = new JSONObject(data);
         JSONArray rubrics = o.getJSONArray("rubric");
         String[] headers = new String[rubrics.length() * 2 + 2];
@@ -71,7 +74,7 @@ public class GradeByRubrics {
     }
 
     static JSONArray getStudentsJSON(String sec) {
-        String courseUrl = API_URL.replaceAll("assignments.*", "");
+        String courseUrl = ASSIGNMENT_URL.replaceAll("assignments.*", "");
         if (sec.matches("\\d+")) {
             int section = Integer.parseInt(sec);
             section = getSectionID(courseUrl, section);
@@ -123,7 +126,7 @@ public class GradeByRubrics {
 
         for (String[] row : content) {
             String studentID = row[1];
-            String url = API_URL + "/submissions/" + studentID;
+            String url = ASSIGNMENT_URL + "/submissions/" + studentID;
             JSONObject rubrics = new JSONObject();
             for (int i = 2; i < row.length - 1; i += 2) {
                 String pts = row[i + 1];

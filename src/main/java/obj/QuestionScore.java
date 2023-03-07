@@ -6,7 +6,7 @@ import org.json.JSONObject;
  * Score for a question.
  * TODO: may need to further simplify or reorganize - extend JSON, etc.
  */
-public class Score {
+public class QuestionScore {
     private final String qID;
     private double pts;
     private String comment;
@@ -17,7 +17,7 @@ public class Score {
      * @param qID question ID
      * @param pts initial points of the question, normally the full points possible
      */
-    public Score(String qID, double pts) {
+    public QuestionScore(String qID, double pts) {
         this.qID = qID;
         this.pts = pts;
         this.comment = "";

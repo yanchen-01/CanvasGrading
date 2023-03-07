@@ -5,11 +5,15 @@ import java.util.HashSet;
 
 public class QuestionSet extends HashSet<Question> implements Serializable {
     private final String name;
-    private final double score;
+    private double score;
 
     public QuestionSet(String name, double score) {
         super(20);
         this.name = name;
+        this.score = score;
+    }
+
+    public void setScore(double score) {
         this.score = score;
     }
 

@@ -8,12 +8,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/src/test" />
-      <excludeFolder url="file://$MODULE_DIR$/src/main/java/save" />
-      <excludeFolder url="file://$MODULE_DIR$/result" />
-      <excludeFolder url="file://$MODULE_DIR$/jsons" />
-      <excludeFolder url="file://$MODULE_DIR$/questions" />
       <excludeFolder url="file://$MODULE_DIR$/r" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/temp-jsons" />
+      <excludeFolder url="file://$MODULE_DIR$/temp-questions" />
+      <excludeFolder url="file://$MODULE_DIR$/temp-submissions" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

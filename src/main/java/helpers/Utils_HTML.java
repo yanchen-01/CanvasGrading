@@ -174,4 +174,76 @@ public class Utils_HTML {
     public static String getHTMLParagraph(String body) {
         return getHTMLElement("p", null, body);
     }
+
+    public static void writeQuestionHTML(String summary, QuestionSet qs) {
+        StringBuilder content = new StringBuilder(String.format("""
+                <head>
+                    <meta charset="UTF-8">
+                    <script src="../script.js"></script>
+                    <title>%1$s</title>
+                </head>
+                <body>
+                    <p><a href="../index.html">back to index</a></p>
+                    <p id="qNum">%s</p>
+                    <p id="score">%.1f</p>
+                    <input type="file" id="grading" accept=".txt" style="display:none">
+                    <button onclick="load('grading', loadSaved)">Load saved results</button>
+                    <input type="file" id="rubrics" accept=".txt" style="display:none">
+                    <button onclick="load('rubrics', loadRubric)">Load saved rubrics</button>
+                """, summary, qs.getScore()));
+        for (Question q : qs) {
+            int id = q.getId();
+
+            content.append(String.format("""
+                        <h3>%d<br>%s</h3>
+                    """, id, q.getContent()));
+            while (!q.getAnswers().empty())
+                content.append(getAnswerDiv(id, q.getAnswers().pop()));
+        }
+        // Save button
+        content.append("""
+                        <button onclick="saveGrading()">Save Grading</button>
+                        <button onclick="saveRubrics()">Save Rubrics</button>
+                    </body>
+                """);
+        Utils_HTML.writeToHTMLFile(GRADING_FOLDER + "/" + summary, content.toString());
+    }
+
+    private static String getAnswerDiv(int qID, Answer answer) {
+        int sID = answer.getSubmissionID();
+        int attempt = answer.getAttempt();
+        String content = answer.getAnswer();
+        if (!content.startsWith("<"))
+            content = parseToHtmlParagraph(content);
+        String elementID = attempt + "-" + sID + "_" + qID;
+        return String.format("""
+                <div>
+                    <p><b>%s</b></p>
+                    %s
+                    <hr>
+                    <div style="display: flex; flex-flow: column wrap; color: blueviolet">
+                        <label>Add a new rubric:
+                            <input type="text" id="%4$s" size="60">
+                            <input type="button" onclick="addRubric('%3$s','%4$s')" value="ADD">
+                        </label>
+                        <label style="display: flex; flex-flow: row wrap; width: 600px; justify-content: flex-end">
+                            Choose a rubric:
+                            <select id="s_%3$s" onchange="applyRubric('%3$s', 's_%3$s')"
+                                style="flex-basis: 60%%; flex-grow: 1" size="3">
+                                <option value="No rubrics">No rubrics, either add one or load saved file (each line is a rubric)
+                                </option>
+                            </select>
+                            <button onclick="updateRubric('s_%3$s')">Update selected rubric</button>
+                            <button onclick="deleteRubric('s_%3$s')">Delete selected rubric</button>
+                            <button onclick="clearRubric()">Clear all rubrics</button>
+                        </label>
+                        <label style="display: flex; flex-flow: column wrap; width: 600px">
+                            Or directly enter below:
+                            <textarea id="%3$s" rows="5"></textarea>
+                            <button style="width: fit-content" onclick="clearComment('%3$s')">Clear all comments for this student</button>
+                        </label>
+                    </div>
+                </div>
+                """, answer.getQuizSubmission(), content, elementID, sID);
+    }
 }

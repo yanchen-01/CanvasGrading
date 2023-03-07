@@ -1,20 +1,28 @@
 package obj;
 
+import java.io.Serializable;
+
 /**
  * Answer from a student for a question.
- * May be converted to a record (JAVA 14 +)
  */
-public class Answer {
-    private final Student student;
+public class Answer implements Serializable {
+    private final QuizSubmission submission;
     private final String answer;
 
-    public Answer(Student student, String answer) {
-        this.student = student;
+    public Answer(QuizSubmission submission, String answer) {
+        this.submission = submission;
         this.answer = answer;
     }
 
-    public Student getStudent() {
-        return student;
+    public int getSubmissionID() {
+        return submission.getSubmissionID();
+    }
+
+    public int getAttempt() {
+        return submission.getAttempt();
+    }
+    public QuizSubmission getQuizSubmission() {
+        return submission;
     }
 
     public String getAnswer() {

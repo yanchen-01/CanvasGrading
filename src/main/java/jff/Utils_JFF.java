@@ -1,9 +1,7 @@
 package jff;
 
 import helpers.Utils;
-import helpers.Utils_Setup;
-import obj.Question;
-import obj.Student;
+import obj.FileInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -13,9 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.HashSet;
 
-import static constants.FolderNames.JFF_FOLDER;
-import static constants.FolderNames.JFF_RESULTS;
-import static helpers.Utils_Setup.QUESTIONS;
+import static helpers.Utils_QuizSetup.ERRORS;
 import static jff.Constants_JFF.*;
 
 /**
@@ -27,74 +23,25 @@ public class Utils_JFF {
     protected static boolean checkDFA;
     protected static boolean isDFA;
 
-    /**
-     * Organize .jff submissions and draw to png.
-     * For each correct file extension and correct type (except for DFA checking):
-     * <ul>
-     *     <li>Draw to attempt-subID_qID.png under "jffs" folder</li>
-     *     <li>Also checks if it's DFA, if not, write error in jffResults folder</li>
-     *     <li>Rename to attempt-subID_qID.jff</li>
-     *     <li>Move to "jffs/qID" folder</li>
-     * </ul>
-     * if file extension or type of machine is wrong,
-     * the file stays in the original folder and error is written in jffResults folder.
-     *
-     * @param file .jff file
-     */
-    public static void organize(File file) {
-        try {
-            if (!file.isFile()) return;
-            String oldName = file.getName();
-            if (!oldName.matches("\\D+\\d+_question_\\d+_\\d+_.*.")) return;
-            // Get info - name format: nameSID_question_qID_otherInfo
-            String[] info = oldName.split("_question_");
-            String sID = Utils.removeNonDigits(info[0]);
-            String qID = info[1].replaceAll("_.+", "");
-            int studentID = Integer.parseInt(sID);
-            Student student = Utils_Setup.STUDENTS.get(studentID);
-            int subID = student.getSubID();
-            int attempt = student.getAttempt();
-            String studentInfo = String.format("%d-%d_%s", attempt, subID, qID);
-            String resultFile = JFF_RESULTS + "/" + qID + "p";
-
-            if (!oldName.endsWith(".jff")) {
-                String error = studentInfo + "\n" + WRONG_EXT;
-                Utils.writeToFile(resultFile, error);
-                return;
-            }
-
-            // if extension is correct, pre-check the machine
-            Question question = QUESTIONS.get(Integer.parseInt(qID));
-            String machineType = question.getJffType();
-            // For DFAs, check if it's DFA when drawing
-            // since not DFA is not a fatal error
-            if (machineType.equals("dfa")) {
-                checkDFA = true;
-                machineType = "fa";
-            } else checkDFA = false;
-
-            String preCheckResult = preCheckMachine(file, machineType);
-            if (!preCheckResult.isEmpty()) {
-                preCheckResult = studentInfo + "\n" + preCheckResult;
-                Utils.writeToFile(resultFile, preCheckResult);
-                return;
-            }
-
-            // if no fatal error, draw and move to corresponding folder
-            Utils_Draw.drawJff(file, JFF_FOLDER + "/" + studentInfo);
-            if (checkDFA && !isDFA) {
-                Utils.writeToFile(resultFile, studentInfo + "\n" + NOT_DFA);
-                notDFA.add(studentInfo);
-            }
-
-            String newName = String.format("%s/%s/%s.jff", JFF_FOLDER, qID, studentInfo);
-
-            if (!file.renameTo(new File(newName)))
-                Utils.printWarning("fail to rename '%s' to '%s'\n", oldName, newName);
-
-        } catch (Exception e) {
-            Utils.printWarning("file '%s' is not a legit submission file\n", file.getName());
+    public static boolean handleJFF(File file, FileInfo fileInfo) {
+        String studentInfo = fileInfo.getStudentInfo();
+        String jffType = fileInfo.getJffType();
+        if (!fileInfo.getExt().equalsIgnoreCase(".jff")) {
+            ERRORS.put(studentInfo, WRONG_EXT);
+            return false;
         }
+        checkDFA = jffType.equals("dfa");
+        jffType = jffType.equals("dfa") ? "fa" : jffType;
+        String preCheckResult = preCheckMachine(file, jffType);
+        if (!preCheckResult.isEmpty()) {
+            ERRORS.put(studentInfo, preCheckResult);
+            return false;
+        }
+        fileInfo.setExt(".png");
+        Utils_Draw.drawJff(file, fileInfo.getFullName());
+        if (checkDFA && !isDFA)
+            ERRORS.put(studentInfo, NOT_DFA);
+        return true;
     }
 
     /**
@@ -127,7 +74,7 @@ public class Utils_JFF {
             doc.getDocumentElement().normalize();
             return doc;
         } catch (Exception e) {
-            Utils.printWarning("fail to parse " + inputFile.getName());
+            Utils.printWarning("fail to parse " + inputFile.getName(), e);
             return null;
         }
     }

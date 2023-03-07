@@ -1,6 +1,5 @@
 package grading;
 
-import constants.FolderNames;
 import helpers.Utils;
 import obj.Question;
 
@@ -10,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
+// TODO: need update!!
 import static jff.Constants_JFF.*;
 
 public class GradeJFFs {
@@ -30,7 +30,7 @@ public class GradeJFFs {
             String folder = scanner.nextLine();
             Utils.goThroughFiles(GradeJFFs::grade, folder);
             System.out.printf("Grading results are written to %s folder, " +
-                    "put them together with other grading result files and run Upload.java\n", FolderNames.JFF_RESULTS);
+                    "put them together with other grading result files and run Upload.java\n", "FolderNames.PRE_RESULTS");
         } catch (Exception e) {
             Utils.printFatalError(e);
         }
@@ -55,7 +55,7 @@ public class GradeJFFs {
     }
 
     static void rewriteResult(String id) {
-        String filename = FolderNames.JFF_RESULTS + "/" + id;
+        String filename = "FolderNames.PRE_RESULTS" + "/" + id;
         File file = new File(filename + "p.txt");
         if (!file.exists()) return;
         try (Scanner scanner = new Scanner(file)) {
@@ -73,7 +73,7 @@ public class GradeJFFs {
             }
             Utils.writeToFile(filename, content.toString());
         } catch (FileNotFoundException e) {
-            Utils.printWarning(filename + " not found");
+            Utils.printWarning(filename + " not found", e);
         }
         Utils.deleteFile(file);
     }
@@ -96,7 +96,7 @@ public class GradeJFFs {
         gradingResult = gradingResult.isEmpty() ? "\n" : gradingResult;
         comment.append(gradingResult);
 
-        Utils.writeToFile(FolderNames.JFF_RESULTS + "/" + qID, comment.toString());
+        Utils.writeToFile("FolderNames.PRE_RESULTS" + "/" + qID, comment.toString());
     }
 
     static String gradeFile(File file, JffQuestion question) {

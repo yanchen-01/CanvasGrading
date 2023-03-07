@@ -10,8 +10,7 @@
 /*/
 !/src
 !/.idea
-/submissions_by_students.html
-/index.html
+/temp*.*
 /*.jff*
 /*.csv
 /src/main/java/constants/PrivateParams.java

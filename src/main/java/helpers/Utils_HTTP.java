@@ -1,5 +1,8 @@
 package helpers;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -16,8 +19,18 @@ import static constants.Parameters.AUTH;
  */
 public class Utils_HTTP {
 
+    public static JSONObject getJSON(String url) {
+        String result = getData(url);
+        return new JSONObject(result);
+    }
+
+    public static JSONArray getJSONArray(String url) {
+        String result = getData(url);
+        return new JSONArray(result);
+    }
+
     /**
-     * Get data from url into a json file via HttpRequest.
+     * Get data from url into a String via HttpRequest.
      *
      * @param url the request url string
      * @return json data in a String

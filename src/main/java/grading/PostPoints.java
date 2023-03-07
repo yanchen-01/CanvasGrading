@@ -70,14 +70,14 @@ public class PostPoints {
     static void calculatePoints(Assignment assignment) {
         double total = assignment.getTotal();
         String name = assignment.getName();
-        System.out.println("... Calculating points for " + name + " ...");
+        Utils.printProgress("calculating points for" + name);
 
         String data = Utils_HTTP.getData(assignment.getUrl());
         JSONArray submissions = new JSONArray(data);
 
         for (int i = 0; i < submissions.length(); i++) {
             JSONObject current = submissions.getJSONObject(i);
-            int student_id = current.getInt("user_id");
+            int student_id = current.getInt(USER_ID);
             String status = current.getString(STATUS);
 
             if (student_id == course.testStudent
@@ -100,7 +100,7 @@ public class PostPoints {
             System.out.println("None assignment is being calculated. Please contact Yan for the bug.");
             return;
         }
-        System.out.println("\u2713 Calculation done!");
+        Utils.printDoneProcess("Calculation done!");
         Utils.printPrompt("whether post to Extra Credits? (Y/N)");
         String confirm = in.nextLine();
         if (!confirm.equalsIgnoreCase("Y")) {
@@ -109,7 +109,7 @@ public class PostPoints {
             return;
         }
 
-        System.out.println("... Posting to Extra Credits ...");
+        Utils.printProgress("posting to Extra Credits");
         String assignment = apiURL + "/" + extraCreditAssignment + "/submissions/";
 
         students.forEach((student, points) -> {
@@ -122,6 +122,6 @@ public class PostPoints {
 
             Utils_HTTP.putData(url, submission.toString());
         });
-        System.out.println("\u2713 Points all posted. Double-check on Canvas. ");
+        Utils.printDoneProcess("Points all posted. Double-check on Canvas. ");
     }
 }
