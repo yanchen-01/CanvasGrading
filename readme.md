@@ -18,8 +18,8 @@ and [others folder](https://github.com/yanchen-01/CanvasGrading/tree/master/src/
 
 ### Main Functionalities
 - Grade Canvas Quiz by question. 
-  - First, run grading/Setup to set up. After setting up, MCs will be graded all-or-nothing and unanswered will be given a 0. Also, for each question, a html file will be generated, and you are grading on those html files. 
-  - After done grading, put all grading results in one folder and run grading/Upload to upload your grading results. 
+  - First, run grading/GradeByQuestions and select 1. Setup. After setting up, MCs will be graded all-or-nothing and unanswered will be given a 0. Also, for each question, a html file will be generated, and you are grading on those html files. 
+  - After done grading, put all grading results in one folder and grading/GradeByQuestions again but select 2. Upload to upload your grading results. 
   - (For my classes only...) Post the points by running grading/PostPoints.
 - Grade Canvas Assignment by pre-set Rubrics (NOT support group assignments yet).
   - First, run grading/GradeByRubrics, select generate a template (a csv file). Record the grades (comments & scores) on the csv file. 
