@@ -175,10 +175,11 @@ public class Utils_QuizSetup {
             Question question = quiz.getQuestions().get(qID);
             if (question == null) return null;
             String type = question.getType();
-            if (answer.isBlank() ||
+            if ((answer.isBlank() && pt == 0) ||
                     (type.equals(MC) && pt != 1.0 && pt != 0.0))
                 return new QuestionScore(qID_string, 0.0);
-            else handleShortAnswer(question, submission, i, answer);
+            else if (pt == 0.0) // avoid erase pre-graded results
+                handleShortAnswer(question, submission, i, answer);
             return null;
 
         } catch (Exception e) {
