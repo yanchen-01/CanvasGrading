@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 import static constants.FolderNames.GRADING_FOLDER;
+import static constants.HtmlElements.*;
 
 /**
  * Util methods related to HTML
@@ -176,35 +177,27 @@ public class Utils_HTML {
     }
 
     public static void writeQuestionHTML(String summary, QuestionSet qs) {
+        String head = Q_HTML_HEAD.replace(QUESTION_NAME, summary);
+        String qTitle = QUESTION_TITLE.replace(QUESTION_NAME, summary);
+        qTitle = qTitle.replace(QUESTION_SCORE, String.valueOf(qs.getScore()));
         StringBuilder content = new StringBuilder(String.format("""
-                <head>
-                    <meta charset="UTF-8">
-                    <script src="../script.js"></script>
-                    <title>%1$s</title>
-                </head>
+                %s
                 <body>
-                    <p><a href="../index.html">back to index</a></p>
-                    <p id="qNum">%s</p>
-                    <p id="score">%.1f</p>
-                    <input type="file" id="grading" accept=".txt" style="display:none">
-                    <button onclick="load('grading', loadSaved)">Load saved results</button>
-                    <input type="file" id="rubrics" accept=".txt" style="display:none">
-                    <button onclick="load('rubrics', loadRubric)">Load saved rubrics</button>
-                """, summary, qs.getScore()));
+                    %s
+                    %s
+                <div style="margin-left: 250px">
+                """, head, Q_HTML_SIDEBAR, qTitle));
         for (Question q : qs) {
             int id = q.getId();
-
-            content.append(String.format("""
-                        <h3>%d<br>%s</h3>
-                    """, id, q.getContent()));
+            String question = QUESTION_DIV.replace(QUESTION_ID, String.valueOf(id));
+            question = question.replace(QUESTION_CONTENT, q.getContent());
+            content.append(question);
             while (!q.getAnswers().empty())
                 content.append(getAnswerDiv(id, q.getAnswers().pop()));
         }
-        // Save button
         content.append("""
-                        <button onclick="saveGrading()">Save Grading</button>
-                        <button onclick="saveRubrics()">Save Rubrics</button>
-                    </body>
+                    </div>
+                </body>
                 """);
         Utils_HTML.writeToHTMLFile(GRADING_FOLDER + "/" + summary, content.toString());
     }
