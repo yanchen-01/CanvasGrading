@@ -7,6 +7,7 @@ function updateRubric(sID) {
     }
     const original = rubric[i].innerText;
     const updated = prompt("Edit rubric: ", original);
+    if (updated === null) return;
     let select = document.getElementsByTagName('select');
     for (let s of select) {
         s.options[i] = new Option(updated, updated);
