@@ -1,6 +1,7 @@
 package helpers;
 
 import obj.QuestionScore;
+import obj.Quiz;
 import obj.QuizScore;
 import obj.QuizSubmission;
 import org.json.JSONObject;
