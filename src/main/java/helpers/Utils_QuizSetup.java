@@ -1,5 +1,6 @@
 package helpers;
 
+import jff.JffQuestion;
 import jff.Utils_JFF;
 import obj.*;
 import org.json.JSONObject;
@@ -13,16 +14,18 @@ import java.util.Scanner;
 import static constants.FolderNames.*;
 import static constants.JsonKeywords.*;
 import static constants.Parameters.REPORT_NAME;
-import static grading.GradeByQuestions.quiz;
-import static jff.Constants_JFF.JFF_ERRORS;
-import static jff.Constants_JFF.JFF_FILES;
+import static jff.Constants_JFF.*;
 
 public class Utils_QuizSetup {
-    public static HashMap<String, String> FILES;
-    public static HashMap<String, String> ERRORS;
+    static HashMap<String, String> FILES, ERRORS;
     static List<String[]> CONTENTS;
     static String[] HEADERS;
     static StringBuilder BY_STUDENTS_CONTENT;
+    static Quiz quiz;
+
+    public static void setQuiz(Quiz quiz) {
+        Utils_QuizSetup.quiz = quiz;
+    }
 
     public static void organizeSubmissions(Scanner in) throws FileNotFoundException {
         Utils.makeFolder(SUBMISSIONS_FOLDER);
@@ -34,8 +37,6 @@ public class Utils_QuizSetup {
         Utils.printPrompt("folder name for submissions");
         String folder = in.nextLine();
         Utils.goThroughFiles(Utils_QuizSetup::organize, folder);
-        if (!ERRORS.isEmpty())
-            Utils.saveObject(JFF_ERRORS, ERRORS);
         Utils.printDoneProcess("Submission files organized");
     }
 
@@ -80,9 +81,13 @@ public class Utils_QuizSetup {
         for (String[] row : CONTENTS) {
             readCurrent(row);
         }
-        // Write submissions_by_students.html
-        Utils_HTML.writeToHTMLFile(BY_STUDENT, BY_STUDENTS_CONTENT.toString());
         Utils.printDoneProcess("submissions all read");
+    }
+
+    public static void generateFiles() {
+        generateHTMLs();
+        saveJFFObjects();
+        Utils.printDoneProcess("All files needed generated");
     }
 
     private static void organize(File file) {
@@ -94,7 +99,7 @@ public class Utils_QuizSetup {
             return;
         try {
             FileInfo fileInfo = new FileInfo(oldName);
-
+            fileInfo.setFolder(SUBMISSIONS_FOLDER);
             QuizSubmission submission = quiz.getSubmissions().get(fileInfo.getStudentID());
             int subID = submission.getSubmissionID();
             int attempt = submission.getAttempt();
@@ -102,20 +107,24 @@ public class Utils_QuizSetup {
 
             Question q = quiz.getQuestions().get(fileInfo.getQuestionID());
             String type = q.getJffType();
-            boolean moveToJffFolder = false;
 
             if (!type.isEmpty()) {
                 Utils.makeFolder(JFF_FILES);
                 fileInfo.setJffType(type);
-                moveToJffFolder = Utils_JFF.handleJFF(file, fileInfo);
+                Utils_JFF.handleJFF(file, fileInfo);
             }
 
-            FILES.put(fileInfo.getStudentInfo(), fileInfo.getFullName());
-            if (moveToJffFolder) {
-                fileInfo.toJffFolder();
+            String studentInfo = fileInfo.getStudentInfo();
+            FILES.put(studentInfo, fileInfo.getFullName());
+
+            String error = fileInfo.getError();
+            if (error.isEmpty() || error.equals(NOT_DFA)) {
+                fileInfo.setFolder(JFF_FILES);
                 Utils.makeFolder(fileInfo.getFolder());
                 fileInfo.setExt(".jff");
             }
+            if (!fileInfo.getError().isEmpty())
+                ERRORS.put(studentInfo, error);
             String newName = fileInfo.getFullName();
             if (!file.renameTo(new File(newName)))
                 Utils.printWarning("fail to rename '%s' to '%s'\n", null, oldName, newName);
@@ -196,14 +205,17 @@ public class Utils_QuizSetup {
 
         int qID = question.getId();
         QuestionSet set = quiz.getShortAnswers().get(qID);
-        if (set != null) {
-            double total = Double.parseDouble(HEADERS[i + 1]);
-            set.setScore(total);
-        }
+        JffQuestion jff = quiz.getJffQuestions().get(qID);
+        double total = Double.parseDouble(HEADERS[i + 1]);
 
-        if (type.equals(UPLOAD)) {
+        if (set != null && set.getScore() < 0)
+            set.setScore(total);
+
+        if (jff != null) jff.setTotal(total);
+
+        if (type.equals(UPLOAD))
             answer = getUploadAnswer(submission, qID);
-        }
+
         question.addStudentAnswer(new Answer(submission, answer));
     }
 
@@ -227,15 +239,7 @@ public class Utils_QuizSetup {
         return result;
     }
 
-    /**
-     * Generate html files needed.
-     * <ul>
-     *     <li>HTML for Each question (with student submissions) is in "results" folder</li>
-     *     <li>index.html that links to each question html and submissions_by_student.html is
-     *     in the root folder</li>
-     * </ul>
-     */
-    public static void generateHTMLs() {
+    private static void generateHTMLs() {
         StringBuilder indexContent = new StringBuilder("<body>");
         quiz.getShortAnswers().forEach((id, qs) -> {
             String summary = qs.getName();
@@ -247,8 +251,17 @@ public class Utils_QuizSetup {
         String byStudents = Utils_HTML.getHTMLHref(BY_STUDENT + ".html");
         indexContent.append(Utils_HTML.getHTMLParagraph(byStudents));
         indexContent.append("</body>\n");
+        // Write submissions_by_students.html & index
+        Utils_HTML.writeToHTMLFile(BY_STUDENT, BY_STUDENTS_CONTENT.toString());
         Utils_HTML.writeToHTMLFile(INDEX, indexContent.toString());
-        Utils.printDoneProcess("HTML files generated");
+    }
+
+    private static void saveJFFObjects() {
+        if (ERRORS != null && !ERRORS.isEmpty())
+            Utils.saveObject(JFF_ERRORS, ERRORS);
+        HashMap<Integer, JffQuestion> jffQs = quiz.getJffQuestions();
+        if (!jffQs.isEmpty())
+            Utils.saveObject(JFF_QUESTIONS, jffQs);
     }
 
 }

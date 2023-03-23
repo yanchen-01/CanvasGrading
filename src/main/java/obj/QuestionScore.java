@@ -40,7 +40,15 @@ public class QuestionScore {
     }
 
     /**
-     * Add a line of comment
+     * Setter for comment (no calculation, just set the comment)
+     * @param comment comment for the question
+     */
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    /**
+     * Add a line of comment (with pts calculation)
      *
      * @param comment the comment to be added
      */

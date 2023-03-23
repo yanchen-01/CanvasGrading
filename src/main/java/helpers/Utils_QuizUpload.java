@@ -131,7 +131,7 @@ public class Utils_QuizUpload {
         });
     }
 
-    private static void confirmUpload(Scanner in, String upload) throws Exception {
+    public static void confirmUpload(Scanner in, String upload, Quiz quiz) throws Exception {
         Utils.printPrompt("whether ready to upload (Y/N)");
         if (!in.nextLine().equals("Y")) {
             String note = !upload.contains("grading") ? ""
@@ -139,12 +139,12 @@ public class Utils_QuizUpload {
             System.out.println("OK, rerun to upload when you are ready. " + note);
             System.exit(0);
         } else {
-            uploadResults(upload);
+            uploadResults(upload, quiz);
             System.out.println("Please double-check on Canvas.");
         }
     }
 
-    public static void uploadResults(String result) throws Exception {
+    public static void uploadResults(String result, Quiz quiz) throws Exception {
         Utils.printProgress("uploading " + result + " results");
         Utils.goThroughFiles(file -> Utils.uploadJSON(file, quiz), JSON_FOLDER);
         Utils.printDoneProcess(result + " results uploaded");

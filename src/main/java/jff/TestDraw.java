@@ -1,6 +1,7 @@
 package jff;
 
 import helpers.Utils;
+import obj.FileInfo;
 
 import java.awt.*;
 import java.io.File;
@@ -12,7 +13,7 @@ public class TestDraw {
         Scanner s = new Scanner(System.in);
         Utils.printPrompt("filename (with .jff)");
         String filename = s.nextLine();
-        Utils_Draw.drawJff(new File(filename), filename);
+        Utils_Draw.drawJff(new File(filename), new FileInfo(filename, "dfa"));
         Desktop.getDesktop().open(new File(filename + ".png"));
     }
 }

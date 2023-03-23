@@ -3,6 +3,7 @@ package obj;
 import helpers.Utils;
 import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
+import jff.JffQuestion;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,11 +13,13 @@ import java.util.HashSet;
 
 import static constants.JsonKeywords.*;
 import static constants.Parameters.API;
+import static constants.Parameters.ASSIGNMENTS;
 
 public class Quiz {
     private final HashMap<Integer, QuizSubmission> submissions;
     private final HashMap<Integer, Question> questions;
     private final HashMap<Integer, QuestionSet> shortAnswers;
+    private final HashMap<Integer, JffQuestion> jffQuestions;
     private final HashSet<Integer> uploadQuestions;
     private final String deadline, url, assignmentUrl;
     private final int numOfQuestions;
@@ -27,18 +30,33 @@ public class Quiz {
         questions = new HashMap<>();
         shortAnswers = new HashMap<>();
         uploadQuestions = new HashSet<>();
+        jffQuestions = new HashMap<>();
 
         url = generateUrl(oldUrl, true);
 
         JSONObject quizJSON = Utils_HTTP.getJSON(url);
-
         if (oldUrl.contains("quizzes"))
             oldUrl = quizJSON.getString(SPEED_GRADER);
         assignmentUrl = generateUrl(oldUrl, false);
-
-        numOfQuestions = quizJSON.getInt(NUM_OF_QS);
         total = quizJSON.getDouble(POINTS);
         deadline = quizJSON.getString(DUE_AT);
+        String title = quizJSON.getString("title");
+        numOfQuestions = title.matches(ASSIGNMENTS) ?
+                quizJSON.getInt(NUM_OF_QS) :
+                fetchNumOfQuestions(url + "/statistics");
+    }
+
+    private int fetchNumOfQuestions(String url) {
+        String temp = Utils_HTTP.getData(url);
+        JSONObject statistics = new JSONObject(temp);
+        JSONArray array = statistics.getJSONArray("quiz_statistics");
+        JSONArray questions = array.getJSONObject(0)
+                .getJSONArray("question_statistics");
+        return questions.length();
+    }
+
+    public HashMap<Integer, JffQuestion> getJffQuestions() {
+        return jffQuestions;
     }
 
     public HashSet<Integer> getUploadQuestions() {
@@ -67,10 +85,6 @@ public class Quiz {
 
     public String getAssignmentUrl() {
         return assignmentUrl;
-    }
-
-    public int getNumOfQuestions() {
-        return numOfQuestions;
     }
 
     public void fetchSubmissionsAndQuestions() {
@@ -145,9 +159,11 @@ public class Quiz {
         for (int i = 0; i < qs.length(); i++) {
             JSONObject current = qs.getJSONObject(i);
             String type = current.getString(TYPE);
-            if (type.equals(TEXT_ONLY)) continue;
-
             int id = current.getInt(ID);
+            if (type.equals(TEXT_ONLY)
+                    || questions.containsKey(id))
+                continue;
+
             Question question = new Question(id, type);
             // Other info only matters to essay or file upload questions
             if (type.equals(ESSAY)
@@ -164,6 +180,8 @@ public class Quiz {
 
                 if (type.equals(UPLOAD))
                     uploadQuestions.add(id);
+                if (!question.getJffType().isEmpty())
+                    jffQuestions.put(id, new JffQuestion(id, content));
             }
 
             this.questions.put(id, question);
@@ -179,14 +197,16 @@ public class Quiz {
         }
 
         String url = this.url + "/groups/" + groupID;
-        JSONObject group = new JSONObject(Utils_HTTP.getData(url));
+        JSONObject group = Utils_HTTP.getJSON(url);
         String name = group.getString(NAME);
         double score = group.getDouble(GROUP_POINTS);
         int pickCount = group.getInt(PICK_COUNT);
         if (pickCount != 1) {
             String content = q.getString(CONTENT);
-            String keyword = Utils_HTML.getBoldText(content, String.valueOf(q.getInt(ID)));
+            int qID = q.getInt(ID);
+            String keyword = Utils_HTML.getBoldText(content, String.valueOf(qID));
             name = name + "-" + keyword;
+            groupID = qID;
         }
         q.put(ID, groupID);
         q.put(Q_NAME, name);

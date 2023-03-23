@@ -3,7 +3,6 @@ package helpers;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import obj.Quiz;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -19,6 +18,11 @@ import static constants.Parameters.*;
  * TODO: re-arrange the other of methods - currently hard to find things...
  */
 public class Utils {
+
+    public static void checkOption(int option, int max) throws Exception {
+        if (option <= 0 || option > max)
+            throw new Exception("Wrong option, program terminated");
+    }
 
     public static void printProgress(String step) {
         System.out.println("... " + step + " ...");

@@ -2,23 +2,42 @@ package obj;
 
 import helpers.Utils;
 
-import static constants.FolderNames.SUBMISSIONS_FOLDER;
-import static jff.Constants_JFF.JFF_FILES;
-
 public class FileInfo {
     private final int studentID, questionID;
-    private String ext, studentInfo, folder, jffType;
+    private String ext, studentInfo, folder, jffType, error;
 
     public FileInfo(String filename) {
+        this(filename, "");
+    }
+
+    public FileInfo(String filename, String jffType) {
         String[] info = filename.split("_question_");
-        String sID = Utils.removeNonDigits(info[0]);
-        studentID = Integer.parseInt(sID);
-        String qID = info[1].replaceAll("_.+", "");
-        questionID = Integer.parseInt(qID);
-        ext = filename.substring(filename.lastIndexOf('.'));
-        folder = SUBMISSIONS_FOLDER + "/" + qID;
-        studentInfo = "_" + questionID;
-        jffType = "";
+        if (info.length >= 2) {
+            String sID = Utils.removeNonDigits(info[0]);
+            studentID  = Integer.parseInt(sID);
+            String qID = info[1].replaceAll("_.+", "");
+            questionID = Integer.parseInt(qID);
+            studentInfo = "_" + questionID;
+        } else {
+            studentID = questionID = -1;
+            studentInfo = filename;
+        }
+
+        int splitIndex = filename.lastIndexOf('.');
+        ext = splitIndex < 0? ".txt"
+                : filename.substring(splitIndex);
+
+        folder = "";
+        this.jffType = jffType;
+        error = "";
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     public String getJffType() {
@@ -39,15 +58,19 @@ public class FileInfo {
     }
 
     public String getFullName() {
-        return folder + "/" + studentInfo + ext;
+        String f = folder.isEmpty()? ""
+                : folder + "/";
+        String filename = studentID < 0?
+                studentInfo : studentInfo + ext;
+        return f + filename;
     }
 
     public String getFolder() {
         return folder;
     }
 
-    public void toJffFolder() {
-        folder = JFF_FILES + "/" + questionID;
+    public void setFolder(String root) {
+        this.folder = root + "/" + questionID;
     }
 
     public String getExt() {

@@ -14,8 +14,8 @@ public class Constants_JFF {
     public static final String ACCEPT = "Result: Accept";
     public static final String REJECT = "Result: Reject";
     public static final String TURING_WITH_BLOCKS = "turingbb";
-    public static final String SET_NOT_DFA = SUBMISSIONS_FOLDER + "/notDFA";
     public static final String JFF_QUESTIONS = SUBMISSIONS_FOLDER + "/jffQuestions";
-    public static final String JFF_FILES = SUBMISSIONS_FOLDER + "/" + "jffFiles";
-    public static final String JFF_ERRORS = SUBMISSIONS_FOLDER + "/" + "jffErrors";
+    public static final String JFF_FILES = SUBMISSIONS_FOLDER + "/jffFiles";
+    public static final String JFF_ERRORS = SUBMISSIONS_FOLDER + "/jffErrors";
+    public static final String JFF_GRADING_RESULTS = "temp-jffGrading";
 }

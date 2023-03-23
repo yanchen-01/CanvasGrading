@@ -9,9 +9,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.util.HashSet;
 
-import static helpers.Utils_QuizSetup.ERRORS;
 import static jff.Constants_JFF.*;
 
 /**
@@ -19,29 +17,19 @@ import static jff.Constants_JFF.*;
  */
 public class Utils_JFF {
 
-    public static HashSet<String> notDFA;
-    protected static boolean checkDFA;
-    protected static boolean isDFA;
-
-    public static boolean handleJFF(File file, FileInfo fileInfo) {
-        String studentInfo = fileInfo.getStudentInfo();
+    public static void handleJFF(File file, FileInfo fileInfo) {
         String jffType = fileInfo.getJffType();
         if (!fileInfo.getExt().equalsIgnoreCase(".jff")) {
-            ERRORS.put(studentInfo, WRONG_EXT);
-            return false;
+            fileInfo.setError(WRONG_EXT);
+            return;
         }
-        checkDFA = jffType.equals("dfa");
-        jffType = jffType.equals("dfa") ? "fa" : jffType;
         String preCheckResult = preCheckMachine(file, jffType);
         if (!preCheckResult.isEmpty()) {
-            ERRORS.put(studentInfo, preCheckResult);
-            return false;
+            fileInfo.setError(preCheckResult);
+            return;
         }
         fileInfo.setExt(".png");
-        Utils_Draw.drawJff(file, fileInfo.getFullName());
-        if (checkDFA && !isDFA)
-            ERRORS.put(studentInfo, NOT_DFA);
-        return true;
+        Utils_Draw.drawJff(file, fileInfo);
     }
 
     /**
@@ -106,6 +94,7 @@ public class Utils_JFF {
      * @return true if the document is NOT the given type.
      */
     private static boolean wrongType(Document doc, String type) {
+        type = type.contains("fa")? "fa" : type;
         NodeList tape = doc.getElementsByTagName("tapes");
         String actual = getContent(doc.getDocumentElement(), "type");
         if (actual == null) return true;
