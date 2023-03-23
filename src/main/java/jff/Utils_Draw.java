@@ -1,6 +1,7 @@
 package jff;
 
 import helpers.Utils;
+import obj.FileInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 
 import static jff.Constants_JFF.NOT_DFA;
 import static jff.Constants_JFF.TURING_WITH_BLOCKS;
-import static jff.Utils_JFF.*;
+import static jff.Utils_JFF.getContent;
 
 /**
  * Utility class for drawing an automaton based on a .jff file.
@@ -27,15 +28,16 @@ public class Utils_Draw {
     static HashMap<String, Integer> outGoingTransitions;
     static int width, height;
     static String machineType;
+    static boolean isDFA, checkDFA;
 
     /**
      * Draw jff to png.
      *
-     * @param inFile      the input file in .jff
-     * @param outFilename the name of the output file (with or without extension both OK)
+     * @param inFile   the input file in .jff
+     * @param fileInfo the info about the file
      */
-    public static void drawJff(File inFile, String outFilename) {
-        initialize();
+    public static void drawJff(File inFile, FileInfo fileInfo) {
+        initialize(fileInfo);
         Document doc = Utils_JFF.getDoc(inFile);
         assert doc != null;
         machineType = Utils_JFF.getContent(doc.getDocumentElement(), "type");
@@ -44,15 +46,18 @@ public class Utils_Draw {
                 "block" : "state";
         goOverElements(doc, state, Utils_Draw::setState);
         goOverElements(doc, "transition", Utils_Draw::setTransition);
+
         if (checkDFA && isDFA)
-            checkDFAFinalStep();
-        saveImage(outFilename);
+            isDFA = checkDFAFinalStep();
+        if (!isDFA)
+            fileInfo.setError(NOT_DFA);
+
+        saveImage(fileInfo.getFullName());
     }
 
-    private static void initialize() {
-        isDFA = true;
-        width = 0;
-        height = 0;
+    private static void initialize(FileInfo info) {
+        checkDFA = isDFA = info.getJffType().equals("dfa");
+        width = height = 0;
         states = new HashMap<>();
         transitions = new HashMap<>();
         outGoingTransitions = new HashMap<>();
@@ -143,14 +148,13 @@ public class Utils_Draw {
         }
     }
 
-    private static void checkDFAFinalStep() {
+    private static boolean checkDFAFinalStep() {
         for (Integer i : outGoingTransitions.values()) {
             if (i != 1) {
-                isDFA = false;
-                break;
+                return false;
             }
         }
-        checkDFA = false;
+        return true;
     }
 
     private static String getLabel(Element element) {

@@ -1,7 +1,7 @@
 package grading;
 
 import helpers.Utils;
-import obj.Question;
+import jff.JffQuestion;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,73 +9,75 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
-// TODO: need update!!
 import static jff.Constants_JFF.*;
 
 public class GradeJFFs {
-    static HashMap<String, JffQuestion> JFF_Qs;
-    static HashSet<String> notDFA;
+    static HashMap<Integer, JffQuestion> JFF_Qs;
+    static HashMap<String, String> ERRORS;
+    static HashSet<String> SET_OF_NOT_DFA;
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        JFF_Qs = new HashMap<>();
-        notDFA = (HashSet<String>) Utils.getObjectFromFile(
-                SET_NOT_DFA);
-        HashSet<Question> jffQs = (HashSet<Question>) Utils.getObjectFromFile(
-                JFF_QUESTIONS);
-        try (Scanner scanner = new Scanner(System.in)) {
-            assert jffQs != null;
-            jffQs.forEach((question) -> setScores(question, scanner));
-            Utils.printPrompt("folder name of batch test results");
-            String folder = scanner.nextLine();
-            Utils.goThroughFiles(GradeJFFs::grade, folder);
-            System.out.printf("Grading results are written to %s folder, " +
-                    "put them together with other grading result files and run Upload.java\n", "FolderNames.PRE_RESULTS");
-        } catch (Exception e) {
-            Utils.printFatalError(e);
-        }
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, GradeJFFs::run);
     }
 
-    static void setScores(Question question, Scanner scanner) {
-        String id = String.valueOf(question.getId());
-        rewriteResult(id);
+    @SuppressWarnings("unchecked")
+    static void run(Scanner in) throws FileNotFoundException {
+        Utils.makeFolder(JFF_GRADING_RESULTS);
+        JFF_Qs = (HashMap<Integer, JffQuestion>) Utils.getObjectFromFile(JFF_QUESTIONS);
+        assert JFF_Qs != null;
+        JFF_Qs.forEach((qID, question) -> setScores(qID, question, in));
 
-        String type = question.getJffType();
-        Utils.printPrompt("pt for each test case for question " + question.getContent());
-        double accept = scanner.nextDouble();
-        double output = 0.0;
-        if (type.equals("turing")) {
+        SET_OF_NOT_DFA = new HashSet<>();
+        ERRORS = (HashMap<String, String>) Utils.getObjectFromFile(
+                JFF_ERRORS);
+        assert ERRORS != null;
+        ERRORS.forEach(GradeJFFs::preGrading);
+
+        Utils.printPrompt("folder name of batch test results");
+        String folder = in.nextLine();
+        Utils.goThroughFiles(GradeJFFs::grade, folder);
+        System.out.printf("Grading results are written to %s folder, " +
+                "put them together with other grading result files and run Upload.java\n", JFF_GRADING_RESULTS);
+    }
+
+    static void setScores(int qID, JffQuestion question, Scanner scanner) {
+        String shortContent = question.getContent().replaceAll("<.*?>", "");
+        shortContent = shortContent.substring(0, 40) + "...";
+        Utils.printPrompt("pt for each test case for question \n" + shortContent);
+        question.setEach(scanner.nextDouble());
+
+        if (question.getJffType().equals("turing")) {
             System.out.print("If it's a transducer, ");
             Utils.printPrompt("pt for each correct output (0.0 if not a transducer)");
-            output = scanner.nextDouble();
+            question.setOutput(scanner.nextDouble());
         }
-        JffQuestion q = new JffQuestion(type, accept, output);
-        JFF_Qs.put(id, q);
+
+        String total = String.valueOf(question.getTotal());
+        Utils.writeToFile(JFF_GRADING_RESULTS + "/" + qID, total + "\n");
         scanner.nextLine(); // make sure it changes the line...
     }
 
-    static void rewriteResult(String id) {
-        String filename = "FolderNames.PRE_RESULTS" + "/" + id;
-        File file = new File(filename + "p.txt");
-        if (!file.exists()) return;
-        try (Scanner scanner = new Scanner(file)) {
-            String score = scanner.nextLine();
-            StringBuilder content = new StringBuilder(score + "\n");
-            while (scanner.hasNextLine()) {
-                String current = scanner.nextLine();
-                if (current.matches("\\d+-\\d+_\\d+")) {
-                    String next = scanner.nextLine();
-                    if (!NOT_DFA.startsWith(next)) {
-                        next = String.format("-%s %s\n", score.replace(".0", ""), next);
-                        content.append(current).append("\n").append(next);
-                    }
-                }
-            }
-            Utils.writeToFile(filename, content.toString());
-        } catch (FileNotFoundException e) {
-            Utils.printWarning(filename + " not found", e);
+    static void preGrading(String studentInfo, String error) {
+        if (error.equals(NOT_DFA))
+            SET_OF_NOT_DFA.add(studentInfo);
+        else {
+            int qID = extractQID(studentInfo);
+            double total = JFF_Qs.get(qID).getTotal();
+            String comment = String.format("-%.1f %s", total, error);
+            String filename = JFF_GRADING_RESULTS + "/" + qID;
+            String content = String.format("""
+                    %s
+                    %s""", studentInfo, comment);
+            Utils.writeToFile(filename, content);
         }
-        Utils.deleteFile(file);
+    }
+
+    static int extractQID(String studentInfo) {
+        // format: Attempt-subID_qID
+        String qID = studentInfo.split("_")[1];
+        qID = Utils.removeNonDigits(qID);
+        return Integer.parseInt(qID);
     }
 
     static void grade(File file) {
@@ -87,16 +89,17 @@ public class GradeJFFs {
         studentInfo = studentInfo.replace(".jff.txt", "");
         StringBuilder comment = new StringBuilder(studentInfo + "\n");
 
-        String qID = studentInfo.split("_")[1];
+        int qID = extractQID(studentInfo);
         JffQuestion question = JFF_Qs.get(qID);
-        if (question.type.equals("dfa") && notDFA.contains(studentInfo))
+        if (question.getJffType().equals("dfa")
+                && SET_OF_NOT_DFA.contains(studentInfo))
             comment.append("-1 ").append(NOT_DFA); // NOT_DFA has line breaker already
 
         String gradingResult = gradeFile(file, question);
         gradingResult = gradingResult.isEmpty() ? "\n" : gradingResult;
         comment.append(gradingResult);
 
-        Utils.writeToFile("FolderNames.PRE_RESULTS" + "/" + qID, comment.toString());
+        Utils.writeToFile(JFF_GRADING_RESULTS + "/" + qID, comment.toString());
     }
 
     static String gradeFile(File file, JffQuestion question) {
@@ -120,34 +123,22 @@ public class GradeJFFs {
                 }
             }
 
-            double total = (numOfActualA + numOfActualR) * question.each;
-            if (numOfActualA == numOfTests && question.eachOutput == 0.0)
+            double total = (numOfActualA + numOfActualR) * question.getEach();
+            if (numOfActualA == numOfTests && question.getOutput() == 0.0)
                 return String.format("-%.0f your machine accepts everything!\n", total);
             else if (numOfActualR == numOfTests)
                 return String.format("-%.0f your machine rejects everything!\n", total);
             String error = "";
             if (numOfWrongResult > 0)
                 error += String.format("-%.1f for failing %d test cases because of wrong accept/reject. \n",
-                        numOfWrongResult * question.each, numOfWrongResult);
+                        numOfWrongResult * question.getEach(), numOfWrongResult);
             if (numOfWrongOutput > 0)
                 error += String.format("-%.1f for failing %d test cases because of wrong output. \n",
-                        numOfWrongOutput * question.eachOutput, numOfWrongOutput);
+                        numOfWrongOutput * question.getOutput(), numOfWrongOutput);
             return error;
 
         } catch (FileNotFoundException e) {
             return "file not found";
-        }
-    }
-
-    static class JffQuestion {
-        String type;
-        double each;
-        double eachOutput;
-
-        public JffQuestion(String type, double each, double eachOutput) {
-            this.type = type;
-            this.each = each;
-            this.eachOutput = eachOutput;
         }
     }
 

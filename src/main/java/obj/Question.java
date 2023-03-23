@@ -113,10 +113,8 @@ public class Question implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Question answers = (Question) o;
-        return Objects.equals(id, answers.id);
+        if (!(o instanceof Question q)) return false;
+        return Objects.equals(id, q.id);
     }
 
     /**
@@ -126,7 +124,7 @@ public class Question implements Serializable {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(id);
     }
 
     /**

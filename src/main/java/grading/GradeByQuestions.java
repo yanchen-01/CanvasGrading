@@ -13,7 +13,7 @@ import static constants.FolderNames.*;
 import static constants.Parameters.REPORT_NAME;
 
 public class GradeByQuestions {
-    public static Quiz quiz;
+    static Quiz quiz;
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -46,14 +46,15 @@ public class GradeByQuestions {
         Utils.makeFolder(JSON_FOLDER);
         quiz.fetchSubmissionsAndQuestions();
 
+        Utils_QuizSetup.setQuiz(quiz);
         if (!quiz.getUploadQuestions().isEmpty())
             Utils_QuizSetup.organizeSubmissions(in);
 
         Utils_QuizSetup.downloadReport(in);
         Utils.readCSV(REPORT_NAME, Utils_QuizSetup::readSubmissions);
-        Utils_QuizSetup.generateHTMLs();
+        Utils_QuizSetup.generateFiles();
 
-        Utils_QuizUpload.uploadResults("MC & unanswered adjustment");
+        Utils_QuizUpload.uploadResults("MC & unanswered adjustment", quiz);
 
         Utils.printDoneProcess("Setting up done. After grading, run again and choose 2. Upload");
         Desktop.getDesktop().open(new File(INDEX + ".html"));
@@ -66,6 +67,6 @@ public class GradeByQuestions {
                 2. Extra adjustment only (grading result already uploaded);
                 3. Both of above;
                 4. Upload generated JSON (already did any of above)""");
-        Utils_QuizUpload.upload(in, option);
+        Utils_QuizUpload.upload(in, option, quiz);
     }
 }
