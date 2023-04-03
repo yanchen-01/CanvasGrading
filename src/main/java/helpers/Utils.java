@@ -44,6 +44,7 @@ public class Utils {
 
     public static void runFunctionality(Scanner in, Functionality functionality) {
         try (in) {
+            askForAuth(in);
             functionality.run(in);
         } catch (Exception e) {
             printFatalError(e);
@@ -108,25 +109,6 @@ public class Utils {
         } catch (IOException e) {
             printWarning("fail to write %s to %s", e, content, filename);
         }
-    }
-
-    /**
-     * Ask for global parameters (Auth token, URL, etc.) needed.
-     * TODO: IDK seems no longer needed, for backward compatibility only
-     *
-     * @param scanner scanner to take user input
-     */
-    public static void askForParameters(Scanner scanner) {
-        askForAuth(scanner);
-        printPrompt("assignment URL (start with https, do NOT end with /)");
-        String url = scanner.nextLine();
-        url = url.replace("courses", "api/v1/courses");
-        if (url.contains("speed")) {
-            url = url.replace("gradebook/speed_grader?assignment_id=",
-                    "assignments/");
-            ASSIGNMENT_URL = url.replaceAll("&student_id.*", "");
-        } else if (url.contains("quizzes"))
-            QUIZ_URL = url;
     }
 
     /**

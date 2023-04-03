@@ -22,7 +22,6 @@ public class GradeByRubrics {
     }
 
     static void run(Scanner in) throws Exception {
-        Utils.askForAuth(in);
         Utils.printPrompt("assignment url (do not end with /)");
         ASSIGNMENT_URL = in.nextLine().replace("courses", "api/v1/courses");
         Utils.printPrompt("""

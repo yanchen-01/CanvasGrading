@@ -10,8 +10,8 @@ import static constants.JsonKeywords.TEXT_COMMENT;
 
 public class QuizScore {
 
-    public final static String COMMENT_EARLY = "comment";
-    public final static String CANCEL_LATE = "submission";
+    private final static String LEAVE_COMMENT = "comment";
+    private final static String CANCEL_LATE = "submission";
     private final Stack<QuestionScore> scores;
     private final JSONObject adjustment;
     private double fudgePoints;
@@ -28,16 +28,23 @@ public class QuizScore {
         return adjustment;
     }
 
-    public void generateAdjustment(String key) {
+    public void cancelLate() {
+        generateAdjustment(CANCEL_LATE, "");
+    }
+
+    public void leaveComment(String comment) {
+        if (comment.isEmpty()) return;
+        comment = "As announced in class, " + comment;
+        generateAdjustment(LEAVE_COMMENT, comment);
+    }
+
+    private void generateAdjustment(String key, String comment) {
         JSONObject element = new JSONObject();
         if (key.equals(CANCEL_LATE)) {
             element.put(LATE_STATUS, "none");
-        } else if (key.equals(COMMENT_EARLY) && fudgePoints != 0.0) {
-            String comment = String.format
-                    ("%.2f points added for submitting early as announced"
-                            , fudgePoints);
+        } else if (key.equals(LEAVE_COMMENT) && !comment.isEmpty()) {
             element.put(TEXT_COMMENT, comment);
-        } else return;
+        }
         adjustment.put(key, element);
     }
 
