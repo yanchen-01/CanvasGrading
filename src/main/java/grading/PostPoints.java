@@ -21,17 +21,17 @@ public class PostPoints {
 
     public static void main(String[] args) {
         students = new HashMap<>();
-        try (Scanner in = new Scanner(System.in)) {
-            getParams(in);
-            goOverAssignments();
-            postPoints(in);
-        } catch (Exception e) {
-            Utils.printFatalError(e);
-        }
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, PostPoints::run);
+    }
+
+    static void run(Scanner in) {
+        getParams(in);
+        goOverAssignments();
+        postPoints(in);
     }
 
     static void getParams(Scanner in) {
-        Utils.askForAuth(in);
         Utils.printPrompt("Course num (CS154, CS166, or CS175)");
         String courseNum = in.nextLine().toUpperCase();
         courseNum = courseNum.contains("CS") ? courseNum : "CS" + courseNum;
@@ -54,6 +54,7 @@ public class PostPoints {
                 continue;
             }
 
+            if (name.contains("7")) continue;
             // Skip others things that need to be skipped
             if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
                     || !current.getBoolean(HAS_SUBS) || current.getInt(NEED_GRADE) != 0)
@@ -70,7 +71,7 @@ public class PostPoints {
     static void calculatePoints(Assignment assignment) {
         double total = assignment.getTotal();
         String name = assignment.getName();
-        Utils.printProgress("calculating points for" + name);
+        Utils.printProgress("calculating points for " + name);
 
         String data = Utils_HTTP.getData(assignment.getUrl());
         JSONArray submissions = new JSONArray(data);
@@ -122,6 +123,6 @@ public class PostPoints {
 
             Utils_HTTP.putData(url, submission.toString());
         });
-        Utils.printDoneProcess("Points all posted. Double-check on Canvas. ");
+        Utils.printDoneProcess("Points all posted. Double-check on Canvas");
     }
 }

@@ -21,7 +21,6 @@ public class GradeByQuestions {
     }
 
     static void run(Scanner in) throws Exception {
-        Utils.askForAuth(in);
         Utils.printPrompt("quiz url (do not end with /)");
         String url = in.nextLine();
 
@@ -61,12 +60,25 @@ public class GradeByQuestions {
     }
 
     static void upload(Scanner in) throws Exception {
+        Utils.makeFolder(JSON_FOLDER);
         int option = Utils.getOption(in, """
                 one option (1, 2, 3 or 4):
                 1. Upload grading result (no extra adjustment);
                 2. Extra adjustment only (grading result already uploaded);
                 3. Both of above;
                 4. Upload generated JSON (already did any of above)""");
-        Utils_QuizUpload.upload(in, option, quiz);
+        Utils.checkOption(option, 4);
+        if (option == 4) {
+            Utils_QuizUpload.confirmUpload(in, "pre-generated JSONs", quiz);
+            return;
+        }
+        if (option != 2) {
+            Utils_QuizUpload.readGradingResults(in);
+            Utils_QuizUpload.confirmUpload(in, "grading results", quiz);
+        }
+        if (option != 1) {
+            Utils_QuizUpload.fudgePoints(in, quiz);
+            Utils_QuizUpload.confirmUpload(in, "extra adjustment", quiz);
+        }
     }
 }

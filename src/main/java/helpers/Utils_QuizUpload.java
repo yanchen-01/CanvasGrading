@@ -11,30 +11,14 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import static constants.FolderNames.JSON_FOLDER;
-import static grading.GradeByQuestions.quiz;
 
 
 public class Utils_QuizUpload {
     static HashMap<String, QuizScore> ALL_GRADES;
-    static String DEADLINE;
-    static double FUDGE_POINTS, ADJUST_DAYS;
+    static String DEADLINE, COMMENT_GENERAL, COMMENT_EARLY;
+    static double FUDGE_GENERAL, FUDGE_EARLY, ADJUST_DAYS;
 
-    public static void upload(Scanner in, int option) throws Exception {
-        if (option == 4) {
-            confirmUpload(in, "pre-generated JSONs");
-            return;
-        }
-        if (option != 2) {
-            readGradingResults(in);
-            confirmUpload(in, "grading results");
-        }
-        if (option != 1) {
-            fudgePoints(in);
-            confirmUpload(in, "extra adjustment");
-        }
-    }
-
-    private static void readGradingResults(Scanner in) throws Exception {
+    public static void readGradingResults(Scanner in) throws Exception {
         ALL_GRADES = new HashMap<>();
         Utils.printPrompt("folder name for grading results");
         String folder = in.nextLine();
@@ -67,18 +51,39 @@ public class Utils_QuizUpload {
         }
     }
 
-    private static void fudgePoints(Scanner in) {
-        quiz.fetchSubmissions();
-
+    public static void fudgePoints(Scanner in, Quiz quiz) throws Exception {
+        ADJUST_DAYS = -1.0;
+        FUDGE_GENERAL = FUDGE_EARLY = 0.0;
+        COMMENT_EARLY = COMMENT_GENERAL = "";
         if (ALL_GRADES == null)
             ALL_GRADES = new HashMap<>();
+        int option = Utils.getOption(in, """
+                one option (1, 2, or 3):
+                1. General extra credit;
+                2. Extra credit for submitting early;
+                3. Both of above""");
 
-        Utils.printPrompt("fudge points (enter number only)");
-        FUDGE_POINTS = in.nextDouble();
-        Utils.printPrompt("extra allowed days if any (number only, 0 for none)");
-        ADJUST_DAYS = in.nextDouble();
-        in.nextLine(); // make sure cursor move to next line.
+        Utils.checkOption(option, 3);
+        if (option != 2) {
+            Utils.printPrompt("general fudge points (enter number only)");
+            FUDGE_GENERAL = in.nextDouble();
+            in.nextLine(); // make sure cursor move to next line.
+            Utils.printPrompt("what for (don't include 'for ' at the beginning)");
+            String temp = in.nextLine();
+            COMMENT_GENERAL = String.format("+%.2f points for %s", FUDGE_GENERAL, temp);
+        }
 
+        if (option != 1) {
+            Utils.printPrompt("early-submission fudge points (enter number only)");
+            FUDGE_EARLY = in.nextDouble();
+            Utils.printPrompt("extra allowed days if any (number only, 0 for none)");
+            ADJUST_DAYS = in.nextDouble();
+            COMMENT_EARLY = String.format("+%.2f points for %s", FUDGE_EARLY,
+                    "submitting before the original deadline.");
+            in.nextLine(); // make sure cursor move to next line.
+        }
+
+        quiz.fetchSubmissions();
         DEADLINE = quiz.getDeadline();
         quiz.getSubmissions().forEach(Utils_QuizUpload::adjust);
         saveJSONs();
@@ -97,20 +102,34 @@ public class Utils_QuizUpload {
             QuizScore score = ALL_GRADES.get(scoreID);
             if (score == null) score = new QuizScore();
 
-            int status = Utils.lateStatus(DEADLINE, subDate, ADJUST_DAYS);
-            // 0-early; 1-normal; 2-late
-            if (status == 2) return;
-            if (status == 0 && submission.getPercentage() > 0.2) {
-                score.setFudgePoints(FUDGE_POINTS);
-                score.generateAdjustment(QuizScore.COMMENT_EARLY);
-            } else if (status == 1) {
-                score.generateAdjustment(QuizScore.CANCEL_LATE);
+            if (ADJUST_DAYS < 0) { // only fudge general, no other adjustment
+                score.setFudgePoints(FUDGE_GENERAL);
+                score.leaveComment(COMMENT_GENERAL);
+            } else {
+                int status = Utils.lateStatus(DEADLINE, subDate, ADJUST_DAYS);
+                adjustEarly(score, submission, status);
             }
             score.setStudentID(studentID);
             ALL_GRADES.putIfAbsent(scoreID, score);
         } catch (Exception e) {
             Utils.printWarning(submission.toString(), e);
         }
+    }
+
+    private static void adjustEarly(QuizScore score, QuizSubmission submission, int status) {
+        // 0-early; 1-normal; 2-late.
+        double pts = FUDGE_GENERAL;
+        String comment = COMMENT_GENERAL.isEmpty() ?
+                "" : COMMENT_GENERAL;
+        if (status == 0 && submission.getPercentage() > 0.2) {
+            String and = comment.isEmpty() ? "" : " and ";
+            comment += String.format("%s%s", and, COMMENT_EARLY);
+            pts += FUDGE_EARLY;
+        } else if (status == 1) {
+            score.cancelLate();
+        }
+        score.setFudgePoints(pts);
+        score.leaveComment(comment);
     }
 
     private static void saveJSONs() {
@@ -124,9 +143,9 @@ public class Utils_QuizUpload {
                 Utils.writeJSON(result, JSON_FOLDER + "/" + sID);
             }
 
-            int studentID = quizScore.getStudentID();
-            if (studentID != 0) {
-                JSONObject adjustment = quizScore.getAdjustment();
+            JSONObject adjustment = quizScore.getAdjustment();
+            if (!adjustment.isEmpty()) {
+                int studentID = quizScore.getStudentID();
                 Utils.writeJSON(adjustment, JSON_FOLDER + "/a" + studentID);
             }
         });
@@ -150,6 +169,5 @@ public class Utils_QuizUpload {
         Utils.goThroughFiles(file -> Utils.uploadJSON(file, quiz), JSON_FOLDER);
         Utils.printDoneProcess(result + " results uploaded");
     }
-
 
 }
