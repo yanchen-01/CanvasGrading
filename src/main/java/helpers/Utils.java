@@ -19,6 +19,10 @@ import static constants.Parameters.*;
  */
 public class Utils {
 
+    public static String getApiUrl(String original) {
+        return original.replace("courses", "api/v1/courses");
+    }
+
     public static void checkOption(int option, int max) throws Exception {
         if (option <= 0 || option > max)
             throw new Exception("Wrong option, program terminated");

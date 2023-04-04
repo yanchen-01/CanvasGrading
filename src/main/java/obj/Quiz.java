@@ -96,7 +96,7 @@ public class Quiz {
     }
 
     private String generateUrl(String oldUrl, boolean quiz) throws Exception {
-        oldUrl = oldUrl.replace("courses", "api/v1/courses");
+        oldUrl = Utils.getApiUrl(oldUrl);
         if (quiz && oldUrl.contains("quizzes"))
             return oldUrl;
         else if (oldUrl.contains("speed_grader")) {

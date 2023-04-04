@@ -49,7 +49,7 @@ public class Utils_Draw {
 
         if (checkDFA && isDFA)
             isDFA = checkDFAFinalStep();
-        if (!isDFA)
+        if (checkDFA && !isDFA)
             fileInfo.setError(NOT_DFA);
 
         saveImage(fileInfo.getFullName());
@@ -135,8 +135,6 @@ public class Utils_Draw {
             states.forEach((id, state) -> state.draw(g2));
             if (machineType.equals(TURING_WITH_BLOCKS))
                 g2.drawString("With building blocks, check manually", 30, 30);
-            else if (!isDFA)
-                g2.drawString(NOT_DFA, 30, 30);
 
             g2.dispose();
             if (!outFilename.endsWith(".png"))

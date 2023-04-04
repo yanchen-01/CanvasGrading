@@ -53,7 +53,7 @@ public class GradeByQuestions {
         Utils.readCSV(REPORT_NAME, Utils_QuizSetup::readSubmissions);
         Utils_QuizSetup.generateFiles();
 
-        Utils_QuizUpload.uploadResults("MC & unanswered adjustment", quiz);
+        //Utils_QuizUpload.uploadResults("MC & unanswered adjustment", quiz);
 
         Utils.printDoneProcess("Setting up done. After grading, run again and choose 2. Upload");
         Desktop.getDesktop().open(new File(INDEX + ".html"));
@@ -74,7 +74,7 @@ public class GradeByQuestions {
         }
         if (option != 2) {
             Utils_QuizUpload.readGradingResults(in);
-            Utils_QuizUpload.confirmUpload(in, "grading results", quiz);
+            Utils_QuizUpload.confirmUpload(in, "grading", quiz);
         }
         if (option != 1) {
             Utils_QuizUpload.fudgePoints(in, quiz);

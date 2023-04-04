@@ -22,10 +22,10 @@ public class PostPoints {
     public static void main(String[] args) {
         students = new HashMap<>();
         Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, PostPoints::run);
+        Utils.runFunctionality(in, PostPoints::post);
     }
 
-    static void run(Scanner in) {
+    static void post(Scanner in) {
         getParams(in);
         goOverAssignments();
         postPoints(in);
@@ -54,7 +54,6 @@ public class PostPoints {
                 continue;
             }
 
-            if (name.contains("7")) continue;
             // Skip others things that need to be skipped
             if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
                     || !current.getBoolean(HAS_SUBS) || current.getInt(NEED_GRADE) != 0)
