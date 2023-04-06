@@ -21,19 +21,9 @@ public class GradeJFFs {
         Utils.runFunctionality(in, GradeJFFs::run);
     }
 
-    @SuppressWarnings("unchecked")
     static void run(Scanner in) throws FileNotFoundException {
-        Utils.makeFolder(JFF_GRADING_RESULTS);
-        JFF_Qs = (HashMap<Integer, JffQuestion>) Utils.getObjectFromFile(JFF_QUESTIONS);
-        assert JFF_Qs != null;
-        JFF_Qs.forEach((qID, question) -> setScores(qID, question, in));
-
-        SET_OF_NOT_DFA = new HashSet<>();
-        ERRORS = (HashMap<String, String>) Utils.getObjectFromFile(
-                JFF_ERRORS);
-        assert ERRORS != null;
-        ERRORS.forEach(GradeJFFs::preGrading);
-
+        setup();
+        preCheck();
         Utils.printPrompt("folder name of batch test results");
         String folder = in.nextLine();
         Utils.goThroughFiles(GradeJFFs::grade, folder);
@@ -41,21 +31,25 @@ public class GradeJFFs {
                 "put them together with other grading result files and run Upload.java\n", JFF_GRADING_RESULTS);
     }
 
-    static void setScores(int qID, JffQuestion question, Scanner scanner) {
-        String shortContent = question.getContent().replaceAll("<.*?>", "");
-        shortContent = shortContent.substring(0, 40) + "...";
-        Utils.printPrompt("pt for each test case for question \n" + shortContent);
-        question.setEach(scanner.nextDouble());
+    @SuppressWarnings("unchecked")
+    static void setup() {
+        Utils.makeFolder(JFF_GRADING_RESULTS);
+        JFF_Qs = (HashMap<Integer, JffQuestion>) Utils.getObjectFromFile(JFF_QUESTIONS);
+        assert JFF_Qs != null;
+        JFF_Qs.forEach((qID, question) -> {
+            String filename = JFF_GRADING_RESULTS + "/" + qID;
+            String content = question.getTotal() + "\n";
+            Utils.writeToFile(filename, content);
+        });
+    }
 
-        if (question.getJffType().equals("turing")) {
-            System.out.print("If it's a transducer, ");
-            Utils.printPrompt("pt for each correct output (0.0 if not a transducer)");
-            question.setOutput(scanner.nextDouble());
-        }
-
-        String total = String.valueOf(question.getTotal());
-        Utils.writeToFile(JFF_GRADING_RESULTS + "/" + qID, total + "\n");
-        scanner.nextLine(); // make sure it changes the line...
+    @SuppressWarnings("unchecked")
+    static void preCheck() {
+        SET_OF_NOT_DFA = new HashSet<>();
+        ERRORS = (HashMap<String, String>) Utils.getObjectFromFile(
+                JFF_ERRORS);
+        assert ERRORS != null;
+        ERRORS.forEach(GradeJFFs::preGrading);
     }
 
     static void preGrading(String studentInfo, String error) {

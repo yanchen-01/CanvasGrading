@@ -6,10 +6,51 @@ import static constants.JsonKeywords.UPLOAD;
 
 public class JffQuestion extends Question {
     private double each, output, total;
-    public JffQuestion(int id, String content) {
+    private String jffType;
+
+    public JffQuestion(int id) {
         super(id, UPLOAD);
-        setContent(content);
         each = output = total = 0.0;
+        jffType = "";
+    }
+
+    @Override
+    public void setContent(String content) {
+        super.setContent(content);
+        setJffType(content);
+        if (content.contains("test cases")
+                && content.contains("each is worth "))
+            setPoints(content);
+    }
+
+    private void setPoints(String content) {
+        String keyword = "each is worth ";
+        int index = content.indexOf(keyword) + keyword.length();
+        String result = content.substring(index, index + 4).trim();
+        setEach(Double.parseDouble(result));
+        if (content.contains("transducer")
+                && content.contains(" for correct output")) {
+            keyword = " for correct output";
+            index = content.indexOf(keyword);
+            result = content.substring(index - 4, index).trim();
+            setOutput(Double.parseDouble(result));
+        }
+    }
+
+    public String getJffType() {
+        return jffType;
+    }
+
+    private void setJffType(String content) {
+        if (content.contains("DFA"))
+            jffType = "dfa";
+        else if (content.contains("NFA"))
+            jffType = "fa";
+        else if (content.contains("PDA"))
+            jffType = "pda";
+        else if (content.contains("TM"))
+            jffType = "turing";
+        else jffType = content.toLowerCase();
     }
 
     public double getEach() {

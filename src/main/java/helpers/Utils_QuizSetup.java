@@ -106,11 +106,10 @@ public class Utils_QuizSetup {
             fileInfo.setStudentInfo(attempt, subID);
 
             Question q = quiz.getQuestions().get(fileInfo.getQuestionID());
-            String type = q.getJffType();
 
-            if (!type.isEmpty()) {
+            if (q instanceof JffQuestion j) {
                 Utils.makeFolder(JFF_FILES);
-                fileInfo.setJffType(type);
+                fileInfo.setJffType(j.getJffType());
                 Utils_JFF.handleJFF(file, fileInfo);
             }
 

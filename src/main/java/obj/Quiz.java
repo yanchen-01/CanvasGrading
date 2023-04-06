@@ -168,11 +168,15 @@ public class Quiz {
             // Other info only matters to essay or file upload questions
             if (type.equals(ESSAY)
                     || type.equals(UPLOAD)) {
+                String content = current.getString(CONTENT);
+                if (content.contains(".jff") && type.equals(UPLOAD)) {
+                    question = new JffQuestion(id);
+                    jffQuestions.put(id, (JffQuestion) question);
+                }
+                question.setContent(content);
                 updateQuestion(current);
                 int groupId = current.getInt(ID);
                 String name = current.getString(Q_NAME);
-                String content = current.getString(CONTENT);
-                question.setContent(content);
                 double score = current.getDouble(POINTS);
                 shortAnswers.computeIfAbsent(groupId, k -> new QuestionSet(name, score));
                 QuestionSet set = shortAnswers.get(groupId);
@@ -180,8 +184,6 @@ public class Quiz {
 
                 if (type.equals(UPLOAD))
                     uploadQuestions.add(id);
-                if (!question.getJffType().isEmpty())
-                    jffQuestions.put(id, new JffQuestion(id, content));
             }
 
             this.questions.put(id, question);

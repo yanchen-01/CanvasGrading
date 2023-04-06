@@ -1,7 +1,5 @@
 package obj;
 
-import helpers.Utils_HTML;
-
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Stack;
@@ -14,7 +12,6 @@ public class Question implements Serializable {
     private final String type;
     private transient final Stack<Answer> answers;
     private String content;
-    private String jffType;
 
     /**
      * Construct a question (all fields defined, current not in use).
@@ -28,7 +25,6 @@ public class Question implements Serializable {
         this.content = content;
         this.type = type;
         answers = new Stack<>();
-        jffType = "";
     }
 
     /**
@@ -58,9 +54,6 @@ public class Question implements Serializable {
      * @param content content in raw data
      */
     public void setContent(String content) {
-        if (content.contains(".jff"))
-            setJffType(Utils_HTML.getBoldText(content, "dfa"));
-
         content = content.replace("\\u003c", "<");
         content = content.replace("\\u003e", ">");
         content = content.replace("\\\"", "\"");
@@ -127,22 +120,4 @@ public class Question implements Serializable {
         return Objects.hash(id);
     }
 
-    /**
-     * (For jff question ONLY) Type of the jff.
-     *
-     * @return type of the machine
-     */
-    public String getJffType() {
-        return jffType;
-    }
-
-    /**
-     * (For jff question ONLY) Set type of the jff.
-     */
-    public void setJffType(String jffType) {
-        if (jffType.contains("TM"))
-            this.jffType = "turing";
-        else
-            this.jffType = jffType.toLowerCase();
-    }
 }
