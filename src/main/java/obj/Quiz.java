@@ -169,7 +169,8 @@ public class Quiz {
             if (type.equals(ESSAY)
                     || type.equals(UPLOAD)) {
                 String content = current.getString(CONTENT);
-                if (content.contains(".jff") && type.equals(UPLOAD)) {
+                if ((content.contains(".jff") || content.contains("esign"))
+                        && type.equals(UPLOAD)) {
                     question = new JffQuestion(id);
                     jffQuestions.put(id, (JffQuestion) question);
                 }

@@ -28,7 +28,7 @@ public class JffQuestion extends Question {
         int index = content.indexOf(keyword) + keyword.length();
         String result = content.substring(index, index + 4).trim();
         setEach(Double.parseDouble(result));
-        if (content.contains("transducer")
+        if (content.contains("ransducer")
                 && content.contains(" for correct output")) {
             keyword = " for correct output";
             index = content.indexOf(keyword);
@@ -42,14 +42,18 @@ public class JffQuestion extends Question {
     }
 
     private void setJffType(String content) {
-        if (content.contains("DFA"))
+        String keyword = "esign a ";
+        content = content.replace("<strong>", "");
+        int index = content.indexOf(keyword) + keyword.length();
+        content = content.substring(index, index + 20).trim();
+        if (content.contains("TM"))
+            jffType = "turing";
+        else if (content.contains("DFA"))
             jffType = "dfa";
         else if (content.contains("NFA"))
             jffType = "fa";
         else if (content.contains("PDA"))
             jffType = "pda";
-        else if (content.contains("TM"))
-            jffType = "turing";
         else jffType = content.toLowerCase();
     }
 
