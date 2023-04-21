@@ -6,6 +6,7 @@ package constants;
  */
 public class JsonKeywords {
     public final static String ID = "id";
+    public final static String URL = "html_url";
     public final static String USER_ID = "user_id";
     public final static String QUIZ_ID = "quiz_id";
     public final static String SPEED_GRADER = "speed_grader_url";
