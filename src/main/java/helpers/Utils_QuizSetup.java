@@ -36,6 +36,7 @@ public class Utils_QuizSetup {
         Utils.printProgress("*Upload question detected*");
         Utils.printPrompt("folder name for submissions");
         String folder = in.nextLine();
+        Utils.printProgress("Organizing submitted files");
         Utils.goThroughFiles(Utils_QuizSetup::organize, folder);
         Utils.printDoneProcess("Submission files organized");
     }
