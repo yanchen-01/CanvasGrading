@@ -30,6 +30,6 @@ public class JsonKeywords {
     public final static String SUBMIT_DATE = "finished_at";
     public final static String DUE_AT = "due_at";
     public final static String GRADED = "graded";
-    public final static String HAS_SUBS = "has_submitted_submissions";
+    public final static String HAS_GRADED = "graded_submissions_exist";
     public final static String NEED_GRADE = "needs_grading_count";
 }

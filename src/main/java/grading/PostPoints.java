@@ -1,7 +1,6 @@
 package grading;
 
 import helpers.Utils;
-import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
 import obj.Assignment;
 import org.json.JSONArray;
@@ -65,7 +64,7 @@ public class PostPoints {
 
             // Skip others things that need to be skipped
             if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
-                    || !current.getBoolean(HAS_SUBS) || current.getInt(NEED_GRADE) != 0)
+                    || !current.getBoolean(HAS_GRADED) || current.getInt(NEED_GRADE) != 0)
                 continue;
 
             double total = current.getDouble(POINTS);
@@ -174,8 +173,8 @@ public class PostPoints {
                     current.unwrap();
                     spans.get(i + 1).unwrap();
                 } else {
-                    current.attr("style", color);
-                    spans.get(i + 1).attr("style", color);
+                    current.attr("style", spanColor);
+                    spans.get(i + 1).attr("style", spanColor);
                 }
             }
         }
@@ -205,9 +204,9 @@ public class PostPoints {
         String body = front.getString("body");
         Document doc = Jsoup.parse(body);
 
-        Element e = doc.select("li:has(a[title='Extra Credits'])").first();
+        Element e = doc.select("li:has(a:contains(Extra Credits))").first();
         if (e != null) {
-            Element extra = e.select("a[title='Extra Credits']").first();
+            Element extra = e.select("a:contains(Extra Credits)").first();
             Elements anns = doc.select("h4:contains(Latest Updates) + ul > li");
             String update = String.format("<li>%s: %s Updated (%s)",
                     UPDATE_TIME, Objects.requireNonNull(extra).outerHtml(), UPDATED);
