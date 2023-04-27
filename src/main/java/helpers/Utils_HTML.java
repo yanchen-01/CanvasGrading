@@ -22,10 +22,11 @@ public class Utils_HTML {
      * @param content the content to be parsed
      * @return the content with paragraph tag
      */
-    public static String parseToHtmlParagraph(String content) {
+    public static String parseAnswer(String content) {
         StringBuilder result = new StringBuilder();
         Scanner scan = new Scanner(content);
         while (scan.hasNextLine()) {
+            result.append("<br>");
             String line = scan.nextLine();
             // Use reluctant quantifiers to remove each [LaTeX :...]
             line = line.replaceAll("\\[(LaTeX:)?.*?]", "");
@@ -35,15 +36,15 @@ public class Utils_HTML {
                 if (current.contains("equation_images")
                         || current.contains("preview?verifier"))
                     current = parseToHtmlImg(current);
-
+                else if (current.contains("http"))
+                    current = getHTMLHref(current);
                 result.append(" ").append(current);
             }
-            result.append("<br>");
             lineScan.close();
         }
         scan.close();
 
-        return "<p>" + result + "</p>";
+        return result.toString().replaceFirst("<br>", "");
     }
 
     /**
@@ -116,6 +117,7 @@ public class Utils_HTML {
     }
 
     public static String getHTMLHref(String url) {
+        url = url.replace("\u00a0","");
         String display = url.replace("temp-", "");
         return getHTMLHref(url, display, true);
     }
@@ -137,13 +139,17 @@ public class Utils_HTML {
      * @param content  content of the file
      */
     public static void writeToHTMLFile(String filename, String content) {
-        try (PrintWriter writer = new PrintWriter(filename + ".html")) {
-            writer.printf("""
-                    <!DOCTYPE html>
-                    <html lang="en">
-                    %s
-                    """, content);
-            writer.println("</html>");
+        filename = filename.contains(".html")? filename
+                : filename + ".html";
+        try (PrintWriter writer = new PrintWriter(filename)) {
+            content = content.startsWith("<!doctype html>")? content
+                    : String.format("""
+                            <!DOCTYPE html>
+                            <html lang="en">
+                            %s
+                            </html>
+                            """, content);
+            writer.println(content);
         } catch (Exception e) {
             System.out.println("Something wrong when write " + filename);
             e.printStackTrace();
@@ -207,14 +213,14 @@ public class Utils_HTML {
         int attempt = answer.getAttempt();
         String content = answer.getAnswer();
         if (!content.startsWith("<"))
-            content = parseToHtmlParagraph(content);
+            content = parseAnswer(content);
         String elementID = attempt + "-" + sID + "_" + qID;
         return String.format("""
-                <div>
-                    <p><b>%s</b></p>
-                    %s
+                <div class="submission">
+                    <p class="student"><b>%s</b></p>
+                    <div class="answer"><p>%s</p></div>
                     <hr>
-                    <div style="display: flex; flex-flow: column wrap; color: blueviolet">
+                    <div class="grading" style="display: flex; flex-flow: column wrap; color: blueviolet">
                         <label>Add a new rubric:
                             <input type="text" id="%4$s" size="60">
                             <input type="button" onclick="addRubric('%3$s','%4$s')" value="ADD">

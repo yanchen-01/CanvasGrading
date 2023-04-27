@@ -46,6 +46,13 @@ public class HtmlElements {
                     vertical-align: middle;
                     margin-right: 5px;
                 }
+                
+                .previous {
+                    flex: 1;
+                    border-left: 2px solid #939597;
+                    padding: 10px;
+                    background: #D2E7FD;
+                }
             </style>
             """;
 

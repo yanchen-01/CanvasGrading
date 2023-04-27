@@ -176,6 +176,7 @@ public class Utils_QuizSetup {
 
     private static QuestionScore handleCurrentAnswer(QuizSubmission submission, String answer, String pts, int i) {
         String questionText = HEADERS[i];
+        String total = HEADERS[i + 1];
         try {
             double pt = Double.parseDouble(pts);
             String qID_string = questionText.substring(0, questionText.indexOf(":"));
@@ -184,8 +185,9 @@ public class Utils_QuizSetup {
             Question question = quiz.getQuestions().get(qID);
             if (question == null) return null;
             String type = question.getType();
-            if ((answer.isBlank() && pt == 0) ||
-                    (type.equals(MC) && pt != 1.0 && pt != 0.0))
+            if (total.equals("0")
+                    || (answer.isBlank() && pt == 0)
+                    || (type.equals(MC) && pt != 1.0 && pt != 0.0))
                 return new QuestionScore(qID_string, 0.0);
             else if (pt == 0.0) // avoid erase pre-graded results
                 handleShortAnswer(question, submission, i, answer);
@@ -232,8 +234,8 @@ public class Utils_QuizSetup {
         String filename = "../" + FILES.get(s);
         if (!filename.endsWith(".jff")) {
             String embedFile = Utils_HTML.getHTMLEmbed(filename, 350);
-            String body = result + "<br>" + embedFile;
-            result = Utils_HTML.getHTMLParagraph(body);
+            result = result.isEmpty() ? embedFile
+                    : result + "<br>" + embedFile;
         }
 
         return result;
