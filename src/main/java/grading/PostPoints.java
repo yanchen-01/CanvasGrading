@@ -1,8 +1,10 @@
 package grading;
 
 import helpers.Utils;
+import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
 import obj.Assignment;
+import obj.MyGitHub;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -10,6 +12,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,10 +39,12 @@ public class PostPoints {
         Utils.runFunctionality(in, PostPoints::extraCredit);
     }
 
-    static void extraCredit(Scanner in) {
+    static void extraCredit(Scanner in) throws IOException {
         getParams(in);
         goOverAssignments();
         post(in);
+        if (CLASS.calculator)
+            updateCalculator(in);
     }
 
     static void getParams(Scanner in) {
@@ -221,4 +227,36 @@ public class PostPoints {
         Utils_HTTP.putData(url, updated.toString());
         Utils.printDoneProcess("Home page updated");
     }
+
+    static void updateCalculator(Scanner in) throws IOException {
+        Utils.printProgress("Updating 154 Calculator");
+        String username = Utils.askForParam(in, USERNAME);
+        String password = Utils.askForParam(in, PASSWORD);
+        MyGitHub git = new MyGitHub(username, password);
+        git.setGit(CAL_FOLDER);
+        if (git.getGit() == null)
+            git.cloneRepo(CAL_URL, CAL_FOLDER);
+        File file = new File(CAL_FOLDER + "/index.html");
+        Document doc = Jsoup.parse(file);
+        Element time = doc.getElementById("time");
+        Objects.requireNonNull(time).html(UPDATE_TIME.replaceAll(", at.*", ""));
+
+        Elements trs = doc.select("tr.unpo");
+        for (Element tr : trs) {
+            String id = tr.id();
+            Assignment a = CALCULATED.get(id);
+            if (a != null) {
+                String total = String.format("%.1f", a.getTotal());
+                total = total.replace(".0", "");
+                tr.removeClass("unpo");
+                Element t = tr.getElementsByClass("total").first();
+                Objects.requireNonNull(t).html(total);
+            }
+        }
+        String filename = file.getAbsolutePath();
+        Utils_HTML.writeToHTMLFile(filename, doc.html());
+
+        git.commitAndPush(UPDATED);
+    }
+
 }

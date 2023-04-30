@@ -8,8 +8,7 @@ import org.json.JSONObject;
 
 import java.util.Scanner;
 
-import static constants.JsonKeywords.ID;
-import static constants.JsonKeywords.POINTS;
+import static constants.JsonKeywords.*;
 import static constants.Parameters.API;
 
 /**
@@ -19,15 +18,19 @@ public class GiveExtension {
 
     static double penalty;
     static int TEST_STUDENT = 4562766;
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Utils.askForAuth(scanner);
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, GiveExtension::give);
+    }
+
+    static void give(Scanner in) {
         Utils.printPrompt("Course ID");
-        String courseID = scanner.nextLine();
+        String courseID = in.nextLine();
         Utils.printPrompt("Assignments (in regex)");
-        String regex = scanner.nextLine();
+        String regex = in.nextLine();
         Utils.printPrompt("Late penalty (in double)");
-        penalty = scanner.nextDouble();
+        penalty = in.nextDouble();
         String url = API + "/courses/" + courseID + "/quizzes";
         String quizData = Utils_HTTP.getData(url + "?page=1&per_page=100");
 
@@ -58,12 +61,12 @@ public class GiveExtension {
             } catch (JSONException e) {
                 continue;
             }
-            int student_id = current.getInt("user_id");
+            int student_id = current.getInt(USER_ID);
             if (score >= total * (1 - penalty) || student_id == TEST_STUDENT)
                 continue;
 
             JSONObject extension = new JSONObject();
-            extension.put("user_id", student_id);
+            extension.put(USER_ID, student_id);
             extension.put("extra_attempts", 1);
             extensions.put(extension);
             System.out.println(student_id + " " + score);

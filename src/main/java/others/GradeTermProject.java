@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static constants.FolderNames.INDEX;
-
 public class GradeTermProject {
 
     static HashMap<String, Score> RESULTS = new HashMap<>();
@@ -22,21 +20,20 @@ public class GradeTermProject {
     static String SUBMISSION_FOLDER;
 
     public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, GradeTermProject::grade);
+    }
 
-        try {
-            Scanner scanner = new Scanner(System.in);
-            Utils.printPrompt("Folder name for submissions");
-            SUBMISSION_FOLDER = scanner.nextLine();
-            Utils.goThroughFiles(GradeTermProject::check, SUBMISSION_FOLDER);
-            Utils.printPrompt("Test result folder");
-            String folder = scanner.nextLine();
-            Utils.goThroughFiles(GradeTermProject::score, folder);
-            Utils.printPrompt("Result filename (without .csv)");
-            String filename = scanner.nextLine();
-            writeResult(filename);
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        }
+    static void grade(Scanner in) throws FileNotFoundException {
+        Utils.printPrompt("Folder name for submissions");
+        SUBMISSION_FOLDER = in.nextLine();
+        Utils.goThroughFiles(GradeTermProject::check, SUBMISSION_FOLDER);
+        Utils.printPrompt("Test result folder");
+        String folder = in.nextLine();
+        Utils.goThroughFiles(GradeTermProject::score, folder);
+        Utils.printPrompt("Result filename (without .csv)");
+        String filename = in.nextLine();
+        writeResult(filename);
     }
 
     static void writeResult(String filename) {

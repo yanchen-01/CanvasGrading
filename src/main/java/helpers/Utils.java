@@ -48,7 +48,7 @@ public class Utils {
 
     public static void runFunctionality(Scanner in, Functionality functionality) {
         try (in) {
-            askForAuth(in);
+            AUTH = askForParam(in, API_TOKEN);
             functionality.run(in);
         } catch (Exception e) {
             printFatalError(e);
@@ -116,17 +116,18 @@ public class Utils {
     }
 
     /**
-     * Ask for the Auth token.
+     * Ask for the private parameter.
      *
      * @param scanner scanner to take user input
+     * @param param the parameter name (Parameters.TOKEN, Parameters.USERNAME or Parameters.PASSWORD )
      */
-    public static void askForAuth(Scanner scanner) {
+    public static String askForParam(Scanner scanner, String param) {
         try {
             Class<?> privateParams = Class.forName("constants.PrivateParams");
-            AUTH = (String) privateParams.getDeclaredField("AUTH").get(null);
+            return (String) privateParams.getDeclaredField(param).get(null);
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-            printPrompt("TOKEN");
-            AUTH = scanner.nextLine();
+            printPrompt(param);
+            return scanner.nextLine();
         }
     }
 

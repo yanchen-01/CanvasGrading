@@ -16,10 +16,13 @@ import static constants.Parameters.API;
  */
 public class ChangeDate {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Utils.askForAuth(scanner);
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, ChangeDate::change);
+    }
+
+    static void change(Scanner in) {
         Utils.printPrompt("Course ID");
-        String courseID = scanner.nextLine();
+        String courseID = in.nextLine();
         String url = API + "/courses/" + courseID + "/assignments";
 
         String assignmentData = Utils_HTTP.getData(url + "?page=1&per_page=100");

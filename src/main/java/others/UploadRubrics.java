@@ -9,35 +9,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import static constants.JsonKeywords.USER_ID;
+
 public class UploadRubrics {
     static HashMap<String, String> RUBRICS;
     static HashMap<String, Integer> GROUPS;
     static String API_URL;
 
     public static void main(String[] args) {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            Utils.askForAuth(scanner);
-            // Link format: courseID/gradebook/speed_grader?assignment_id=aID&student_id=sID
-            Utils.printPrompt("Test Student's speed grader link");
-            API_URL = scanner.nextLine();
-            String[] tokens = API_URL.split("=");
-            String assignmentID = Utils.removeNonDigits(tokens[1]);
-            String testStudent = tokens[2];
-            API_URL = API_URL.replace("/courses", "/api/v1/courses");
-            API_URL = API_URL.replaceAll("gradebook.*",
-                    "assignments/" + assignmentID + "/submissions/");
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, UploadRubrics::upload);
+    }
 
-            setRubrics(testStudent);
-            setGroups(testStudent);
+    static void upload(Scanner in) throws Exception {
+        // Link format: courseID/gradebook/speed_grader?assignment_id=aID&student_id=sID
+        Utils.printPrompt("Test Student's speed grader link");
+        API_URL = in.nextLine();
+        String[] tokens = API_URL.split("=");
+        String assignmentID = Utils.removeNonDigits(tokens[1]);
+        String testStudent = tokens[2];
+        API_URL = API_URL.replace("/courses", "/api/v1/courses");
+        API_URL = API_URL.replaceAll("gradebook.*",
+                "assignments/" + assignmentID + "/submissions/");
 
-            //System.out.println(GROUPS);
-            Utils.printPrompt("Filename to read (without .csv)");
-            String filename = scanner.nextLine();
-            Utils.readCSV(filename, UploadRubrics::upload);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        setRubrics(testStudent);
+        setGroups(testStudent);
+
+        //System.out.println(GROUPS);
+        Utils.printPrompt("Filename to read (without .csv)");
+        String filename = in.nextLine();
+        Utils.readCSV(filename, UploadRubrics::upload);
     }
 
     static void setRubrics(String testStudent) {
@@ -62,7 +63,7 @@ public class UploadRubrics {
             JSONObject group = array.getJSONObject(i);
             String submit = group.getString("workflow_state");
             if (submit.equals("unsubmitted")) continue;
-            int id = group.getInt("user_id");
+            int id = group.getInt(USER_ID);
             if (id == Integer.parseInt(testStudent)) continue;
 
             JSONObject g = group.getJSONObject("group");

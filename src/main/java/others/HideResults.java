@@ -12,15 +12,44 @@ import static constants.Parameters.API;
 
 public class HideResults {
 
+    static final String HIDE = """
+            {
+            "quiz":
+                {
+                "hide_results": "always",
+                "notify_of_update": false
+                }
+            }""";
+    static final String SHOW = """
+            {
+            "quiz":
+                {
+                "allowed_attempts": 2;
+                "hide_results": "until_after_last_attempt",
+                "notify_of_update": false
+                }
+            }""";
+    static final String ATTEMPTS = """
+            {
+            "quiz":
+                {
+                "allowed_attempts": 1;
+                "notify_of_update": false
+                }
+            }""";
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Utils.askForAuth(scanner);
+        Scanner in = new Scanner(System.in);
+        Utils.runFunctionality(in, HideResults::hide);
+    }
+
+    static void hide(Scanner in) {
         Utils.printPrompt("Course ID");
-        String courseID = scanner.nextLine();
+        String courseID = in.nextLine();
         String url = API + "/courses/" + courseID + "/quizzes";
 
         Utils.printPrompt("(H)ide or (S)how?");
-        String action = scanner.nextLine();
+        String action = in.nextLine();
 
         String quizData = Utils_HTTP.getData(url);
         JSONArray quizzes = new JSONArray(quizData);
@@ -36,30 +65,4 @@ public class HideResults {
             } else System.out.println("Wrong option.");
         }
     }
-
-    static final String HIDE = """
-                    {
-                    "quiz":
-                        {
-                        "hide_results": "always",
-                        "notify_of_update": false
-                        }
-                    }""";
-    static final String SHOW = """
-                    {
-                    "quiz":
-                        {
-                        "allowed_attempts": 2;
-                        "hide_results": "until_after_last_attempt",
-                        "notify_of_update": false
-                        }
-                    }""";
-    static final String ATTEMPTS = """
-                    {
-                    "quiz":
-                        {
-                        "allowed_attempts": 1;
-                        "notify_of_update": false
-                        }
-                    }""";
 }
