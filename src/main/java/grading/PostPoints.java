@@ -125,8 +125,10 @@ public class PostPoints {
         }
 
         postPoints();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. dd', at' HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. d', at' HH:mm");
         UPDATE_TIME = dateFormat.format(new Date());
+        // May doesn't need . after...
+        UPDATE_TIME = UPDATE_TIME.replace("May.", "May");
         updateDescription();
         updateHomepage();
         Utils.printDoneProcess("Posting done. Double-check on Canvas");
