@@ -7,12 +7,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
 
 import static constants.FolderNames.GRADING_FOLDER;
+import static constants.FolderNames.INDEX;
 
 public class MergeQuestions {
     public static void main(String[] args) {
@@ -52,8 +54,9 @@ public class MergeQuestions {
         Document doc = Jsoup.parse(file);
         Elements submissions = doc.select("div.submission");
         Element question = subMap.get("q");
-        String qText = String.format("Answer to related question - %s... <br><br>",
-                question.ownText().substring(0, 100));
+        String q = question.ownText();
+        q = q.length() > 100 ? q.substring(0, 100) : q;
+        String qText = String.format("Answer to related question - %s... <br><br>", q);
         for (Element submission : submissions) {
             String key = submission.select("p.student").text();
             Element previous = subMap.get(key);
@@ -73,5 +76,6 @@ public class MergeQuestions {
         String filename = file.getAbsolutePath();
         Utils_HTML.writeToHTMLFile(filename, doc.html());
         Utils.printDoneProcess(filename + " updated");
+        Desktop.getDesktop().open(new File(INDEX + ".html"));
     }
 }
