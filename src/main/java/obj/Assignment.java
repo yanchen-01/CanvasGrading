@@ -1,52 +1,80 @@
 package obj;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import helpers.Utils;
 
-public class Assignment {
-    private final String name, url;
-    private final String shortName, abbr, apiUrl;
-    private final double total;
+import java.util.ArrayList;
 
-    public Assignment(String name, double total, String url) {
-        this.name = name;
-        shortName = name.replaceAll(" -.+", "");
-        abbr = generateAbbr(shortName);
-        this.total = total;
-        this.url = url;
-        apiUrl = Utils.getApiUrl(url);
+import static constants.JsonKeywords.*;
+
+public class Assignment {
+    private int id;
+    private String name;
+    private boolean grouped;
+    @JsonProperty(URL)
+    private String htmlUrl;
+    @JsonProperty(POINTS)
+    private double total;
+    @JsonProperty(HAS_GRADED)
+    private boolean hasGraded;
+    @JsonProperty(NEED_GRADE)
+    private int ungraded;
+    @JsonProperty(RUBRIC)
+    private ArrayList<Rubric> rubrics;
+
+    public boolean isGrouped() {
+        return grouped;
     }
 
-    private String generateAbbr(String shortName) {
+    @JsonProperty("group_category_id")
+    public void setGrouped(Integer groupID) {
+        this.grouped = groupID != null;
+    }
+
+    public boolean isHasGraded() {
+        return hasGraded;
+    }
+
+    public int getUngraded() {
+        return ungraded;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getAbbr(String shortName) {
         String[] info = shortName.split(" ");
         StringBuilder result = new StringBuilder();
-        for(String s: info) {
+        for (String s : info) {
             result.append(s.matches("\\d+") ?
                     s : s.charAt(0));
         }
         return result.toString();
     }
 
-    public String getAbbr() {
-        return abbr;
-    }
-
-    public String getShortName() {
-        return shortName;
+    public String getHtmlUrl() {
+        return htmlUrl;
     }
 
     public String getApiUrl() {
-        return apiUrl;
-    }
-
-    public String getName() {
-        return name;
+        return Utils.getApiUrl(htmlUrl);
     }
 
     public double getTotal() {
         return total;
     }
 
-    public String getUrl() {
-        return url;
+    public String getName() {
+        return name;
     }
+
+    public String getShortName() {
+        return name.replaceAll(" -.+", "");
+    }
+
+    public ArrayList<Rubric> getRubrics() {
+        return rubrics;
+    }
+
 }

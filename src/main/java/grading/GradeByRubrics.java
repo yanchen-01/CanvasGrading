@@ -1,8 +1,12 @@
 package grading;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import helpers.Utils;
 import helpers.Utils_HTTP;
-import org.json.JSONArray;
+import obj.Assignment;
+import obj.Rubric;
+import obj.Section;
+import obj.Submission;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -11,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static constants.JsonKeywords.ID;
-
 public class GradeByRubrics {
 
     static String ASSIGNMENT_URL;
+    static boolean GROUPED;
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         Utils.runFunctionality(in, GradeByRubrics::run);
@@ -23,11 +27,11 @@ public class GradeByRubrics {
 
     static void run(Scanner in) throws Exception {
         Utils.printPrompt("assignment url (do not end with /)");
-        ASSIGNMENT_URL = in.nextLine().replace("courses", "api/v1/courses");
+        ASSIGNMENT_URL = Utils.getApiUrl(in.nextLine());
         Utils.printPrompt("""
-                    one option (1 or 2):
-                    1. Download template
-                    2. Upload result""");
+                one option (1 or 2):
+                1. Download template
+                2. Upload result""");
 
         int option = in.nextInt();
         in.nextLine(); // make sure cursor move to next line.
@@ -40,11 +44,12 @@ public class GradeByRubrics {
     }
 
     static void downloadTemplate(Scanner in) throws Exception {
-        Utils.printPrompt("your section number (enter a for all): ");
+        Utils.printPrompt("your section number (enter a for all)");
         String sec = in.nextLine();
+        Utils.printProgress("generating template");
         String[] headers = getHeaders();
-        JSONArray students = getStudentsJSON(sec);
-        List<String[]> contents = getContent(headers, students);
+        Submission[] submissions = getSubmissionsJSON(sec);
+        List<String[]> contents = getContent(headers, submissions);
         Utils.printDoneProcess("Templated generated");
         Utils.printPrompt("filename to save (without .csv)");
         String filename = in.nextLine();
@@ -53,18 +58,20 @@ public class GradeByRubrics {
         Utils.printDoneProcess("Templated opened. After grading, run this again to upload.");
     }
 
-    static String[] getHeaders() {
+    static String[] getHeaders() throws JsonProcessingException {
         String data = Utils_HTTP.getData(ASSIGNMENT_URL);
-        JSONObject o = new JSONObject(data);
-        JSONArray rubrics = o.getJSONArray("rubric");
-        String[] headers = new String[rubrics.length() * 2 + 2];
+        Assignment assignment = Utils.createObjFromJSON(data, Assignment.class);
+        GROUPED = assignment.isGrouped();
+        ArrayList<Rubric> rubrics = assignment.getRubrics();
+
+        String[] headers = new String[rubrics.size() * 2 + 2];
         headers[0] = "StudentName";
         headers[1] = "UserID";
-        for (int i = 0; i < rubrics.length(); i++) {
-            JSONObject rubric = rubrics.getJSONObject(i);
-            String id = rubric.getString(ID);
-            String name = rubric.getString("description");
-            double points = rubric.getDouble("points");
+        for (int i = 0; i < rubrics.size(); i++) {
+            Rubric rubric = rubrics.get(i);
+            String id = rubric.getId();
+            String name = rubric.getDescription();
+            double points = rubric.getPoints();
             String r = String.format("%s-%s", id, name);
             headers[2 * i + 2] = r;
             headers[2 * i + 3] = String.valueOf(points);
@@ -72,44 +79,41 @@ public class GradeByRubrics {
         return headers;
     }
 
-    static JSONArray getStudentsJSON(String sec) {
-        String courseUrl = ASSIGNMENT_URL.replaceAll("assignments.*", "");
+    static Submission[] getSubmissionsJSON(String sec) throws JsonProcessingException {
+        String params = GROUPED ?
+                "?grouped=true&include=group" : "?include=user";
+        String url = String.format("%s/submissions%s%s",
+                ASSIGNMENT_URL, params, "&per_page=100");
         if (sec.matches("\\d+")) {
-            int section = Integer.parseInt(sec);
-            section = getSectionID(courseUrl, section);
-            String url = String.format("%ssections/%d?include=students",
-                    courseUrl, section);
-            String data = Utils_HTTP.getData(url);
-            JSONObject o = new JSONObject(data);
-            return o.getJSONArray("students");
-        } else {
-            String data = Utils_HTTP.getData(courseUrl + "students?per_page=200");
-            return new JSONArray(data);
+            int section = getSectionID(sec);
+            url = url.replaceAll("courses/\\d+", "sections/" + section);
         }
+        String data = Utils_HTTP.getData(url);
+        return Utils.createObjFromJSON(data, Submission[].class);
     }
 
-    static List<String[]> getContent(String[] headers, JSONArray students) {
+    static List<String[]> getContent(String[] headers, Submission[] submissions) {
         List<String[]> result = new ArrayList<>();
         result.add(headers);
-        for (int i = 0; i < students.length(); i++) {
-            JSONObject student = students.getJSONObject(i);
-            String name = student.getString("name");
-            int id = student.getInt(ID);
+        for (Submission sub : submissions) {
+            if (sub.getStatus().equals("unsubmitted"))
+                continue;
+            String name = sub.getGroup() == null ?
+                    sub.getUserName() : sub.getGroupName();
+            int id = sub.getUserID();
             result.add(new String[]{name, String.valueOf(id)});
         }
         return result;
     }
 
-    static int getSectionID(String courseUrl, int section) {
-        courseUrl = courseUrl + "sections";
+    static int getSectionID(String num) throws JsonProcessingException {
+        String courseUrl = ASSIGNMENT_URL.replaceAll("assignments.*", "sections");
         String data = Utils_HTTP.getData(courseUrl);
-        JSONArray sections = new JSONArray(data);
-        for (int i = 0; i < sections.length(); i++) {
-            JSONObject sec = sections.getJSONObject(i);
-            String name = sec.getString("name");
-            name = name.replaceAll(".*Section ", "");
-            if (section == Integer.parseInt(name))
-                return sec.getInt(ID);
+        Section[] sections = Utils.createObjFromJSON(data, Section[].class);
+
+        for (Section section : sections) {
+            if (section.getNum().equals(num))
+                return section.getId();
         }
         return -1;
     }

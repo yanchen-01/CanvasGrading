@@ -1,5 +1,8 @@
 package helpers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import obj.Quiz;
@@ -18,6 +21,12 @@ import static constants.Parameters.*;
  * TODO: re-arrange the other of methods - currently hard to find things...
  */
 public class Utils {
+
+    public static <T> T createObjFromJSON(String data, Class<T> obj) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        return mapper.readValue(data, obj);
+    }
 
     public static String getApiUrl(String original) {
         return original.replace("courses", "api/v1/courses");
@@ -119,7 +128,7 @@ public class Utils {
      * Ask for the private parameter.
      *
      * @param scanner scanner to take user input
-     * @param param the parameter name (Parameters.TOKEN, Parameters.USERNAME or Parameters.PASSWORD )
+     * @param param   the parameter name (Parameters.TOKEN, Parameters.USERNAME or Parameters.PASSWORD )
      */
     public static String askForParam(Scanner scanner, String param) {
         try {

@@ -1,11 +1,12 @@
 package grading;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import helpers.Utils;
 import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
 import obj.Assignment;
 import obj.MyGitHub;
-import org.json.JSONArray;
+import obj.Submission;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static constants.JsonKeywords.*;
+import static constants.JsonKeywords.GRADED;
 import static constants.Parameters.*;
 
 public class PostPoints {
@@ -43,8 +44,6 @@ public class PostPoints {
         getParams(in);
         goOverAssignments();
         post(in);
-        if (CLASS.calculator)
-            updateCalculator(in);
     }
 
     static void getParams(Scanner in) {
@@ -55,62 +54,58 @@ public class PostPoints {
         API_URL = API + "/courses/" + CLASS.courseID + "/assignments";
     }
 
-    static void goOverAssignments() {
-        JSONArray assignments = Utils_HTTP.getJSONArray(API_URL + "?per_page=100");
+    static void goOverAssignments() throws JsonProcessingException {
+        String data = Utils_HTTP.getData(API_URL + "?per_page=100");
+        Assignment[] assignments = Utils.createObjFromJSON(data, Assignment[].class);
 
-        for (int i = 0; i < assignments.length(); i++) {
-            JSONObject current = assignments.getJSONObject(i);
-            String name = current.getString("name");
-            int id = current.getInt(ID);
+        for (Assignment assignment : assignments) {
+            String name = assignment.getName();
+            int id = assignment.getId();
             // For extra credits, record the id and continue to next assignment
             if (name.equals("Extra Credits")) {
                 EC_ID = id;
                 continue;
             }
-
             // Skip others things that need to be skipped
             if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
-                    || !current.getBoolean(HAS_GRADED) || current.getInt(NEED_GRADE) != 0)
+                    || !assignment.isHasGraded() || assignment.getUngraded() != 0)
                 continue;
 
-            double total = current.getDouble(POINTS);
-            String url = current.getString(URL);
-            Assignment assignment = new Assignment(name, total, url);
             calculatePoints(assignment);
             CALCULATED.put(assignment.getShortName(), assignment);
         }
+
         Utils.printDoneProcess("Calculation done!");
     }
 
-    static void calculatePoints(Assignment assignment) {
+    static void calculatePoints(Assignment assignment) throws JsonProcessingException {
         double total = assignment.getTotal();
         String name = assignment.getName();
         Utils.printProgress("calculating points for " + name);
 
         String apiUrl = assignment.getApiUrl() + "/submissions?per_page=200";
-        JSONArray submissions = Utils_HTTP.getJSONArray(apiUrl);
+        String data = Utils_HTTP.getData(apiUrl);
+        Submission[] submissions = Utils.createObjFromJSON(data, Submission[].class);
 
-        for (int i = 0; i < submissions.length(); i++) {
-            JSONObject current = submissions.getJSONObject(i);
-            int student_id = current.getInt(USER_ID);
-            String status = current.getString(STATUS);
+        for (Submission submission : submissions) {
+            int studentID = submission.getUserID();
+            String status = submission.getStatus();
 
-            if (student_id == CLASS.testStudent
+            if (studentID == CLASS.testStudent
                     || !status.equals(GRADED)) continue;
-
-            double score = current.getDouble("score");
+            double score = submission.getScore();
             double points;
             if (name.matches(MIDTERM))
                 points = score / total >= 0.5 ? 3 : 0;
             else if (total > 5)
                 points = score / total * CLASS.each;
             else points = score;
-            STUDENTS.computeIfPresent(student_id, (k, v) -> v + points);
-            STUDENTS.putIfAbsent(student_id, points);
+            STUDENTS.computeIfPresent(studentID, (k, v) -> v + points);
+            STUDENTS.putIfAbsent(studentID, points);
         }
     }
 
-    static void post(Scanner in) {
+    static void post(Scanner in) throws IOException {
         if (CALCULATED.isEmpty()) {
             System.out.println("None assignment is being calculated. Please contact Yan for the bug.");
             return;
@@ -131,6 +126,8 @@ public class PostPoints {
         UPDATE_TIME = UPDATE_TIME.replace("May.", "May");
         updateDescription();
         updateHomepage();
+        if (CLASS.calculator)
+            updateCalculator(in);
         Utils.printDoneProcess("Posting done. Double-check on Canvas");
     }
 
@@ -170,10 +167,10 @@ public class PostPoints {
             if (!color.equals("color: #95a5a6;")) {
                 spanColor = color;
             } else if (assignment != null) {
-                newPosted.append(" & ").append(assignment.getAbbr());
+                newPosted.append(" & ").append(assignment.getAbbr(assignment.getShortName()));
 
                 template.attr("title", assignment.getName());
-                template.attr("href", assignment.getUrl());
+                template.attr("href", assignment.getHtmlUrl());
                 template.attr("data-api-endpoint", assignment.getApiUrl());
                 current.wrap(template.outerHtml());
 

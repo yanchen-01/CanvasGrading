@@ -9,11 +9,13 @@ public class JsonKeywords {
     public final static String URL = "html_url";
     public final static String USER_ID = "user_id";
     public final static String QUIZ_ID = "quiz_id";
+    public final static String COURSE_ID = "course_id";
     public final static String SPEED_GRADER = "speed_grader_url";
     public final static String TYPE = "question_type";
     public final static String POINTS = "points_possible";
     public final static String Q_NAME = "question_name";
     public final static String NAME = "name";
+    public final static String RUBRIC = "rubric";
     public final static String Q_GROUP_ID = "quiz_group_id";
     public final static String GROUP_POINTS = "question_points";
     public final static String PICK_COUNT = "pick_count";
