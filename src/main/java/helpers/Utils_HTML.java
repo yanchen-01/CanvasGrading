@@ -188,7 +188,7 @@ public class Utils_HTML {
         qTitle = qTitle.replace(QUESTION_SCORE, String.valueOf(qs.getScore()));
         StringBuilder content = new StringBuilder(String.format("""
                 %s
-                <body>
+                <body onload="onLoad()">
                     %s
                     %s
                 <div style="margin-left: 250px">
@@ -216,11 +216,12 @@ public class Utils_HTML {
             content = parseAnswer(content);
         String elementID = attempt + "-" + sID + "_" + qID;
         return String.format("""
-                <div class="submission">
+                <div class="submission" id="u_%3$s">
                     <p class="student"><b>%s</b></p>
                     <div class="answer"><p>%s</p></div>
                     <hr>
                     <div class="grading" style="display: flex; flex-flow: column wrap; color: blueviolet">
+                        <button onclick="hide('u_%3$s')" style="width: fit-content">Hide to grade later</button>
                         <label>Add a new rubric:
                             <input type="text" id="%4$s" size="60">
                             <input type="button" onclick="addRubric('%3$s','%4$s')" value="ADD">

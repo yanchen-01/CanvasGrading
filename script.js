@@ -1,3 +1,64 @@
+let graded = [];
+window.onbeforeunload = function () {
+    if (typeof (Storage) !== "undefined") {
+        if (graded !== null && graded.length > 0) {
+            localStorage.setItem("graded", JSON.stringify(graded));
+        }
+        const ele = document.getElementsByTagName('textarea');
+        for (let i = 0; i <= ele.length - 1; i++) {
+            const subID = ele[i].id;
+            const comment = ele[i].value;
+            if (comment !== "") {
+                localStorage.setItem(subID, comment);
+            }
+        }
+    }
+}
+
+function onLoad() {
+    if (typeof (Storage) !== "undefined" && localStorage.length !== 0) {
+        for (let key in localStorage) {
+            if (key === "graded") {
+                unhideGraded(key);
+                continue;
+            }
+            const comment = localStorage.getItem(key);
+            const ele = document.getElementById(key);
+            if (comment === null || ele === null)
+                continue;
+            ele.value = comment.trim();
+            localStorage.removeItem(key);
+        }
+    }
+}
+
+function unhideGraded(key) {
+    graded = JSON.parse(localStorage.getItem(key));
+    if (graded !== null) {
+        for (let id of graded) {
+            hide(id);
+        }
+    }
+}
+
+function hide(sID) {
+    const x = document.getElementById(sID);
+    x.style.display = "none";
+}
+
+function unhide(sID) {
+    const x = document.getElementById(sID);
+    x.style.display = "block";
+}
+
+function unhideAll() {
+    const submissions = document.getElementsByClassName("submission");
+    for (let sub of submissions) {
+        if (sub.style.display === "none")
+            sub.style.display = "block";
+    }
+}
+
 function updateRubric(sID) {
     const rubric = document.getElementById(sID);
     const i = rubric.selectedIndex;
@@ -76,7 +137,6 @@ function applyRubric(aID, sID) {
         const a = original === "" ? rubric : "\n" + rubric
         document.getElementById(aID).value += a;
     }
-
 }
 
 function addRubric(aID, iID) {
@@ -132,13 +192,18 @@ function loadRubric() {
 }
 
 function saveGrading() {
+    graded = [];
+    localStorage.removeItem("graded");
     const qID = document.getElementById("qNum").innerText;
     let data = "";
     let score = document.getElementById("score").innerText;
-    const ele = document.getElementsByTagName('textarea');
-    for (let i = 0; i <= ele.length - 1; i++) {
-        const subID = ele[i].id;
-        const comment = ele[i].value;
+    const submissions = document.getElementsByClassName("submission");
+    for (let sub of submissions) {
+        if (sub.style.display === "none") continue;
+        graded.push(sub.id);
+        const ele = sub.getElementsByTagName('textarea')[0];
+        const subID = ele.id;
+        const comment = ele.value;
         data += `${subID}\n${comment}\n`;
     }
     data = data.substring(0, data.length - 1);
@@ -173,6 +238,9 @@ function loadSaved() {
                         content += lines[i + 1] + "\n";
                     i++;
                 }
+                let submission = document.getElementById("u_" + current);
+                if (submission.style.display === "none")
+                    submission.style.display = "block";
                 let element = document.getElementById(current);
                 if (element === null) {
                     alert(`${sID} not found. Check if you are loading a valid file.`);

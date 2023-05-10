@@ -74,7 +74,7 @@ public class HtmlElements {
                     Rubrics</a>
                 <a href='javascript:' onclick="saveRubrics()"><i class="material-icons">save</i>Save Rubrics</a>
                 <a href='javascript:' onclick="saveGrading()"><i class="material-icons">save</i>Save Grading</a>
-                <a href="../%s.html">Back to Question List</a>
+                <a href='javascript:' onclick="unhideAll()"><i class="material-icons">chat</i>Unhide All</a>                <a href="../%s.html">Back to Question List</a>
                 <a rel="noopener noreferrer" target="_blank" href="../%s.html">Submissions by Students</a>
             </div>
             """, INDEX, BY_STUDENT);
