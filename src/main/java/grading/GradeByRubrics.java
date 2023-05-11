@@ -1,13 +1,14 @@
 package grading;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.Utils;
 import helpers.Utils_HTTP;
 import obj.Assignment;
 import obj.Rubric;
 import obj.Section;
 import obj.Submission;
-import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.File;
@@ -122,31 +123,29 @@ public class GradeByRubrics {
         Utils.printPrompt("Filename to read (without .csv)");
         String filename = in.nextLine();
         Utils.readCSV(filename, GradeByRubrics::upload);
+        Utils.printDoneProcess("Results uploaded, double-check on Canvas");
     }
 
     static void upload(List<String[]> content) {
         String[] header = content.remove(0);
-
+        ObjectMapper mapper = new ObjectMapper();
         for (String[] row : content) {
             String studentID = row[1];
             String url = ASSIGNMENT_URL + "/submissions/" + studentID;
-            JSONObject rubrics = new JSONObject();
+            ObjectNode scores = mapper.createObjectNode();
             for (int i = 2; i < row.length - 1; i += 2) {
                 String pts = row[i + 1];
                 if (pts.isEmpty()) continue;
-                double point = Double.parseDouble(pts);
-
-                JSONObject rubric = new JSONObject();
-                rubric.put("points", point);
-                if (!row[i].isEmpty())
-                    rubric.put("comments", row[i]);
 
                 String rubricID = header[i].replaceAll("-.*", "");
-                rubrics.put(rubricID, rubric);
+                ObjectNode score = scores.putObject(rubricID)
+                        .put("points", Double.parseDouble(pts));
+                if (!row[i].isEmpty())
+                    score.put("comment", row[i]);
             }
-
-            JSONObject result = new JSONObject();
-            result.put("rubric_assessment", rubrics);
+            if (scores.isEmpty()) continue;
+            ObjectNode result = mapper.createObjectNode();
+            result.putPOJO("rubric_assessment", scores);
             Utils_HTTP.putData(url, result.toString());
         }
     }

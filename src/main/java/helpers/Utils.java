@@ -1,8 +1,10 @@
 package helpers;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import obj.Quiz;
@@ -28,7 +30,21 @@ public class Utils {
         return mapper.readValue(data, obj);
     }
 
+    public static <T> String getJSONString(T obj) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return mapper.writeValueAsString(obj);
+    }
+
     public static String getApiUrl(String original) {
+        if (original.contains("api/v1")) return original;
+        if (original.contains("speed_grader")) {
+            original = original.replace("gradebook/speed_grader?assignment_id=",
+                    "assignments/");
+            original = original.replaceAll("&student_id.*", "");
+        }
         return original.replace("courses", "api/v1/courses");
     }
 

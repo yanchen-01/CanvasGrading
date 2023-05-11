@@ -192,7 +192,6 @@ function loadRubric() {
 }
 
 function saveGrading() {
-    graded = [];
     localStorage.removeItem("graded");
     const qID = document.getElementById("qNum").innerText;
     let data = "";

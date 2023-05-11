@@ -1,13 +1,15 @@
 package grading;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.Utils;
 import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
 import obj.Assignment;
 import obj.MyGitHub;
 import obj.Submission;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -66,6 +68,7 @@ public class PostPoints {
                 EC_ID = id;
                 continue;
             }
+            if (name.contains("14")) continue;
             // Skip others things that need to be skipped
             if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
                     || !assignment.isHasGraded() || assignment.getUngraded() != 0)
@@ -134,24 +137,20 @@ public class PostPoints {
     private static void postPoints() {
         Utils.printProgress("posting to Extra Credits");
         String assignment = API_URL + "/" + EC_ID + "/submissions/";
+        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
 
         STUDENTS.forEach((student, points) -> {
             String url = assignment + student;
-
-            JSONObject submission = new JSONObject();
-            JSONObject score = new JSONObject();
-            score.put("posted_grade", String.format("%.2f", points));
-            submission.put("submission", score);
-
-            Utils_HTTP.putData(url, submission.toString());
+            ObjectNode result = mapper.createObjectNode();
+            result.putObject("submission")
+                    .put("posted_grade", String.format("%.2f", points));
+            Utils_HTTP.putData(url, result.toString());
         });
     }
 
-    private static void setNewPosted() {
+    private static void setNewPosted() throws JsonProcessingException {
         String url = API_URL + "/" + EC_ID;
-        JSONObject data = Utils_HTTP.getJSON(url);
-        String body = data.getString("description");
-        Document doc = Jsoup.parse(body);
+        Document doc = getHtmlDoc(url, false);
 
         String spanColor = "";
         StringBuilder newPosted = new StringBuilder();
@@ -194,20 +193,17 @@ public class PostPoints {
         String url = API_URL + "/" + EC_ID;
         String upTime = String.format("Updated on %s (%s)", UPDATE_TIME, UPDATED);
         NEW_EC_DES = NEW_EC_DES.replace(TIME_PLACEHOLDER, upTime);
-        JSONObject updated = new JSONObject();
-        JSONObject data = new JSONObject();
-        data.put("description", NEW_EC_DES);
-        updated.put("assignment", data);
-
-        Utils_HTTP.putData(url, updated.toString());
+        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+        ObjectNode result = mapper.createObjectNode();
+        result.putObject("assignment")
+                .put("description", NEW_EC_DES);
+        Utils_HTTP.putData(url, result.toString());
         Utils.printDoneProcess("Extra credits assignment description updated");
     }
 
-    static void updateHomepage() {
+    static void updateHomepage() throws JsonProcessingException {
         String url = API_URL.replace("assignments", "front_page");
-        JSONObject front = Utils_HTTP.getJSON(url);
-        String body = front.getString("body");
-        Document doc = Jsoup.parse(body);
+        Document doc = getHtmlDoc(url, true);
 
         Element e = doc.select("li:has(a:contains(Extra Credits))").first();
         if (e != null) {
@@ -219,11 +215,11 @@ public class PostPoints {
             e.remove();
         }
 
-        JSONObject updated = new JSONObject();
-        JSONObject data = new JSONObject();
-        data.put("body", doc.body().html());
-        updated.put("wiki_page", data);
-        Utils_HTTP.putData(url, updated.toString());
+        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+        ObjectNode result = mapper.createObjectNode();
+        result.putObject("wiki_page")
+                .put("body", doc.body().html());
+        Utils_HTTP.putData(url, result.toString());
         Utils.printDoneProcess("Home page updated");
     }
 
@@ -256,6 +252,22 @@ public class PostPoints {
         Utils_HTML.writeToHTMLFile(filename, doc.html());
 
         git.commitAndPush(UPDATED);
+    }
+
+    static Document getHtmlDoc(String url, boolean page) throws JsonProcessingException {
+        String data = Utils_HTTP.getData(url);
+        Page html = Utils.createObjFromJSON(data, Page.class);
+        if (page) return Jsoup.parse(html.body);
+        else return Jsoup.parse(html.description);
+    }
+
+    private static class Page {
+        @JsonProperty("body")
+        String body;
+        @JsonProperty("description")
+        String description;
+
+
     }
 
 }

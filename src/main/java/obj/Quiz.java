@@ -38,6 +38,8 @@ public class Quiz {
         if (oldUrl.contains("quizzes"))
             oldUrl = quizJSON.getString(SPEED_GRADER);
         assignmentUrl = generateUrl(oldUrl, false);
+        System.out.println(assignmentUrl);
+        System.out.println(url);
         total = quizJSON.getDouble(POINTS);
         deadline = quizJSON.getString(DUE_AT);
         String title = quizJSON.getString("title");
@@ -99,12 +101,9 @@ public class Quiz {
         oldUrl = Utils.getApiUrl(oldUrl);
         if (quiz && oldUrl.contains("quizzes"))
             return oldUrl;
-        else if (oldUrl.contains("speed_grader")) {
-            String temp = oldUrl.replace("gradebook/speed_grader?assignment_id=",
-                    "assignments/");
-            temp = temp.replaceAll("&student_id.*", "");
-            if (!quiz) return temp;
-            return generateQuizUrl(temp);
+        else if (oldUrl.contains("assignments")) {
+            if (!quiz) return oldUrl;
+            return generateQuizUrl(oldUrl);
         } else throw new Exception("Wrong url");
     }
 
