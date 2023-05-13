@@ -38,8 +38,6 @@ public class Quiz {
         if (oldUrl.contains("quizzes"))
             oldUrl = quizJSON.getString(SPEED_GRADER);
         assignmentUrl = generateUrl(oldUrl, false);
-        System.out.println(assignmentUrl);
-        System.out.println(url);
         total = quizJSON.getDouble(POINTS);
         deadline = quizJSON.getString(DUE_AT);
         String title = quizJSON.getString("title");

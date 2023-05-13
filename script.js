@@ -12,14 +12,34 @@ window.onbeforeunload = function () {
                 localStorage.setItem(subID, comment);
             }
         }
+        const qID = document.getElementById("qNum").innerText;
+        const rubrics = saveRubrics();
+        localStorage.setItem(qID, rubrics);
     }
 }
 
+function saveRubrics() {
+    let select = document.getElementsByTagName('select');
+    let content = "";
+    for (let i = 0; i <= select[0].options.length - 1; i++) {
+        const rubric = select[0].options[i].value;
+        if (rubric !== "") {
+            content += select[0].options[i].value + "\n";
+        }
+    }
+    return content;
+}
+
 function onLoad() {
+    const qID = document.getElementById("qNum").innerText;
     if (typeof (Storage) !== "undefined" && localStorage.length !== 0) {
         for (let key in localStorage) {
             if (key === "graded") {
                 unhideGraded(key);
+                continue;
+            } else if (key === qID) {
+                const rubrics = localStorage.getItem(qID);
+                reloadRubrics(rubrics, 0);
                 continue;
             }
             const comment = localStorage.getItem(key);
@@ -28,6 +48,21 @@ function onLoad() {
                 continue;
             ele.value = comment.trim();
             localStorage.removeItem(key);
+        }
+    }
+}
+
+function reloadRubrics(rubrics, initialPosition) {
+    let select = document.getElementsByTagName('select');
+    let lines = rubrics.split(/\r\n|\n/);
+    for (let i = 0; i < select.length; i++) {
+        let k = initialPosition;
+        for (let j = 0; j < lines.length; j++) {
+            if (lines[j] === "") continue;
+            const text = lines[j] === "No rubrics"?
+                "No rubrics, either add one or load saved file (each line is a rubric)" : lines[j];
+            select[i].options[k] = new Option(text, lines[j]);
+            k++;
         }
     }
 }
@@ -124,6 +159,12 @@ function clearRubric() {
         s.options.length = 0;
         s.options[0] = new Option("No rubrics, either add one or load saved file (each line is a rubric)", "No rubrics");
     }
+    removeSavedRubrics();
+}
+
+function removeSavedRubrics() {
+    const qID = document.getElementById("qNum").innerText;
+    localStorage.removeItem(qID);
 }
 
 function clearComment(aID) {
@@ -158,13 +199,10 @@ function addRubric(aID, iID) {
     document.getElementById(aID).value += a;
 }
 
-function saveRubrics() {
+function downloadRubrics() {
     const qID = document.getElementById("qNum").innerText;
-    let select = document.getElementsByTagName('select');
-    let content = "";
-    for (let i = 0; i <= select[0].options.length - 1; i++) {
-        content += select[0].options[i].value + "\n";
-    }
+    const content = saveRubrics();
+    removeSavedRubrics();
     download(qID + "_rubrics", content);
 }
 
@@ -180,18 +218,11 @@ function loadRubric() {
     let reader = new FileReader();
     reader.readAsText(this.files[0]);
     reader.onload = function () {
-        let lines = reader.result.split(/\r\n|\n/);
-        for (let i = 0; i < select.length; i++) {
-            let k = position
-            for (let j = 0; j < lines.length; j++) {
-                select[i].options[k] = new Option(lines[j], lines[j]);
-                k++;
-            }
-        }
+        reloadRubrics(reader.result, position);
     }
 }
 
-function saveGrading() {
+function downloadGrading() {
     localStorage.removeItem("graded");
     const qID = document.getElementById("qNum").innerText;
     let data = "";

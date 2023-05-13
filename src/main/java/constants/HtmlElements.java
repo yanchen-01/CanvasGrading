@@ -72,8 +72,8 @@ public class HtmlElements {
                 <input type="file" id="rubrics" accept=".txt" style="display:none">
                 <a href='javascript:' onclick="load('rubrics', loadRubric)"><i class="material-icons">file_upload</i>Load
                     Rubrics</a>
-                <a href='javascript:' onclick="saveRubrics()"><i class="material-icons">save</i>Save Rubrics</a>
-                <a href='javascript:' onclick="saveGrading()"><i class="material-icons">save</i>Save Grading</a>
+                <a href='javascript:' onclick="downloadRubrics()"><i class="material-icons">save</i>Download Rubrics</a>
+                <a href='javascript:' onclick="downloadGrading()"><i class="material-icons">save</i>Download Grading</a>
                 <a href='javascript:' onclick="unhideAll()"><i class="material-icons">chat</i>Unhide All</a>                <a href="../%s.html">Back to Question List</a>
                 <a rel="noopener noreferrer" target="_blank" href="../%s.html">Submissions by Students</a>
             </div>
