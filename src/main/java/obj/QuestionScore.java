@@ -62,7 +62,9 @@ public class QuestionScore {
             this.comment += comment + "\n";
         else {
             int splitIndex = comment.indexOf(" ");
-            double deduction = Double.parseDouble(comment.substring(0, splitIndex));
+            double deduction = splitIndex < 0 ?
+                    Double.parseDouble(comment) :
+                    Double.parseDouble(comment.substring(0, splitIndex));
             pts += deduction;
             this.comment += comment + "\n";
         }

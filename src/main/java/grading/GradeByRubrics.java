@@ -60,8 +60,7 @@ public class GradeByRubrics {
     }
 
     static String[] getHeaders() throws JsonProcessingException {
-        String data = Utils_HTTP.getData(ASSIGNMENT_URL);
-        Assignment assignment = Utils.createObjFromJSON(data, Assignment.class);
+        Assignment assignment = Utils.getObjFromURL(ASSIGNMENT_URL, Assignment.class);
         GROUPED = assignment.isGrouped();
         ArrayList<Rubric> rubrics = assignment.getRubrics();
 
@@ -89,8 +88,7 @@ public class GradeByRubrics {
             int section = getSectionID(sec);
             url = url.replaceAll("courses/\\d+", "sections/" + section);
         }
-        String data = Utils_HTTP.getData(url);
-        return Utils.createObjFromJSON(data, Submission[].class);
+        return Utils.getObjFromURL(url, Submission[].class);
     }
 
     static List<String[]> getContent(String[] headers, Submission[] submissions) {
@@ -109,8 +107,7 @@ public class GradeByRubrics {
 
     static int getSectionID(String num) throws JsonProcessingException {
         String courseUrl = ASSIGNMENT_URL.replaceAll("assignments.*", "sections");
-        String data = Utils_HTTP.getData(courseUrl);
-        Section[] sections = Utils.createObjFromJSON(data, Section[].class);
+        Section[] sections = Utils.getObjFromURL(courseUrl, Section[].class);
 
         for (Section section : sections) {
             if (section.getNum().equals(num))

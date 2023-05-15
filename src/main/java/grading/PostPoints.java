@@ -34,6 +34,7 @@ public class PostPoints {
     static String API_URL, UPDATE_TIME, NEW_EC_DES;
     static HashMap<String, Assignment> CALCULATED;
     static String UPDATED;
+    static boolean DISCUSSION;
 
     public static void main(String[] args) {
         STUDENTS = new HashMap<>();
@@ -44,6 +45,8 @@ public class PostPoints {
 
     static void extraCredit(Scanner in) throws IOException {
         getParams(in);
+        Utils.printPrompt("Including discussions? (Y/N)");
+        DISCUSSION = in.nextLine().equals("Y");
         goOverAssignments();
         post(in);
     }
@@ -57,8 +60,7 @@ public class PostPoints {
     }
 
     static void goOverAssignments() throws JsonProcessingException {
-        String data = Utils_HTTP.getData(API_URL + "?per_page=100");
-        Assignment[] assignments = Utils.createObjFromJSON(data, Assignment[].class);
+        Assignment[] assignments = Utils.getObjFromURL(API_URL + "?per_page=100", Assignment[].class);
 
         for (Assignment assignment : assignments) {
             String name = assignment.getName();
@@ -68,17 +70,18 @@ public class PostPoints {
                 EC_ID = id;
                 continue;
             }
-            if (name.contains("14")) continue;
             // Skip others things that need to be skipped
-            if (!(name.matches(MIDTERM) || name.matches(ASSIGNMENTS))
+            if (name.contains("Final") || name.contains("Term")
                     || !assignment.isHasGraded() || assignment.getUngraded() != 0)
+                continue;
+            if (!DISCUSSION && !(name.matches(MIDTERM) || name.matches(ASSIGNMENTS)))
                 continue;
 
             calculatePoints(assignment);
             CALCULATED.put(assignment.getShortName(), assignment);
         }
 
-        Utils.printDoneProcess("Calculation done!");
+        Utils.printDoneProcess("Calculation done for all assignments!");
     }
 
     static void calculatePoints(Assignment assignment) throws JsonProcessingException {
@@ -87,8 +90,7 @@ public class PostPoints {
         Utils.printProgress("calculating points for " + name);
 
         String apiUrl = assignment.getApiUrl() + "/submissions?per_page=200";
-        String data = Utils_HTTP.getData(apiUrl);
-        Submission[] submissions = Utils.createObjFromJSON(data, Submission[].class);
+        Submission[] submissions = Utils.getObjFromURL(apiUrl, Submission[].class);
 
         for (Submission submission : submissions) {
             int studentID = submission.getUserID();
@@ -100,7 +102,7 @@ public class PostPoints {
             double points;
             if (name.matches(MIDTERM))
                 points = score / total >= 0.5 ? 3 : 0;
-            else if (total > 5)
+            else if (total > 10)
                 points = score / total * CLASS.each;
             else points = score;
             STUDENTS.computeIfPresent(studentID, (k, v) -> v + points);
@@ -182,7 +184,8 @@ public class PostPoints {
                 }
             }
         }
-        UPDATED = newPosted.toString().replaceFirst(" & ", "");
+        UPDATED = DISCUSSION ? "All"
+                : newPosted.toString().replaceFirst(" & ", "");
         Element upTime = doc.select("p:contains(Updated) > strong").first();
         Objects.requireNonNull(upTime).html(TIME_PLACEHOLDER);
         NEW_EC_DES = doc.body().html();
@@ -255,8 +258,7 @@ public class PostPoints {
     }
 
     static Document getHtmlDoc(String url, boolean page) throws JsonProcessingException {
-        String data = Utils_HTTP.getData(url);
-        Page html = Utils.createObjFromJSON(data, Page.class);
+        Page html = Utils.getObjFromURL(url, Page.class);
         if (page) return Jsoup.parse(html.body);
         else return Jsoup.parse(html.description);
     }
@@ -266,8 +268,6 @@ public class PostPoints {
         String body;
         @JsonProperty("description")
         String description;
-
-
     }
 
 }

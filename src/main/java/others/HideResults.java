@@ -1,5 +1,6 @@
 package others;
 
+import constants.Parameters;
 import helpers.Utils;
 import helpers.Utils_HTTP;
 import org.json.JSONArray;
@@ -44,10 +45,11 @@ public class HideResults {
     }
 
     static void hide(Scanner in) {
-        Utils.printPrompt("Course ID");
-        String courseID = in.nextLine();
-        String url = API + "/courses/" + courseID + "/quizzes";
-
+        Utils.printPrompt("Course num (CS154, CS166, or CS175)");
+        String courseNum = in.nextLine().toUpperCase();
+        courseNum = courseNum.contains("CS") ? courseNum : "CS" + courseNum;
+        Parameters.COURSE theClass = Parameters.COURSE.valueOf(courseNum);
+        String url = API + "/courses/" + theClass.courseID + "/quizzes";
         Utils.printPrompt("(H)ide or (S)how?");
         String action = in.nextLine();
 

@@ -21,6 +21,8 @@ public class Assignment {
     private int ungraded;
     @JsonProperty(RUBRIC)
     private ArrayList<Rubric> rubrics;
+    @JsonProperty("submission_types")
+    private String[] types;
 
     public boolean isGrouped() {
         return grouped;
@@ -67,6 +69,10 @@ public class Assignment {
 
     public String getName() {
         return name;
+    }
+
+    public String[] getTypes() {
+        return types;
     }
 
     public String getShortName() {

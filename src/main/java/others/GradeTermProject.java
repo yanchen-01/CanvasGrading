@@ -5,9 +5,7 @@ import helpers.Utils;
 import jff.Utils_JFF;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -18,36 +16,50 @@ public class GradeTermProject {
     static HashMap<String, Score> RESULTS = new HashMap<>();
     static ArrayList<String[]> CONTENT = new ArrayList<>();
     static String SUBMISSION_FOLDER;
+    static String RESULT = "temp-result.csv";
+    static String RESULTS_MAP = "temp-results";
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         Utils.runFunctionality(in, GradeTermProject::grade);
     }
 
-    static void grade(Scanner in) throws FileNotFoundException {
+    static void grade(Scanner in) throws Exception {
+        int option = Utils.getOption(in, """
+                one option (1 or 2):
+                1. Setup;
+                2. Write Results""");
+        Utils.checkOption(option, 2);
+        switch (option) {
+            case 1 -> setUp(in);
+            case 2 -> writeResult(in);
+        }
+    }
+
+    static void setUp(Scanner in) throws FileNotFoundException {
         Utils.printPrompt("Folder name for submissions");
         SUBMISSION_FOLDER = in.nextLine();
         Utils.goThroughFiles(GradeTermProject::check, SUBMISSION_FOLDER);
+        Utils.saveObject(RESULTS_MAP, RESULTS);
+    }
+
+    @SuppressWarnings("unchecked")
+    static void writeResult(Scanner in) throws IOException {
+        RESULTS = (HashMap<String, Score>) Utils.getObjectFromFile(RESULTS_MAP);
         Utils.printPrompt("Test result folder");
         String folder = in.nextLine();
         Utils.goThroughFiles(GradeTermProject::score, folder);
-        Utils.printPrompt("Result filename (without .csv)");
-        String filename = in.nextLine();
-        writeResult(filename);
-    }
-
-    static void writeResult(String filename) {
-        filename += ".csv";
-        try (CSVWriter writer = new CSVWriter(new FileWriter(filename))) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(RESULT))) {
             RESULTS.forEach((group, score) -> {
                 String[] row = {group, score.score, score.comment};
                 CONTENT.add(row);
             });
             writer.writeAll(CONTENT);
-            Desktop.getDesktop().open(new File(filename));
+            Desktop.getDesktop().open(new File(RESULT));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     static void score(File file) {
@@ -57,6 +69,9 @@ public class GradeTermProject {
             while (scanner.hasNextLine()) {
                 String current = scanner.nextLine();
                 if (current.contains("(")) wrong++;
+                else if (!current.contains("A")
+                    && !current.contains("R"))
+                    System.out.println(file.getName() + "seems empty");
             }
 
             String id = Utils.removeNonDigits(file.getName());
@@ -92,7 +107,6 @@ public class GradeTermProject {
                 newName = newName + groupID + oldName;
                 Score score = new Score("O", error);
                 RESULTS.put(groupID, score);
-                System.out.println(error);
             } else newName = newName + groupID + ".jff";
 
             if (!file.renameTo(new File(newName)))
@@ -102,13 +116,21 @@ public class GradeTermProject {
         }
     }
 
-    static class Score {
+    static class Score implements Serializable {
         String score;
         String comment;
 
         public Score(String score, String comment) {
             this.score = score;
             this.comment = comment;
+        }
+
+        @Override
+        public String toString() {
+            return "Score{" +
+                    "score='" + score + '\'' +
+                    ", comment='" + comment + '\'' +
+                    '}';
         }
     }
 }

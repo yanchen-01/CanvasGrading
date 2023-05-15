@@ -11,5 +11,5 @@ public interface ParseCSV {
      *
      * @param content the content of the file
      */
-    void parse(List<String[]> content);
+    void parse(List<String[]> content) throws Exception;
 }

@@ -24,11 +24,13 @@ import static constants.Parameters.*;
  */
 public class Utils {
 
-    public static <T> T createObjFromJSON(String data, Class<T> obj) throws JsonProcessingException {
+    public static <T> T getObjFromURL(String url, Class<T> obj) throws JsonProcessingException {
+        String data = Utils_HTTP.getData(url);
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return mapper.readValue(data, obj);
     }
+
 
     public static <T> String getJSONString(T obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse

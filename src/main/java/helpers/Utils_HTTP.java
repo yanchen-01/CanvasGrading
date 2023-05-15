@@ -106,7 +106,7 @@ public class Utils_HTTP {
                 response = client.send(request, BodyHandlers.ofFile(Path.of(data)));
             else
                 response = client.send(request, BodyHandlers.ofString());
-            if (response.statusCode() != 200)
+            if (response.statusCode() > 300)
                 return error + response.body();
             else return response.body().toString();
 

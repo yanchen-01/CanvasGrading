@@ -28,12 +28,13 @@ public class Utils_QuizUpload {
     }
 
     private static void readFile(File file) {
+        String current = "";
         try (Scanner scanner = new Scanner(file)) {
             if (!file.isFile()) return;
             double full = Double.parseDouble(scanner.nextLine());
             QuestionScore questionScore = null;
             while (scanner.hasNextLine()) {
-                String current = scanner.nextLine();
+                current = scanner.nextLine();
                 if (current.matches("\\d+-\\d+_\\d+")) {
                     // format: attempt-submissionID_questionID
                     String[] info = current.split("_");
@@ -47,7 +48,7 @@ public class Utils_QuizUpload {
             }
         } catch (Exception exception) {
             Utils.printWarning("something wrong when reading " + file
-                    + ". Manually check if needed.", exception);
+                    + ". Manually check if needed. " + current, exception);
         }
     }
 
