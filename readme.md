@@ -11,9 +11,10 @@ and [others folder](https://github.com/yanchen-01/CanvasGrading/tree/master/src/
 - Before using, need to get a [Canvas API Token](https://canvas.instructure.com/doc/api/file.oauth.html) (Account -> Settings -> "+ New Access Token"). 
   - Save the token on your local device (otherwise, you won't be able to find it again.)
   - If you want to save it under the project (otherwise, you will need to enter it every time you use the program), 
-  create a class named "PrivateParams" and assign the token value to a String variable named "AUTH". PrivateParams is git-ignored, so it won't be committed and pushed. 
+  create a class named "PrivateParams" and assign the token value to a String variable named "TOKEN". PrivateParams is git-ignored, so it won't be committed and pushed. 
 - For most of the functionalities, you will need to provide the assignment URL. It can be either...
-  - The assignment detail page: https://\<domain>.instructure.com/courses/\<courseID>/assignment/\<assignmentID>
+  - The quiz detail page: https://\<domain>.instructure.com/courses/\<courseID>/quizzes/\<quizID>
+  - The assignment detail page: https://\<domain>.instructure.com/courses/\<courseID>/assignments/\<assignmentID>
   - Or the SpeedGrader page: https://\<domain>.instructure.com/courses/\<courseID>/gradebook/speed_grader?assignment_id=\<assignmentID>&student_id=\<studentID>
 
 ### Main Functionalities
@@ -21,7 +22,7 @@ and [others folder](https://github.com/yanchen-01/CanvasGrading/tree/master/src/
   - First, run grading/GradeByQuestions and select 1. Setup. After setting up, MCs will be graded all-or-nothing and unanswered will be given a 0. Also, for each question, a html file will be generated, and you are grading on those html files. 
   - After done grading, put all grading results in one folder and grading/GradeByQuestions again but select 2. Upload to upload your grading results. 
   - (For my classes only...) Post the points by running grading/PostPoints.
-- Grade Canvas Assignment by pre-set Rubrics (NOT support group assignments yet).
+- Grade Canvas Assignment by pre-set Rubrics
   - First, run grading/GradeByRubrics, select generate a template (a csv file). Record the grades (comments & scores) on the csv file. 
   - After done grading, run grading/GradeByRubrics again but select upload to upload. 
 - Hide quiz results for all quizzes - run others/HideResults.
