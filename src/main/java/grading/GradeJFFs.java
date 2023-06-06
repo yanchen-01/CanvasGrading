@@ -17,8 +17,7 @@ public class GradeJFFs {
     static HashSet<String> SET_OF_NOT_DFA;
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GradeJFFs::run);
+        Utils.runFunctionality(GradeJFFs::run);
     }
 
     static void run(Scanner in) throws FileNotFoundException {

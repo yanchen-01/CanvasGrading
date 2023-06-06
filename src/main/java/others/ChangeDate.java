@@ -16,8 +16,7 @@ import static constants.Parameters.API;
  */
 public class ChangeDate {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, ChangeDate::change);
+        Utils.runFunctionality(ChangeDate::change);
     }
 
     static void change(Scanner in) {

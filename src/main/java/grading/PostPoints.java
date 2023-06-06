@@ -39,8 +39,7 @@ public class PostPoints {
     public static void main(String[] args) {
         STUDENTS = new HashMap<>();
         CALCULATED = new HashMap<>();
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, PostPoints::extraCredit);
+        Utils.runFunctionality(PostPoints::extraCredit);
     }
 
     static void extraCredit(Scanner in) throws IOException {
@@ -75,6 +74,9 @@ public class PostPoints {
                     || !assignment.isHasGraded() || assignment.getUngraded() != 0)
                 continue;
             if (!DISCUSSION && !(name.matches(MIDTERM) || name.matches(ASSIGNMENTS)))
+                continue;
+            if (name.contains("Group") || name.contains("Mini")
+                || name.contains("Review"))
                 continue;
 
             calculatePoints(assignment);

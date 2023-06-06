@@ -16,8 +16,7 @@ public class GradeByQuestions {
     static Quiz quiz;
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GradeByQuestions::run);
+        Utils.runFunctionality(GradeByQuestions::run);
     }
 
     static void run(Scanner in) throws Exception {

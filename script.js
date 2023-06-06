@@ -42,6 +42,7 @@ function onLoad() {
                 reloadRubrics(rubrics, 0);
                 continue;
             }
+
             const comment = localStorage.getItem(key);
             const ele = document.getElementById(key);
             if (comment === null || ele === null)

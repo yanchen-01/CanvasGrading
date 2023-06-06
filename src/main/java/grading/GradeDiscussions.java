@@ -12,8 +12,7 @@ import java.util.Scanner;
 public class GradeDiscussions {
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GradeDiscussions::grade);
+        Utils.runFunctionality(GradeDiscussions::grade);
     }
 
     static void grade(Scanner in) throws JsonProcessingException {

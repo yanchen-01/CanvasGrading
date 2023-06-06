@@ -73,8 +73,8 @@ public class Utils {
         return option;
     }
 
-    public static void runFunctionality(Scanner in, Functionality functionality) {
-        try (in) {
+    public static void runFunctionality(Functionality functionality) {
+        try (Scanner in = new Scanner(System.in)) {
             AUTH = askForParam(in, API_TOKEN);
             functionality.run(in);
         } catch (Exception e) {

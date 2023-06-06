@@ -40,8 +40,7 @@ public class HideResults {
             }""";
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, HideResults::hide);
+        Utils.runFunctionality(HideResults::hide);
     }
 
     static void hide(Scanner in) {

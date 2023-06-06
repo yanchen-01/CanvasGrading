@@ -20,8 +20,7 @@ public class GiveExtension {
     static int TEST_STUDENT = 4562766;
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GiveExtension::give);
+        Utils.runFunctionality(GiveExtension::give);
     }
 
     static void give(Scanner in) {

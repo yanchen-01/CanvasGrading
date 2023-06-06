@@ -20,8 +20,7 @@ public class GradeTermProject {
     static String RESULTS_MAP = "temp-results";
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GradeTermProject::grade);
+        Utils.runFunctionality(GradeTermProject::grade);
     }
 
     static void grade(Scanner in) throws Exception {

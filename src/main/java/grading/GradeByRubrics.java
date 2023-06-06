@@ -22,8 +22,7 @@ public class GradeByRubrics {
     static boolean GROUPED;
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils.runFunctionality(in, GradeByRubrics::run);
+        Utils.runFunctionality(GradeByRubrics::run);
     }
 
     static void run(Scanner in) throws Exception {
@@ -138,7 +137,7 @@ public class GradeByRubrics {
                 ObjectNode score = scores.putObject(rubricID)
                         .put("points", Double.parseDouble(pts));
                 if (!row[i].isEmpty())
-                    score.put("comment", row[i]);
+                    score.put("comments", row[i]);
             }
             if (scores.isEmpty()) continue;
             ObjectNode result = mapper.createObjectNode();
