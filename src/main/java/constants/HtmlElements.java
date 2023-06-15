@@ -74,7 +74,8 @@ public class HtmlElements {
                     Rubrics</a>
                 <a href='javascript:' onclick="downloadRubrics()"><i class="material-icons">save</i>Download Rubrics</a>
                 <a href='javascript:' onclick="downloadGrading()"><i class="material-icons">save</i>Download Grading</a>
-                <a href='javascript:' onclick="unhideAll()"><i class="material-icons">chat</i>Unhide All</a>                <a href="../%s.html">Back to Question List</a>
+                <a href='javascript:' onclick="unhideAll()"><i class="material-icons">chat</i>Unhide All</a>
+                <a href="../%s.html">Back to Question List</a>
                 <a rel="noopener noreferrer" target="_blank" href="../%s.html">Submissions by Students</a>
             </div>
             """, INDEX, BY_STUDENT);
@@ -85,7 +86,7 @@ public class HtmlElements {
 
     public final static String QUESTION_DIV = String.format("""
             <div class="question">
-                <p>(Qid: %s)</p>
+                <p>(Qid: <span id="qID">%s</span>)</p>
                 %s
             </div>
             """, QUESTION_ID, QUESTION_CONTENT);

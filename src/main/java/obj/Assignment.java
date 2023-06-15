@@ -75,6 +75,10 @@ public class Assignment {
         return types;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getShortName() {
         return name.replaceAll(" -.+", "");
     }

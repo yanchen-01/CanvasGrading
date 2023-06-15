@@ -76,7 +76,7 @@ public class PostPoints {
             if (!DISCUSSION && !(name.matches(MIDTERM) || name.matches(ASSIGNMENTS)))
                 continue;
             if (name.contains("Group") || name.contains("Mini")
-                || name.contains("Review"))
+                    || name.contains("Review"))
                 continue;
 
             calculatePoints(assignment);
@@ -126,7 +126,7 @@ public class PostPoints {
             return;
         }
 
-        postPoints();
+        //postPoints();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. d', at' HH:mm");
         UPDATE_TIME = dateFormat.format(new Date());
         // May doesn't need . after...
@@ -189,7 +189,8 @@ public class PostPoints {
         UPDATED = DISCUSSION ? "All"
                 : newPosted.toString().replaceFirst(" & ", "");
         Element upTime = doc.select("p:contains(Updated) > strong").first();
-        Objects.requireNonNull(upTime).html(TIME_PLACEHOLDER);
+        if (upTime != null)
+            upTime.html(TIME_PLACEHOLDER);
         NEW_EC_DES = doc.body().html();
         Utils.printDoneProcess("Newly added: " + UPDATED);
     }
@@ -197,11 +198,14 @@ public class PostPoints {
     static void updateDescription() {
         String url = API_URL + "/" + EC_ID;
         String upTime = String.format("Updated on %s (%s)", UPDATE_TIME, UPDATED);
-        NEW_EC_DES = NEW_EC_DES.replace(TIME_PLACEHOLDER, upTime);
+        NEW_EC_DES = NEW_EC_DES.contains(TIME_PLACEHOLDER) ?
+                NEW_EC_DES.replace(TIME_PLACEHOLDER, upTime)
+                : String.format("<p><strong>%s</p></strong>\n%s", upTime, NEW_EC_DES);
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         ObjectNode result = mapper.createObjectNode();
         result.putObject("assignment")
                 .put("description", NEW_EC_DES);
+//        Utils_HTML.writeToHTMLFile("des", NEW_EC_DES);
         Utils_HTTP.putData(url, result.toString());
         Utils.printDoneProcess("Extra credits assignment description updated");
     }
@@ -210,21 +214,28 @@ public class PostPoints {
         String url = API_URL.replace("assignments", "front_page");
         Document doc = getHtmlDoc(url, true);
 
+        String update;
         Element e = doc.select("li:has(a:contains(Extra Credits))").first();
         if (e != null) {
             Element extra = e.select("a:contains(Extra Credits)").first();
-            Elements anns = doc.select("h4:contains(Latest Updates) + ul > li");
-            String update = String.format("<li>%s: %s Updated (%s)",
+            update = String.format("<li>%s: %s Updated (%s)",
                     UPDATE_TIME, Objects.requireNonNull(extra).outerHtml(), UPDATED);
-            Objects.requireNonNull(anns.first()).before(update);
             e.remove();
+        } else {
+            String extraUrl = Utils.getOriginalUrl(API_URL + "/" + EC_ID);
+            update = String.format("<li>%s: <a title=\"Extra Credits\" href=\"%s\">Extra Credits</a> Updated (%s)</li>",
+                    UPDATE_TIME, extraUrl, UPDATED);
         }
+
+        Elements anns = doc.select("h4:contains(Latest Updates) + ul > li");
+        Objects.requireNonNull(anns.first()).before(update);
 
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         ObjectNode result = mapper.createObjectNode();
         result.putObject("wiki_page")
                 .put("body", doc.body().html());
         Utils_HTTP.putData(url, result.toString());
+//        Utils_HTML.writeToHTMLFile("home", doc.html());
         Utils.printDoneProcess("Home page updated");
     }
 

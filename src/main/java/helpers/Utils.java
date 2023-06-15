@@ -50,6 +50,10 @@ public class Utils {
         return original.replace("courses", "api/v1/courses");
     }
 
+    public static String getOriginalUrl(String apiUrl) {
+        return apiUrl.replace("/api/v1", "");
+    }
+
     public static void checkOption(int option, int max) throws Exception {
         if (option <= 0 || option > max)
             throw new Exception("Wrong option, program terminated");
@@ -285,19 +289,6 @@ public class Utils {
             throw new FileNotFoundException("'" + pathname + "' folder doesn't exist!");
         for (File file : listOfFiles)
             op.operate(file);
-    }
-
-    /**
-     * Upload a json file for score and comments.
-     *
-     * @param file the json file
-     */
-    public static void uploadJSON(File file) {
-        if (!file.isFile()) return;
-        String id = file.getName().replace(".json", "");
-        String url = QUIZ_URL + "/submissions/" + id;
-        Utils_HTTP.putData(url, file.getAbsolutePath());
-        deleteFile(file);
     }
 
     /**

@@ -216,26 +216,24 @@ public class Utils_HTML {
             content = parseAnswer(content);
         String elementID = attempt + "-" + sID + "_" + qID;
         return String.format("""
-                <div class="submission" id="u_%3$s">
-                    <p class="student"><b>%s</b></p>
+                <div class="submission" id="sub_%3$s">
+                    <p class="student" id="stu_%3$s"><b>%s</b></p>
                     <div class="answer"><p>%s</p></div>
                     <hr>
                     <div class="grading" style="display: flex; flex-flow: column wrap; color: blueviolet">
-                        <button onclick="hide('u_%3$s')" style="width: fit-content">Hide to grade later</button>
+                        <button onclick="hide('sub_%3$s')" style="width: fit-content">Hide to grade later</button>
                         <label>Add a new rubric:
-                            <input type="text" id="%4$s" size="60">
-                            <input type="button" onclick="addRubric('%3$s','%4$s')" value="ADD">
+                            <input type="text" id="r_%3$s" size="60">
+                            <input type="button" onclick="addRubric('%3$s')" value="ADD">
                         </label>
                         <label style="display: flex; flex-flow: row wrap; width: 600px; justify-content: flex-end">
                             Choose a rubric:
-                            <select id="s_%3$s" onchange="applyRubric('%3$s', 's_%3$s')"
+                            <select id="sl_%3$s" onchange="applyRubric('%3$s', '')"
                                 style="flex-basis: 60%%; flex-grow: 1" size="3">
-                                <option value="No rubrics">No rubrics, either add one or load saved file (each line is a rubric)
-                                </option>
                             </select>
-                            <button onclick="updateRubric('s_%3$s')">Update selected rubric</button>
-                            <button onclick="deleteRubric('s_%3$s')">Delete selected rubric</button>
-                            <button onclick="clearRubric()">Clear all rubrics</button>
+                            <button onclick="updateRubric('sl_%3$s')">Update selected rubric</button>
+                            <button onclick="deleteRubric('sl_%3$s')">Delete selected rubric</button>
+                            <button onclick="clearRubric(true)">Clear all rubrics</button>
                         </label>
                         <label style="display: flex; flex-flow: column wrap; width: 600px">
                             Or directly enter below:
@@ -244,6 +242,6 @@ public class Utils_HTML {
                         </label>
                     </div>
                 </div>
-                """, answer.getQuizSubmission(), content, elementID, sID);
+                """, answer.getQuizSubmission(), content, elementID);
     }
 }

@@ -179,6 +179,7 @@ public class Utils_QuizSetup {
         String total = HEADERS[i + 1];
         try {
             double pt = Double.parseDouble(pts);
+            double t = Double.parseDouble(total);
             String qID_string = questionText.substring(0, questionText.indexOf(":"));
             int qID = Integer.parseInt(qID_string);
 
@@ -187,7 +188,7 @@ public class Utils_QuizSetup {
             String type = question.getType();
             if (total.equals("0")
                     || (answer.isBlank() && pt == 0)
-                    || (type.equals(MC) && pt != 1.0 && pt != 0.0))
+                    || (type.equals(MC) && pt != t && pt != 0.0))
                 return new QuestionScore(qID_string, 0.0);
             else if (pt == 0.0) // avoid erase pre-graded results
                 handleShortAnswer(question, submission, i, answer);
