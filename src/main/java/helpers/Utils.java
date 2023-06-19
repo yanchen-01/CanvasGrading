@@ -11,6 +11,7 @@ import obj.Quiz;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +24,16 @@ import static constants.Parameters.*;
  * TODO: re-arrange the other of methods - currently hard to find things...
  */
 public class Utils {
+
+    public static String formatDate(Date date){
+        return formatDate(date, "MMM. d', at' HH:mm");
+    }
+
+    public static String formatDate(Date date, String format){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        // May doesn't need . after...
+        return dateFormat.format(date).replace("May.", "May");
+    }
 
     public static <T> T getObjFromURL(String url, Class<T> obj) throws JsonProcessingException {
         String data = Utils_HTTP.getData(url);

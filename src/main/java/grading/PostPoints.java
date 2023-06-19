@@ -17,7 +17,6 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -127,10 +126,7 @@ public class PostPoints {
         }
 
         //postPoints();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. d', at' HH:mm");
-        UPDATE_TIME = dateFormat.format(new Date());
-        // May doesn't need . after...
-        UPDATE_TIME = UPDATE_TIME.replace("May.", "May");
+        UPDATE_TIME = Utils.formatDate(new Date());
         updateDescription();
         updateHomepage();
         if (CLASS.calculator)

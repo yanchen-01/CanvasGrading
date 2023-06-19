@@ -43,9 +43,12 @@ public class JffQuestion extends Question {
 
     private void setJffType(String content) {
         String keyword = "esign a ";
-        content = content.replace("<strong>", "");
-        int index = content.indexOf(keyword) + keyword.length();
-        content = content.substring(index, index + 20).trim();
+        if (content.contains(keyword)) {
+            content = content.replace("<strong>", "");
+            int index = content.indexOf(keyword) + keyword.length();
+            content = content.substring(index, index + 20).trim();
+        }
+
         if (content.contains("TM"))
             jffType = "turing";
         else if (content.contains("DFA"))

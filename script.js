@@ -13,11 +13,11 @@ Auto save and load
  */
 window.onbeforeunload = function () {
     if (typeof (Storage) !== "undefined") {
-        if (rubrics != null && !rubrics.has(no_rubrics)) {
+        if (exist(rubrics) && !rubrics.has(no_rubrics)) {
             const r_array = Array.from(rubrics);
             localStorage.setItem(key_rubrics, JSON.stringify(r_array));
         }
-        if (graded !== null && graded.length > 0) {
+        if (exist(graded) && graded.length > 0) {
             localStorage.setItem(key_graded, JSON.stringify(graded));
         }
         const ele = document.getElementsByTagName('textarea');
@@ -43,8 +43,9 @@ function onLoad() {
 }
 
 function hideGraded() {
-    graded = JSON.parse(localStorage.getItem(key_graded));
-    if (graded !== null) {
+    const g = localStorage.getItem(key_graded);
+    if (exist(g)) {
+        graded = JSON.parse(g);
         for (let id of graded) {
             hide(id);
         }
@@ -53,8 +54,8 @@ function hideGraded() {
 
 function reloadRubrics() {
     const r = localStorage.getItem(key_rubrics);
-    rubrics = r === null ? new Set([no_rubrics])
-        : new Set(JSON.parse(r));
+    rubrics = exist(r) ? new Set(JSON.parse(r))
+        : new Set([no_rubrics]);
     rubrics.forEach((rubric) => addOneRubric(rubric, -1));
 }
 
@@ -295,6 +296,10 @@ function reset() {
 
 function clearComment(aID) {
     document.getElementById(aID).value = "";
+}
+
+function exist(ele) {
+    return ele !== undefined && ele !== null;
 }
 
 function modifyRubric(sID, op, func) {
