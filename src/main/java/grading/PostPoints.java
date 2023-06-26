@@ -1,6 +1,5 @@
 package grading;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -125,7 +124,7 @@ public class PostPoints {
             return;
         }
 
-        //postPoints();
+        postPoints();
         UPDATE_TIME = Utils.formatDate(new Date());
         updateDescription();
         updateHomepage();
@@ -150,7 +149,7 @@ public class PostPoints {
 
     private static void setNewPosted() throws JsonProcessingException {
         String url = API_URL + "/" + EC_ID;
-        Document doc = getHtmlDoc(url, false);
+        Document doc = Utils.getHtmlDoc(url, false);
 
         String spanColor = "";
         StringBuilder newPosted = new StringBuilder();
@@ -208,7 +207,7 @@ public class PostPoints {
 
     static void updateHomepage() throws JsonProcessingException {
         String url = API_URL.replace("assignments", "front_page");
-        Document doc = getHtmlDoc(url, true);
+        Document doc = Utils.getHtmlDoc(url, true);
 
         String update;
         Element e = doc.select("li:has(a:contains(Extra Credits))").first();
@@ -264,19 +263,6 @@ public class PostPoints {
         Utils_HTML.writeToHTMLFile(filename, doc.html());
 
         git.commitAndPush(UPDATED);
-    }
-
-    static Document getHtmlDoc(String url, boolean page) throws JsonProcessingException {
-        Page html = Utils.getObjFromURL(url, Page.class);
-        if (page) return Jsoup.parse(html.body);
-        else return Jsoup.parse(html.description);
-    }
-
-    private static class Page {
-        @JsonProperty("body")
-        String body;
-        @JsonProperty("description")
-        String description;
     }
 
 }

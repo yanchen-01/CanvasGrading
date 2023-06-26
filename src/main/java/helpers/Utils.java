@@ -7,17 +7,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import obj.Page;
 import obj.Quiz;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-import static constants.Parameters.*;
+import static constants.Parameters.API_TOKEN;
+import static constants.Parameters.AUTH;
 
 /**
  * General util methods
@@ -25,11 +30,17 @@ import static constants.Parameters.*;
  */
 public class Utils {
 
-    public static String formatDate(Date date){
+    public static Document getHtmlDoc(String url, boolean page) throws JsonProcessingException {
+        Page html = Utils.getObjFromURL(url, Page.class);
+        if (page) return Jsoup.parse(html.getBody());
+        else return Jsoup.parse(html.getDescription());
+    }
+
+    public static String formatDate(Date date) {
         return formatDate(date, "MMM. d', at' HH:mm");
     }
 
-    public static String formatDate(Date date, String format){
+    public static String formatDate(Date date, String format) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         // May doesn't need . after...
         return dateFormat.format(date).replace("May.", "May");
@@ -114,6 +125,15 @@ public class Utils {
 
     public static String removeNonDigits(String input) {
         return input.replaceAll("\\D+", "");
+    }
+
+    public static int extractInt(String input) {
+        return Integer.parseInt(removeNonDigits(input));
+    }
+
+    public static String convertDateFormat(String date, String oldF, String newF) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat(oldF);
+        return formatDate(format.parse(date), newF);
     }
 
     /**
