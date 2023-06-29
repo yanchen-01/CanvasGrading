@@ -21,6 +21,11 @@ public class JffQuestion extends Question {
         if (content.contains("test cases")
                 && content.contains("each is worth "))
             setPoints(content);
+        else { // default
+            each = 0.1;
+            output = 0.0;
+            total = jffType.equals("dfa") ? 3.0 : 2.0;
+        }
     }
 
     private void setPoints(String content) {

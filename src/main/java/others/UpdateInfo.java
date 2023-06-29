@@ -49,6 +49,7 @@ public class UpdateInfo {
         String p = Utils.askForParam(in, "post? (Y/N)");
         if (!p.equals("Y")){
             Utils.printDoneProcess("Posting cancelled, bye");
+            return;
         }
         String n = Utils.askForParam(in, "notify? (Y/N)");
         NOTIFY = n.equals("Y");
@@ -227,7 +228,7 @@ public class UpdateInfo {
         String notesName = element.text().replace(" (Recording)", "");
         notes.text(notesName);
         recording.text("Recording");
-        String result = String.format("%s (%s)",notes, recording);
+        String result = String.format("<strong>%s (%s)</strong>",notes, recording);
         element.html(result);
     }
 
