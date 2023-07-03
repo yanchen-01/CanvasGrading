@@ -180,7 +180,7 @@ public class UpdateInfo {
         LocalDate startDate = LocalDate.parse(start, formatter).plusDays(1);
         LocalDate endDate = startDate.plusDays(6);
 
-        formatter = DateTimeFormatter.ofPattern("MMM. dd");
+        formatter = DateTimeFormatter.ofPattern("MMM. d");
         String currentWeek = String.format("%d (%s - %s)",
                 num + 1, startDate.format(formatter), endDate.format(formatter));
         Element w = HOMEPAGE.getElementById("week_info");
