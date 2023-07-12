@@ -123,10 +123,10 @@ public class GradeJFFs {
                 return String.format("-%.0f your machine rejects everything!\n", total);
             String error = "";
             if (numOfWrongResult > 0)
-                error += String.format("-%.1f for failing %d test cases because of wrong accept/reject. \n",
+                error += String.format("-%.2f for failing %d test cases because of wrong accept/reject. \n",
                         numOfWrongResult * question.getEach(), numOfWrongResult);
             if (numOfWrongOutput > 0)
-                error += String.format("-%.1f for failing %d test cases because of wrong output. \n",
+                error += String.format("-%.2f for failing %d test cases because of wrong output. \n",
                         numOfWrongOutput * question.getOutput(), numOfWrongOutput);
             return error;
 
