@@ -118,7 +118,8 @@ public class Utils_QuizSetup {
             FILES.put(studentInfo, fileInfo.getFullName());
 
             String error = fileInfo.getError();
-            if (error.isEmpty() || error.equals(NOT_DFA)) {
+            if (fileInfo.isJFF() && (error.isEmpty() || error.equals(NOT_DFA))) {
+                System.out.println("hey!");
                 fileInfo.setFolder(JFF_FILES);
                 Utils.makeFolder(fileInfo.getFolder());
                 fileInfo.setExt(".jff");
@@ -190,7 +191,7 @@ public class Utils_QuizSetup {
                     || (answer.isBlank() && pt == 0)
                     || (type.equals(MC) && pt != t && pt != 0.0))
                 return new QuestionScore(qID_string, 0.0);
-            else if (pt == 0.0) // avoid erase pre-graded results
+            else
                 handleShortAnswer(question, submission, i, answer);
             return null;
 

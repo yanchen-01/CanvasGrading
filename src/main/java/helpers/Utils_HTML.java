@@ -193,7 +193,7 @@ public class Utils_HTML {
                     %s
                 <div style="margin-left: 250px">
                 """, head, Q_HTML_SIDEBAR, qTitle));
-        for (Question q : qs) {
+        for (Question q : qs.getQuestions()) {
             int id = q.getId();
             String question = QUESTION_DIV.replace(QUESTION_ID, String.valueOf(id));
             question = question.replace(QUESTION_CONTENT, q.getContent());

@@ -88,4 +88,8 @@ public class FileInfo {
     public int getQuestionID() {
         return questionID;
     }
+
+    public boolean isJFF() {
+        return !jffType.isEmpty();
+    }
 }

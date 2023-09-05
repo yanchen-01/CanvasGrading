@@ -1,5 +1,6 @@
 package obj;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import helpers.Utils;
 import helpers.Utils_HTML;
 import helpers.Utils_HTTP;
@@ -87,11 +88,11 @@ public class Quiz {
         return assignmentUrl;
     }
 
-    public void fetchSubmissionsAndQuestions() {
+    public void fetchSubmissionsAndQuestions() throws JsonProcessingException {
         fetch(true);
     }
 
-    public void fetchSubmissions() {
+    public void fetchSubmissions() throws JsonProcessingException {
         fetch(false);
     }
 
@@ -116,7 +117,7 @@ public class Quiz {
         }
     }
 
-    private void fetch(boolean both) {
+    private void fetch(boolean both) throws JsonProcessingException {
         String fetch = both ? "questions" : "submissions";
         Utils.printProgress("fetching " + fetch);
 
@@ -125,7 +126,9 @@ public class Quiz {
         JSONArray submissions = json.getJSONArray("quiz_submissions");
         for (int i = 0; i < submissions.length(); i++) {
             JSONObject current = submissions.getJSONObject(i);
-            if (current.getString(STATUS).equals("untaken"))
+            String status = current.getString(STATUS);
+            if (!status.equals("pending_review")
+                    && !status.equals("complete"))
                 continue;
             int subID = current.getInt(ID);
             addStudent(current, subID);
@@ -148,7 +151,7 @@ public class Quiz {
         submissions.put(student_id, s);
     }
 
-    private void addQuestions(int sub_id) {
+    private void addQuestions(int sub_id) throws JsonProcessingException {
         String url = String.format("%s/quiz_submissions/%d/questions",
                 API, sub_id);
         JSONObject json = Utils_HTTP.getJSON(url);
@@ -178,7 +181,7 @@ public class Quiz {
                 double score = current.getDouble(POINTS);
                 shortAnswers.computeIfAbsent(groupId, k -> new QuestionSet(name, score));
                 QuestionSet set = shortAnswers.get(groupId);
-                set.add(question);
+                set.addQuestion(question);
 
                 if (type.equals(UPLOAD))
                     uploadQuestions.add(id);
@@ -189,7 +192,7 @@ public class Quiz {
         }
     }
 
-    private void updateQuestion(JSONObject q) {
+    private void updateQuestion(JSONObject q) throws JsonProcessingException {
         Object groupID = q.get(Q_GROUP_ID);
         if (!(groupID instanceof Integer)) {
             q.put(POINTS, -1.0);
@@ -197,10 +200,10 @@ public class Quiz {
         }
 
         String url = this.url + "/groups/" + groupID;
-        JSONObject group = Utils_HTTP.getJSON(url);
-        String name = group.getString(NAME);
-        double score = group.getDouble(GROUP_POINTS);
-        int pickCount = group.getInt(PICK_COUNT);
+        QuestionSet group = Utils.getObjFromURL(url, QuestionSet.class);
+        String name = group.getName();
+        double score = group.getScore();
+        int pickCount = group.getPickCount();
         if (pickCount != 1) {
             String content = q.getString(CONTENT);
             int qID = q.getInt(ID);

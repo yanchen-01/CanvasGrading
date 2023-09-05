@@ -49,7 +49,7 @@ public class PostPoints {
     }
 
     static void getParams(Scanner in) {
-        Utils.printPrompt("Course num (CS154, CS166, or CS175)");
+        Utils.printPrompt("Course num (CS154 or CS46A)");
         String courseNum = in.nextLine().toUpperCase();
         courseNum = courseNum.contains("CS") ? courseNum : "CS" + courseNum;
         CLASS = COURSE.valueOf(courseNum);

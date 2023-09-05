@@ -1,20 +1,36 @@
 package obj;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashSet;
 
-public class QuestionSet extends HashSet<Question> implements Serializable {
-    private final String name;
-    private double score;
+import static constants.JsonKeywords.*;
 
-    public QuestionSet(String name, double score) {
-        super(20);
+public class QuestionSet {
+    HashSet<Question> questions;
+    @JsonProperty(NAME)
+    private String name;
+    @JsonProperty(GROUP_POINTS)
+    private double score;
+    @JsonProperty(PICK_COUNT)
+    private int pickCount;
+
+    public QuestionSet(@JsonProperty(NAME) String name, @JsonProperty(GROUP_POINTS) double score) {
+        questions = new HashSet<>();
         this.name = name;
         this.score = score;
     }
 
-    public void setScore(double score) {
-        this.score = score;
+    public void addQuestion(Question question) {
+        questions.add(question);
+    }
+
+    public HashSet<Question> getQuestions() {
+        return questions;
+    }
+
+    public int getPickCount() {
+        return pickCount;
     }
 
     public String getName() {
@@ -25,8 +41,12 @@ public class QuestionSet extends HashSet<Question> implements Serializable {
         return score;
     }
 
+    public void setScore(double score) {
+        this.score = score;
+    }
+
     @Override
     public String toString() {
-        return name + ": " + super.toString();
+        return name + ": " + questions.toString();
     }
 }
