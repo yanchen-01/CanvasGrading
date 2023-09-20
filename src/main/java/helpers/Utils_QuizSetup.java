@@ -119,7 +119,6 @@ public class Utils_QuizSetup {
 
             String error = fileInfo.getError();
             if (fileInfo.isJFF() && (error.isEmpty() || error.equals(NOT_DFA))) {
-                System.out.println("hey!");
                 fileInfo.setFolder(JFF_FILES);
                 Utils.makeFolder(fileInfo.getFolder());
                 fileInfo.setExt(".jff");

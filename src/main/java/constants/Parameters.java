@@ -26,7 +26,7 @@ public class Parameters {
             this.courseID = courseID;
             this.testStudent = testStudent;
             this.each = each;
-            calculator = courseID == 1566538;
+            calculator = courseID == 1572295;
         }
     }
 }
