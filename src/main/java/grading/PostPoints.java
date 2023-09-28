@@ -102,7 +102,7 @@ public class PostPoints {
             double points;
             if (name.matches(MIDTERM))
                 points = score / total >= 0.5 ? 3 : 0;
-            else if (total > 10)
+            else if (total > 5)
                 points = score / total * CLASS.each;
             else points = score;
             STUDENTS.computeIfPresent(studentID, (k, v) -> v + points);
