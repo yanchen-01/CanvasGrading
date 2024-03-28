@@ -197,7 +197,7 @@ function downloadRubrics() {
 Grading related
  */
 function downloadGrading() {
-    graded.length = 0;
+    //graded.length = 0;
     const qNum = document.getElementById("qNum").innerText;
     let data = "";
     let score = document.getElementById("score").innerText;

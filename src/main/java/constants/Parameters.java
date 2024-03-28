@@ -14,9 +14,9 @@ public class Parameters {
     public static final String CAL_URL = "https://github.com/yanchen-01/154Cal.git";
     // TODO: need to think if this can be moved to PostPoints.java
     public enum COURSE {
-        CS154(1572295, 4597666, 1.5),
+        CS154(1578442, 4607163, 1.5),
         CS46A(1570694, 4598868, 2),
-        CS46(1557385, 4574237, 1);
+        CS175(1578812, 4607217, 1);
 
         public final int courseID;
         public final int testStudent;
@@ -26,7 +26,7 @@ public class Parameters {
             this.courseID = courseID;
             this.testStudent = testStudent;
             this.each = each;
-            calculator = courseID == 1572295;
+            calculator = courseID == 1578442;
         }
     }
 }

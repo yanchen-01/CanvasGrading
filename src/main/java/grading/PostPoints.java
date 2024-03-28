@@ -49,7 +49,7 @@ public class PostPoints {
     }
 
     static void getParams(Scanner in) {
-        Utils.printPrompt("Course num (CS154 or CS46A)");
+        Utils.printPrompt("Course num (CS154 or CS175)");
         String courseNum = in.nextLine().toUpperCase();
         courseNum = courseNum.contains("CS") ? courseNum : "CS" + courseNum;
         CLASS = COURSE.valueOf(courseNum);
@@ -128,8 +128,8 @@ public class PostPoints {
         UPDATE_TIME = Utils.formatDate(new Date());
         updateDescription();
         updateHomepage();
-        if (CLASS.calculator)
-            updateCalculator(in);
+//        if (CLASS.calculator)
+//            updateCalculator(in);
         Utils.printDoneProcess("Posting done. Double-check on Canvas");
     }
 

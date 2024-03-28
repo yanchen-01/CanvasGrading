@@ -49,9 +49,9 @@ public class GradeDiscussions {
         Utils.printProgress("Grading " + name);
 
         String url = assignment.getHtmlUrl();
-        url = Utils.getApiUrl(url) + "/submissions?per_page=200";
+        url = Utils.getApiUrl(url) + "/submissions";
 
-        Submission[] submissions = Utils.getObjFromURL(url, Submission[].class);
+        Submission[] submissions = Utils.getObjFromURL(url + "?per_page=200", Submission[].class);
         for (Submission submission : submissions) {
             if (submission.getStatus().equals("unsubmitted")
                     || submission.getStatus().equals("graded"))
@@ -60,7 +60,7 @@ public class GradeDiscussions {
             String data = String.format("""
                     {
                         "submission": {
-                            "posted_grade":%.1f
+                            "posted_grade":"%.1f"
                         }
                     }
                     """, score);

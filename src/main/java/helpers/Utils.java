@@ -48,6 +48,10 @@ public class Utils {
 
     public static <T> T getObjFromURL(String url, Class<T> obj) throws JsonProcessingException {
         String data = Utils_HTTP.getData(url);
+        return getObjFromString(data, obj);
+    }
+
+    public static <T> T getObjFromString(String data, Class<T> obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return mapper.readValue(data, obj);

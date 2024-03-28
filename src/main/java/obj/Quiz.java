@@ -201,7 +201,7 @@ public class Quiz {
 
         String url = this.url + "/groups/" + groupID;
         QuestionSet group = Utils.getObjFromURL(url, QuestionSet.class);
-        String name = group.getName();
+        String name = group.getName().replace("/", "_");
         double score = group.getScore();
         int pickCount = group.getPickCount();
         if (pickCount != 1) {

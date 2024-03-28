@@ -40,14 +40,6 @@ public class QuestionScore {
     }
 
     /**
-     * Setter for comment (no calculation, just set the comment)
-     * @param comment comment for the question
-     */
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    /**
      * Add a line of comment (with pts calculation)
      *
      * @param comment the comment to be added
@@ -68,5 +60,41 @@ public class QuestionScore {
             pts += deduction;
             this.comment += comment + "\n";
         }
+    }
+
+    /**
+     * Getter for question id.
+     *
+     * @return the question id.
+     */
+    public String getqID() {
+        return qID;
+    }
+
+    /**
+     * Getter for points.
+     *
+     * @return the points.
+     */
+    public double getPts() {
+        return pts;
+    }
+
+    /**
+     * Getter for comment.
+     *
+     * @return the comment.
+     */
+    public String getComment() {
+        return comment;
+    }
+
+    /**
+     * Setter for comment (no calculation, just set the comment)
+     *
+     * @param comment comment for the question
+     */
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
