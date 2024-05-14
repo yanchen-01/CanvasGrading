@@ -90,7 +90,7 @@ public class Utils {
     }
 
     public static void printDoneProcess(String step) {
-        System.out.println("\u2713 " + step + ".");
+        System.out.println("✓ " + step + ".");
     }
 
     public static int getOption(Scanner in, String prompt) {
@@ -324,6 +324,19 @@ public class Utils {
             throw new FileNotFoundException("'" + pathname + "' folder doesn't exist!");
         for (File file : listOfFiles)
             op.operate(file);
+    }
+
+
+    public static void renameFiles(String pathname, FileRename rename) throws FileNotFoundException {
+        goThroughFiles(file -> renameFile(rename, file), pathname);
+    }
+
+    private static void renameFile(FileRename rename, File input) {
+        String oldName = input.getName();
+        String newName = rename.newName(input);
+        if (newName == null) return;
+        if (!input.renameTo(new File(newName)))
+            Utils.printWarning("fail to rename '%s' to '%s'\n", null, oldName, newName);
     }
 
     /**

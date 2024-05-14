@@ -37,7 +37,7 @@ public class Utils_QuizSetup {
         Utils.printPrompt("folder name for submissions");
         String folder = in.nextLine();
         Utils.printProgress("Organizing submitted files");
-        Utils.goThroughFiles(Utils_QuizSetup::organize, folder);
+        Utils.renameFiles(folder, Utils_QuizSetup::rename);
         Utils.printDoneProcess("Submission files organized");
     }
 
@@ -91,13 +91,13 @@ public class Utils_QuizSetup {
         Utils.printDoneProcess("All files needed generated");
     }
 
-    private static void organize(File file) {
-        if (!file.isFile()) return;
+    private static String rename (File file) {
+        if (!file.isFile()) return null;
         String oldName = file.getName();
         // name format: nameSID_question_qID_otherInfo
         if (oldName.contains("student_test")
                 || !oldName.matches("\\D+\\d+_question_\\d+_.*"))
-            return;
+            return null;
         try {
             FileInfo fileInfo = new FileInfo(oldName);
             fileInfo.setFolder(SUBMISSIONS_FOLDER);
@@ -125,12 +125,11 @@ public class Utils_QuizSetup {
             }
             if (!fileInfo.getError().isEmpty())
                 ERRORS.put(studentInfo, error);
-            String newName = fileInfo.getFullName();
-            if (!file.renameTo(new File(newName)))
-                Utils.printWarning("fail to rename '%s' to '%s'\n", null, oldName, newName);
+            return fileInfo.getFullName();
 
         } catch (Exception e) {
             Utils.printWarning("sth wrong for file '%s'", e, oldName);
+            return null;
         }
     }
 
@@ -151,7 +150,7 @@ public class Utils_QuizSetup {
                 String currentQ = HEADERS[i];
                 // If not the latest attempt, go to next row
                 if (currentQ.equals("attempt")
-                        && !current[i].equals(submission.getAttempt() + ""))
+                        && !current[i].equals(String.valueOf(submission.getAttempt())))
                     break;
                 // If not a question column, continue to the next column
                 if (!currentQ.contains(":")) continue;
