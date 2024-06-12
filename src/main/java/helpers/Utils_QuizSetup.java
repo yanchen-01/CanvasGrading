@@ -190,7 +190,7 @@ public class Utils_QuizSetup {
                     || (answer.isBlank() && pt == 0)
                     || (type.equals(MC) && pt != t && pt != 0.0))
                 return new QuestionScore(qID_string, 0.0);
-            else
+            else if (pt == 0) // skip the graded
                 handleShortAnswer(question, submission, i, answer);
             return null;
 
