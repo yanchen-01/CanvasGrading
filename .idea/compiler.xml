@@ -9,8 +9,5 @@
         <module name="CanvasGrading" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="CanvasGrading" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>
