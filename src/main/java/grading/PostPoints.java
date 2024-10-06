@@ -96,8 +96,7 @@ public class PostPoints {
             int studentID = submission.getUserID();
             String status = submission.getStatus();
 
-            if (studentID == CLASS.testStudent
-                    || !status.equals(GRADED)) continue;
+            if (!status.equals(GRADED)) continue;
             double score = submission.getScore();
             double points;
             if (name.matches(MIDTERM))
@@ -105,6 +104,11 @@ public class PostPoints {
             else if (total > 5)
                 points = score / total * CLASS.each;
             else points = score;
+            if (studentID == CLASS.testStudent) {
+                System.out.printf("Test student: %.2f / %.2f * %.1f = %.2f",
+                        score, total, CLASS.each, points);
+                continue;
+            }
             STUDENTS.computeIfPresent(studentID, (k, v) -> v + points);
             STUDENTS.putIfAbsent(studentID, points);
         }
@@ -162,7 +166,7 @@ public class PostPoints {
             String content = current.ownText();
             String color = current.attr("style");
             Assignment assignment = CALCULATED.get(content);
-            if (!color.equals("color: #95a5a6;")) {
+            if (!color.equals("color: #95a5a6;") && !color.equals("color: #7e8c8d;")) {
                 spanColor = color;
             } else if (assignment != null) {
                 newPosted.append(" & ").append(assignment.getAbbr(assignment.getShortName()));
