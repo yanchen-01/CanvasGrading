@@ -16,10 +16,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static constants.JsonKeywords.GRADED;
 import static constants.Parameters.*;
@@ -105,7 +102,7 @@ public class PostPoints {
                 points = score / total * CLASS.each;
             else points = score;
             if (studentID == CLASS.testStudent) {
-                System.out.printf("Test student: %.2f / %.2f * %.1f = %.2f",
+                System.out.printf("Test student: %.2f / %.2f * %.1f = %.2f\n",
                         score, total, CLASS.each, points);
                 continue;
             }

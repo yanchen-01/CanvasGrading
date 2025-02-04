@@ -29,7 +29,7 @@ public class Utils_HTML {
             result.append("<br>");
             String line = scan.nextLine();
             // Use reluctant quantifiers to remove each [LaTeX :...]
-            line = line.replaceAll("\\[(LaTeX:)?.*?]", "");
+            line = line.replaceAll("\\[LaTeX:.*?]", "");
             Scanner lineScan = new Scanner(line);
             while (lineScan.hasNext()) {
                 String current = lineScan.next();
