@@ -75,6 +75,8 @@ public class PostPoints {
                 continue;
 
             calculatePoints(assignment);
+            // skip putting redo in to calculated
+            if (name.contains("Redo")) continue;
             CALCULATED.put(assignment.getShortName(), assignment);
         }
 

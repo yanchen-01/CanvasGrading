@@ -46,6 +46,11 @@ public class Assignment {
     }
 
     public String getAbbr(String shortName) {
+        if (shortName.equals("Midterm Participation")) {
+            return "MT";
+        }
+
+        shortName = shortName.replace("Midterm", "Mid Term");
         String[] info = shortName.split(" ");
         StringBuilder result = new StringBuilder();
         for (String s : info) {
@@ -80,7 +85,9 @@ public class Assignment {
     }
 
     public String getShortName() {
-        return name.replaceAll(" -.+", "");
+        String shortName = name.replaceAll(" -.+", "");
+        return shortName.equals("Midterm") ?
+                "Midterm Participation" : shortName;
     }
 
     public ArrayList<Rubric> getRubrics() {
