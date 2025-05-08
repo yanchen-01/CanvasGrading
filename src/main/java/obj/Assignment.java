@@ -46,18 +46,20 @@ public class Assignment {
     }
 
     public String getAbbr(String shortName) {
-        if (shortName.equals("Midterm Participation")) {
-            return "MT";
-        }
-
-        shortName = shortName.replace("Midterm", "Mid Term");
-        String[] info = shortName.split(" ");
-        StringBuilder result = new StringBuilder();
-        for (String s : info) {
-            result.append(s.matches("\\d+") ?
-                    s : s.charAt(0));
-        }
-        return result.toString();
+        return switch (shortName) {
+            case "Midterm Participation" -> "MT";
+            case "Final Exam Time Survey" -> "Survey";
+            default -> {
+                shortName = shortName.replace("Midterm", "Mid Term");
+                String[] info = shortName.split(" ");
+                StringBuilder result = new StringBuilder();
+                for (String s : info) {
+                    result.append(s.matches("\\d+") ?
+                            s : s.charAt(0));
+                }
+                yield result.toString();
+            }
+        };
     }
 
     public String getHtmlUrl() {
@@ -86,8 +88,11 @@ public class Assignment {
 
     public String getShortName() {
         String shortName = name.replaceAll(" -.+", "");
-        return shortName.equals("Midterm") ?
-                "Midterm Participation" : shortName;
+        return switch (shortName) {
+            case "Midterm" -> "Midterm Participation";
+            case "Final Exam Time" -> "Final Exam Time Survey";
+            default -> shortName;
+        };
     }
 
     public ArrayList<Rubric> getRubrics() {

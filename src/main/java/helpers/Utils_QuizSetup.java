@@ -232,7 +232,10 @@ public class Utils_QuizSetup {
         }
 
         String filename = "../" + FILES.get(s);
-        if (!filename.endsWith(".jff")) {
+        if (filename.endsWith(".jar")) {
+            result += filename;
+        }
+        else if (!filename.endsWith(".jff")) {
             String embedFile = Utils_HTML.getHTMLEmbed(filename, 350);
             result = result.isEmpty() ? embedFile
                     : result + "<br>" + embedFile;

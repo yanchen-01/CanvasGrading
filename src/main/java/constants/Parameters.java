@@ -5,7 +5,7 @@ public class Parameters {
     public static String QUIZ_URL = ""; // TODO: remove this
     public static String API = "https://sjsu.instructure.com/api/v1";
     public static String REPORT_NAME = "temp-report";
-    public static final String ASSIGNMENTS = "(Programming )?(Assignment|Exercise|Birthday Problem Experiment).*";
+    public static final String ASSIGNMENTS = "(Programming )?(Assignment|Exercise|Birthday Problem Experiment|Final Exam Time).*";
     public static final String MIDTERM = "Midterm.*";
     public static final String API_TOKEN = "TOKEN";
     public static final String USERNAME = "GIT_USER_NAME";

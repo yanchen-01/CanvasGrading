@@ -65,7 +65,7 @@ public class PostPoints {
                 continue;
             }
             // Skip others things that need to be skipped
-            if (name.contains("Final") || name.contains("Term")
+            if (name.equals("Final Exam") || name.contains("Term")
                     || !assignment.isHasGraded() || assignment.getUngraded() != 0)
                 continue;
             if (!DISCUSSION && !(name.matches(MIDTERM) || name.matches(ASSIGNMENTS)))
@@ -98,19 +98,32 @@ public class PostPoints {
             if (!status.equals(GRADED)) continue;
             double score = submission.getScore();
             double points;
-            if (name.matches(MIDTERM))
-                points = score / total >= 0.5 ? 3 : 0;
-            else if (total > 5)
+            if (score == 0)
+                points = 0;
+            else if (name.matches(MIDTERM))
+                points = score >= 50? 3 : 0;
+            else if (name.contains("Assignment 13"))
+                points = score >= 25? 1.5 : 0.5;
+            else if (total > 2)
                 points = score / total * CLASS.each;
             else points = score;
+
             if (studentID == CLASS.testStudent) {
-                System.out.printf("Test student: %.2f / %.2f * %.1f = %.2f\n",
-                        score, total, CLASS.each, points);
+                printResults(name, score, total, points);
                 continue;
             }
             STUDENTS.computeIfPresent(studentID, (k, v) -> v + points);
             STUDENTS.putIfAbsent(studentID, points);
         }
+    }
+
+    static void printResults(String name, double score, double total, double points) {
+        if (score == points || name.matches(MIDTERM) || name.contains("Assignment 13")) {
+            System.out.printf("Test student: %.2f / %.2f -> %.2f \n", score, total, points);
+        }
+        else
+            System.out.printf("Test student: %.2f / %.2f * %.1f = %.2f\n",
+                score, total, CLASS.each, points);
     }
 
     static void post(Scanner in) throws IOException {
