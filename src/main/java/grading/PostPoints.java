@@ -24,6 +24,7 @@ import static constants.Parameters.*;
 public class PostPoints {
     static final String TIME_PLACEHOLDER = "[[UPDATE TIME]]";
     static HashMap<Integer, Double> STUDENTS;
+    static HashSet<Integer> MT1_EXCEPTIONS, MT2_EXCEPTIONS;
     static COURSE CLASS;
     static int EC_ID;
     static String API_URL, UPDATE_TIME, NEW_EC_DES;
@@ -34,6 +35,10 @@ public class PostPoints {
     public static void main(String[] args) {
         STUDENTS = new HashMap<>();
         CALCULATED = new HashMap<>();
+        Integer[] mt1Exceptions = {4590751, 4550372, 4628329, 4590740};
+        Integer[] mt2Exceptions = {4547009, 4592757, 4628329, 4590740};
+        MT1_EXCEPTIONS = new HashSet<>(Arrays.asList(mt1Exceptions));
+        MT2_EXCEPTIONS = new HashSet<>(Arrays.asList(mt2Exceptions));
         Utils.runFunctionality(PostPoints::extraCredit);
     }
 
@@ -65,7 +70,7 @@ public class PostPoints {
                 continue;
             }
             // Skip others things that need to be skipped
-            if (name.equals("Final Exam") || name.contains("Term")
+            if (name.equals("Final Exam") || name.contains("Term Project") || name.contains("Assignment")
                     || !assignment.isHasGraded() || assignment.getUngraded() != 0)
                 continue;
             if (!DISCUSSION && !(name.matches(MIDTERM) || name.matches(ASSIGNMENTS)))
@@ -100,6 +105,10 @@ public class PostPoints {
             double points;
             if (score == 0)
                 points = 0;
+            else if (name.matches("Midterm 1.*"))
+                points = score >= 24 || MT1_EXCEPTIONS.contains(studentID)? 3 : 0;
+            else if (name.matches("Midterm 2.*"))
+                points = score >= 24 || MT2_EXCEPTIONS.contains(studentID)? 3 : 0;
             else if (name.matches(MIDTERM))
                 points = score >= 50? 3 : 0;
             else if (name.contains("Assignment 13"))
@@ -107,7 +116,6 @@ public class PostPoints {
             else if (total > 2)
                 points = score / total * CLASS.each;
             else points = score;
-
             if (studentID == CLASS.testStudent) {
                 printResults(name, score, total, points);
                 continue;
@@ -144,8 +152,8 @@ public class PostPoints {
         UPDATE_TIME = Utils.formatDate(new Date());
         updateDescription();
         updateHomepage();
-//        if (CLASS.calculator)
-//            updateCalculator(in);
+// if (CLASS.calculator)
+// updateCalculator(in);
         Utils.printDoneProcess("Posting done. Double-check on Canvas");
     }
 
@@ -216,7 +224,7 @@ public class PostPoints {
         ObjectNode result = mapper.createObjectNode();
         result.putObject("assignment")
                 .put("description", NEW_EC_DES);
-//        Utils_HTML.writeToHTMLFile("des", NEW_EC_DES);
+// Utils_HTML.writeToHTMLFile("des", NEW_EC_DES);
         Utils_HTTP.putData(url, result.toString());
         Utils.printDoneProcess("Extra credits assignment description updated");
     }
@@ -246,7 +254,7 @@ public class PostPoints {
         result.putObject("wiki_page")
                 .put("body", doc.body().html());
         Utils_HTTP.putData(url, result.toString());
-//        Utils_HTML.writeToHTMLFile("home", doc.html());
+// Utils_HTML.writeToHTMLFile("home", doc.html());
         Utils.printDoneProcess("Home page updated");
     }
 
