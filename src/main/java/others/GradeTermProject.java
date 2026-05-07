@@ -6,10 +6,9 @@ import jff.Utils_JFF;
 
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GradeTermProject {
 
@@ -27,12 +26,52 @@ public class GradeTermProject {
         int option = Utils.getOption(in, """
                 one option (1 or 2):
                 1. Setup;
-                2. Write Results""");
-        Utils.checkOption(option, 2);
+                2. Write Results
+                3. Shuffle test cases;""");
+        Utils.checkOption(option, 3);
         switch (option) {
             case 1 -> setUp(in);
             case 2 -> writeResult(in);
+            case 3 -> shuffleCases(in);
         }
+    }
+
+    static void shuffleCases(Scanner in) throws IOException {
+        String filename = Utils.askForParam(in, "filename of test cases (without .txt)");
+        StringBuilder fileContent = new StringBuilder();
+        try (Scanner scanner = new Scanner(new File(filename + ".txt"))) {
+            while (scanner.hasNextLine()) {
+                String current = scanner.nextLine();
+                String shuffled = shuffle(current);
+                Utils.printDoneProcess(current + " -> " + shuffled);
+                fileContent.append(shuffled);
+                if (scanner.hasNextLine())
+                    fileContent.append("\n");
+            }
+        }
+        Utils.printDoneProcess("All Shuffled");
+        final String FILENAME = "Temp-cases";
+        Utils.printProgress("Writing to " + FILENAME + ".txt");
+        Utils.writeToFile(FILENAME, fileContent.toString());
+        Desktop.getDesktop().open(new File(FILENAME + ".txt"));
+    }
+
+    static String shuffle(String current) {
+        int firstTIndex = current.indexOf('t');
+        int fIndex = current.indexOf('f');
+        String prefix = current.substring(0, firstTIndex);
+        String middle = current.substring(firstTIndex, fIndex);
+        String suffix = current.substring(fIndex);
+
+        Matcher matcher = Pattern.compile("t[01]+").matcher(middle);
+        ArrayList<String> transitions = new ArrayList<>();
+        while (matcher.find()) {
+            transitions.add(matcher.group());
+        }
+        Collections.shuffle(transitions);
+        String shuffled = String.join("", transitions);
+
+        return prefix + shuffled + suffix;
     }
 
     static void setUp(Scanner in) throws FileNotFoundException {
@@ -69,7 +108,7 @@ public class GradeTermProject {
                 String current = scanner.nextLine();
                 if (current.contains("(")) wrong++;
                 else if (!current.contains("A")
-                    && !current.contains("R"))
+                        && !current.contains("R"))
                     System.out.println(file.getName() + "seems empty");
             }
 
